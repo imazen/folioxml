@@ -1,0 +1,28 @@
+# These files are text and should be normalized (Convert crlf => lf)
+*.md            eol=crlf
+*.csv           eol=crlf
+*.css           eol=lf
+*.htm           eol=lf diff=html
+*.html          eol=lf diff=html
+*.java          eol=lf diff=java
+*.js            eol=lf
+*.json          eol=lf
+*.properties    eol=crlf
+*.txt           eol=crlf
+*.fff           eol=crlf
+*.xml           eol=lf
+
+# These files are binary and should be left untouched
+# (binary is a macro for -text -diff)
+*.class         binary
+*.dll           binary
+*.ear           binary
+*.gif           binary
+*.ico           binary
+*.jar           binary
+*.jpg           binary
+*.jpeg          binary
+*.png           binary
+*.so            binary
+*.war           binary
+

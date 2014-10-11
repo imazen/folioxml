@@ -1,0 +1,38 @@
+# Test & program output
+out/**
+/files/
+
+#Bytecode
+bin/**
+*.class
+classes
+
+#Temp files
+tmp/**
+tmp/**/*
+.mtj.tmp/
+.DS_Store
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+#idea files
+workspace.xml
+.idea/workspace.xml 
+.idea/tasks.xml
+.idea/watcherTasks.xml
+.idea/dictionaries
+.idea/dataSources.ids
+.idea/dataSources.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+*.iws
+
+# Package Files #
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
