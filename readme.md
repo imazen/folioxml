@@ -1,9 +1,9 @@
 
 # What is this?
 
-This is a full lexer, parser, and cross-compiler (to SLX, XML, and Lucene indexes) for Folio Flat File databases. 
+This is a full streaming lexer, parser, and transpiler for Folio Flat File databases. Outputs include SLX, XML, HTML, and Lucene. Stream-based (not DOM-based) - can process gigabyes quickly with very low RAM use.
 
-The first conversion step is lossless, to a format called SLX. This this is like XML, but contains “ghost tags”, which come in pairs (with a matching GUID), and can start and end anywhere. This simplifies the ~120 keyword ~20 context language to ~12 keywords and normalized contexts.
+The first conversion step is lossless, to a format called SLX. This this is like XML, but contains “ghost tags”, which come in pairs (with a matching GUID), and can start and end anywhere. This simplifies the ~120 keyword ~20 context language to ~12 keywords and 2 contexts.
 
 The second conversion is from SLX to XML. This causes the ghost tags to be split, and is therefore nominally lossy, but lossless in reality.
 
@@ -28,6 +28,26 @@ This library makes it very easy to customize accurate transformations of both fo
         xh.close();
         srr.close();
 
+You can copy/paste or subclass DirectHtmlExporter to customize which node list processors you want to apply (core/folioxml/src/folioxml/export/html contains many options).
+
+DirectXhtmlExporter uses these by default
+
+        NodeList nodes =  MultiRunner.process(new NodeList(rx),
+                new RecordAnchorWriter(),
+                new BookmarksAndJumpLinks(), //Drop x-infobase links, fix jump links and destinations
+                new Images(), //Convert eligible object tags into img tags
+                new Notes(),  //Adds js notes
+                new Popups(), //Adds js popups
+                new FixImagePaths(""), //Switch to forward slashes
+                new SplitSelfClosingTags(),
+                new CleanupSlxStuff()); //Removes pagebreak|ss|pp, program links, span.recordHeading, record.groups, and renames group to div.
+        
+
+You might, for example, want to add EllipsisAndDashes, which converts ... and -- to the equivalent typographical characters.
+
+Our XML implementation offers regex-based search and replace that only affects text contents of nodes - and uses diff_match_patch underneath to minimize shift between container elements. VirutalCharSequence provides the abstraction for modifying the text of an XML tree as a single string. 
+
+
 ## Conversion with intermediate lucene index
 
 For conversion with query link resolution, see `contrib/folioxml-lucene/testsrc/folioxml/directexport/SimultaneousTest.java`
@@ -41,6 +61,21 @@ For conversion with query link resolution, see `contrib/folioxml-lucene/testsrc/
 * (folioxml-lucene only) lucene-core-3.3.0
 * (folioxml-lucene only) lucene-highlighter-3.3.0
 
+## Test infobase
+
+Folio Views includes an excellent test infobase, FolioHlp, which uses all documented infobase features. We cannot legally redistribute this due to copyright, but if you have Folio Views, you should have access to this. 
+
+## Exporting .nfo to .FFF
+
+When exporting to flat file, you should use the following options:
+
+* Check "Write comments to flat file"
+* Check "Write record IDs in record code <RD...>"
+* Check "Insert a definition include code <DI...>
+* Uncheck "Include full path to files referenced"
+* Set Default units: Inches.
+
+Folio Views and Folio Builder usually provide export functionality, although if the infobase is ‘restricted’, you may need to get permission from the publisher.
 
 ## License
 
