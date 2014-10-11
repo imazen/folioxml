@@ -1,0 +1,101 @@
+
+Folio defaults to AND for multiple keywords
+
+Folio uses quotes "" for exact phrase searching. However, wildcards can be used inside phrase searching
+
+Precendence is (), [], not, or, xor, and
+
+AND = &, " ", or AND
+OR = or, |
+NOT = not, ^
+XOR = xor, ~
+Parenthesis for grouping
+
+escape sequences \ { , | ? | * | [ | ] | : | \ } 
+
+
+Wildcards
+? = single character, required
+* = 0 or more
+$ = synonym (placed at end of word)
+% = word forms (stems). Keyword itself is converted to root.
+
+Proximity
+'/' is for ordered (words must appear in the same order)
+'@' is for unordered
+
+Finds records which contain folio help infobase, in that order, within a five word range.
+"folio help infobase"@14
+Finds records which contain all three terms, in any order, within a 14 word range.
+
+Instead of a number, use 'S' to search inside a sentence (record if no SE tags).
+P for paragraph proximity
+
+Record proximity
+#4 -> terms found within 4 sequential records. 
+
+Subset searching
+
+[Note ]
+[Highligher Name ]
+[Level Chapter: ]
+[Contents Fol
+
+
+
+
+
+Write all queries to a file, then analyze them. 
+
+set PATH=%PATH%;C:\Program Files (x86)\GnuWin32\bin\
+
+grep -o -E "query([^>]+)" "file.fff.xhtml"
+
+
+
+
+Build a lucene infobase, 
+
+Make a QueryTranslator class to translate the queries to lucene syntax. Place in table.translation package, but use it at the direct export layer temporarily for testing
+
+Make a QueryResolver class (XML processing) that takes a lucene index as an argument. 
+
+Verify each record has an embedded anchor ID. 
+
+
+Notes: they often forget [Field, use [ Field, or omit 'field' altogether.
+
+single quotes are used instead of double quotes usually. double quotes are often nested inside single quotes, as are < and >
+
+Sweet, they don't use anything except field queries
+\[\s*(Note|Highlighter|Contents|Level|Headings|Rank|Server|Weight|Domain|Partition|Group|Popup)
+
+
+[\~\@\%\#\/\$]
+
+Implement and, or, not, fields, groups, quoted string (escaped by pairs). 
+Escape things that are significant to lucene, like '-'.
+
+Field Name:: should act normal.
+
+
+Tokens
+
+
+(
+)
+[
+]
+& -> nil
+and -> nil
+|, or, -> OR
+~, xor -> XOR
+^, not -> NOT
+\s+ -> nil
+:{1,2} -> fieldsep 
+term
+([^\s\"\']|
+
+
+
+NOT, OR, and XOR will be left in the token stream. A post-process will be used to 
