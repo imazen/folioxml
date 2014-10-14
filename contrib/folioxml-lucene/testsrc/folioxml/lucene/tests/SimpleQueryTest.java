@@ -17,6 +17,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
 import java.io.File;
@@ -39,7 +40,7 @@ public class SimpleQueryTest {
         Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_33);
 
         // Store the index in memory:
-        //Directory directory = new RAMDirectory();
+        Directory directory = new RAMDirectory();
         // To store an index on disk, use this instead:
         
         //Directory directory = FSDirectory.open(new File("path-to-index"));
