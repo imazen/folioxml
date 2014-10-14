@@ -1,6 +1,6 @@
 language: java
 jdk: oraclejdk7
-script: mvn clean verify -U -B -fae 
+script: mvn clean verify -U -B -fae -DskipTests
 
 branches:
   only:
