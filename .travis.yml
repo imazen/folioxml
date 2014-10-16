@@ -1,7 +1,19 @@
 language: java
 jdk: oraclejdk7
-script: mvn clean verify assembly:single -U -B -fae -DskipTests
-
+script: mvn clean verify assembly:single -U -B -fae
+before_script:
+- sudo apt-get update
+- sudo apt-get install s3cmd
+- echo "secret_key = $AWS_SECRET" >>.s3cfg
+- echo "access_key = $AWS_ACCESS" >>.s3cfg
+- s3cmd --config=.s3cfg get s3://unit-test-resources/FolioHlp.zip FolioHlp.zip
+- "./mkres.sh"
+after_script:
+- rm -rf FolioHlp.zip path files
 branches:
   only:
   - mavenbuild
+env:
+  global:
+  - secure: NukEtngbx/KbU9JW/0t2/3TK7kXZPSaMhmrGFGoqWSo9cXS2Pdz+mzEBaP+eMgPyilMmdwX1Bqms1OmKduPneATbjlAIE0leXJKnFBw3GRi4Eyhi1qdBnZeAYTWv7gvIKN4oVCA3/WU5qxF9mgIiKmhI4JJvxKPy4ltKEGKQDl8=
+  - secure: LwV8XvftoGgu8VssCwT02AK/MVoDXc20xF1O8snk/6toT1/bRNnYMULKtb/SOb1Fs59Bhhq1NOmBOyuBZhR1KslZ2ozfmBJuP4a/7Hn9EpAWhNx1/1tL4N8ALmxD4q0LRc0N2QLiSkH9HOft0qzM1NuwiH9Ts19gGh0nhSWkPWQ=

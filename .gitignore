@@ -18,6 +18,8 @@ bin/**
 *.class
 classes
 
+# Folio
+FolioHlp.zip
 #Temp files
 tmp/**
 tmp/**/*
