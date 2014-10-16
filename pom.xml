@@ -29,15 +29,17 @@
 		<commons.lang.version>2.4</commons.lang.version>
 		<lucene.core.version>3.3.0</lucene.core.version>
 		<lucene.highlighter.version>3.3.0</lucene.highlighter.version>
+		<snakeyaml.version>1.14</snakeyaml.version>
+		<aws.version>1.0.002</aws.version>
 	</properties>
-	
+
 	<modules>
 		<module>commandline</module>
 		<module>contrib</module>
 		<module>core</module>
 		<module>diff_match_patch</module>
 	</modules>
-	
+
 
 	<dependencies>
 		<dependency>
@@ -83,6 +85,16 @@
 				<artifactId>lucene-highlighter</artifactId>
 				<version>${lucene.highlighter.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.yaml</groupId>
+				<artifactId>snakeyaml</artifactId>
+				<version>${snakeyaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.amazonaws</groupId>
+				<artifactId>aws-java-sdk</artifactId>
+				<version>${aws.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -104,18 +116,18 @@
 				<version>${maven.surefire.version}</version>
 			</plugin>
 			<plugin>
-      				<artifactId>maven-assembly-plugin</artifactId>
-      				<configuration>
-        			<archive>
-          				<manifest>
-            					<mainClass>folioxml.command.Main</mainClass>
-          				</manifest>
-        			</archive>
-        			<descriptorRefs>
-          				<descriptorRef>jar-with-dependencies</descriptorRef>
-        			</descriptorRefs>
-      				</configuration>
-    			</plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>folioxml.command.Main</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
