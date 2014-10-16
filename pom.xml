@@ -30,7 +30,6 @@
 		<lucene.core.version>3.3.0</lucene.core.version>
 		<lucene.highlighter.version>3.3.0</lucene.highlighter.version>
 		<snakeyaml.version>1.14</snakeyaml.version>
-		<aws.version>1.0.002</aws.version>
 	</properties>
 
 	<modules>
@@ -89,11 +88,6 @@
 				<groupId>org.yaml</groupId>
 				<artifactId>snakeyaml</artifactId>
 				<version>${snakeyaml.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.amazonaws</groupId>
-				<artifactId>aws-java-sdk</artifactId>
-				<version>${aws.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

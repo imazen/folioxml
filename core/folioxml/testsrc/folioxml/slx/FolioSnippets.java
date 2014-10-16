@@ -3,6 +3,7 @@ package folioxml.slx;
 import folioxml.core.StringIncludeResolver;
 import folioxml.folio.FolioTokenReader;
 import folioxml.utils.ConfUtil;
+import folioxml.utils.YamlUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +14,7 @@ import java.nio.CharBuffer;
 
 public class FolioSnippets {
 	
-	public static final String folioHelpFFF = ConfUtil.getFFFPath("folio-help");
+	public static final String folioHelpFFF = YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath());
 	public static final String folioHelpDEF = folioHelpFFF.replace(".FFF", ".DEF");
 	
 	

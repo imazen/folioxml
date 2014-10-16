@@ -17,6 +17,7 @@ import org.junit.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.directexport.SimultaneousTest;
 import folioxml.utils.ConfUtil;
+import folioxml.utils.YamlUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -81,7 +82,7 @@ public class SearchTest {
          start = new Date().getTime();
         //Directory dir = FSDirectory.getDirectory(PathProvider.getDataDir());
         // Now search the index. If you pass in a directory instance, you are responsible for closing it. If you pass in a path, it will open and close the directory instance itself.
-         String indexDir = ConfUtil.getFFFPath("folio-help").replace(".", "_");
+         String indexDir = YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()).replace(".", "_");
         IndexSearcher isearcher = new IndexSearcher(FSDirectory.open(new File(indexDir)));
         System.out.println("creating index searcher took " + ( new Date().getTime() - start) + " milliseconds");
         

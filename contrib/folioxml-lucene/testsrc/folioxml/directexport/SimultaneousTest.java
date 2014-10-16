@@ -15,6 +15,7 @@ import folioxml.slx.SlxRecord;
 import folioxml.slx.SlxRecordReader;
 import folioxml.tools.OutputRedirector;
 import folioxml.utils.ConfUtil;
+import folioxml.utils.YamlUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,12 +28,12 @@ public class SimultaneousTest {
 	
 	@Test @Ignore
 	public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		Index(ConfUtil.getFFFPath("folio-help"));
+		Index(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
 	}
 	
 	@Test @Ignore
 	public void ExportHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		Export(ConfUtil.getFFFPath("folio-help"));
+		Export(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
 		
 		
 	}

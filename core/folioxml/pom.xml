@@ -13,15 +13,19 @@
 	<packaging>jar</packaging>
 
 	<name>folioxml</name>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>folioxml</groupId>
 			<artifactId>diff_match_patch</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>testsrc</testSourceDirectory>
@@ -30,6 +34,7 @@
 				<directory>src</directory>
 				<includes>
 					<include>**/*.properties</include>
+					<include>**/*.yaml</include>
 				</includes>
 				<excludes>
 					<exclude>**/*.java</exclude>

@@ -1,9 +1,11 @@
 package folioxml.folio;
 
 import org.junit.Test;
+
 import folioxml.core.FileIncludeResolver;
 import folioxml.utils.ConfUtil;
 import folioxml.utils.Stopwatch;
+import folioxml.utils.YamlUtil;
 
 import java.io.File;
 import java.io.FileReader;
@@ -16,7 +18,7 @@ public class FolioTokenReaderTestFile {
 
     @Test
     public void baselineRead() throws Exception{
-        File f = new File(ConfUtil.getFFFPath("folio-help"));
+        File f = new File(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
         System.out.println("Starting");
 
         FileReader fr = new FileReader(f);
@@ -29,7 +31,7 @@ public class FolioTokenReaderTestFile {
     }
     @Test
     public void TestFile() throws Exception{
-        File f = new File(ConfUtil.getFFFPath("folio-help"));
+        File f = new File(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
         System.out.println("Starting");
 
         FileReader fr = new FileReader(f);
