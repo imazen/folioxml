@@ -10,9 +10,6 @@ before_script:
 - "./mkres.sh"
 after_script:
 - rm -rf FolioHlp.zip path files
-branches:
-  only:
-  - mavenbuild
 env:
   global:
   - secure: "vww7E2brbU9oNj/inaKG8icdNZAPOluaBEmQsEW3XsXtIsTozzB6rmM3qSXXsQyOJnXJb/wT3tuoRgyIle6mIDSYTsiqBX/25So4Ng1m3NlXvwUE/DEtTS9zQ6zQD1C9O+WTfViCqfIAUhE0gRZ3oUBbBvmTSzzBnQcdXmqli7E="
