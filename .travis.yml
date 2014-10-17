@@ -15,5 +15,5 @@ branches:
   - mavenbuild
 env:
   global:
-  - secure: NukEtngbx/KbU9JW/0t2/3TK7kXZPSaMhmrGFGoqWSo9cXS2Pdz+mzEBaP+eMgPyilMmdwX1Bqms1OmKduPneATbjlAIE0leXJKnFBw3GRi4Eyhi1qdBnZeAYTWv7gvIKN4oVCA3/WU5qxF9mgIiKmhI4JJvxKPy4ltKEGKQDl8=
-  - secure: LwV8XvftoGgu8VssCwT02AK/MVoDXc20xF1O8snk/6toT1/bRNnYMULKtb/SOb1Fs59Bhhq1NOmBOyuBZhR1KslZ2ozfmBJuP4a/7Hn9EpAWhNx1/1tL4N8ALmxD4q0LRc0N2QLiSkH9HOft0qzM1NuwiH9Ts19gGh0nhSWkPWQ=
+  - secure: "vww7E2brbU9oNj/inaKG8icdNZAPOluaBEmQsEW3XsXtIsTozzB6rmM3qSXXsQyOJnXJb/wT3tuoRgyIle6mIDSYTsiqBX/25So4Ng1m3NlXvwUE/DEtTS9zQ6zQD1C9O+WTfViCqfIAUhE0gRZ3oUBbBvmTSzzBnQcdXmqli7E="
+  - secure: "Wx1TaRBATk+3omGaBp45lLdwkDPRbBg7H7Bq8GMpfOMI0QT+gEulSJ9EE5p7Nztsox/ricjHDNNttmFyxVOskimCqs7BLtGS74ks+4oMk2dzLPz79kmGB8IdP5CCtijk3cv+/gSqxMKt4FGqx0HdQIIhY+02X5ZpyYWnz8gu3uE="
