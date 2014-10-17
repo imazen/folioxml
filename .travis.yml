@@ -1,6 +1,7 @@
 language: java
 jdk: oraclejdk7
 script: mvn clean verify assembly:single -U -B -fae
+cache: apt
 before_script:
 - sudo apt-get update
 - sudo apt-get install s3cmd
@@ -14,6 +15,7 @@ env:
   global:
   - secure: vww7E2brbU9oNj/inaKG8icdNZAPOluaBEmQsEW3XsXtIsTozzB6rmM3qSXXsQyOJnXJb/wT3tuoRgyIle6mIDSYTsiqBX/25So4Ng1m3NlXvwUE/DEtTS9zQ6zQD1C9O+WTfViCqfIAUhE0gRZ3oUBbBvmTSzzBnQcdXmqli7E=
   - secure: Wx1TaRBATk+3omGaBp45lLdwkDPRbBg7H7Bq8GMpfOMI0QT+gEulSJ9EE5p7Nztsox/ricjHDNNttmFyxVOskimCqs7BLtGS74ks+4oMk2dzLPz79kmGB8IdP5CCtijk3cv+/gSqxMKt4FGqx0HdQIIhY+02X5ZpyYWnz8gu3uE=
+before_deploy: git fetch --tags
 deploy:
   provider: releases
   api_key:
@@ -24,6 +26,7 @@ deploy:
     - "core/folioxml/target/folioxml-core.jar"
     - "contrib/folioxml-lucene/target/folioxml-lucene.jar"
     - "diff_match_patch/target/diff_match_patch.jar"
+  skip_cleanup: true
   on:
     repo: imazen/folioxml
     all_branches: true
