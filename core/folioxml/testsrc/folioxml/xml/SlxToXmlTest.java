@@ -1,15 +1,17 @@
 package folioxml.xml;
 
-import folioxml.slx.SlxToken;
+import java.io.File;
+import java.io.IOException;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
+
 import folioxml.core.InvalidMarkupException;
 import folioxml.slx.SlxRecord;
 import folioxml.slx.SlxRecordReader;
-import folioxml.utils.ConfUtil;
-
-import java.io.File;
-import java.io.IOException;
+import folioxml.slx.SlxToken;
+import folioxml.utils.YamlUtil;
 
 public class SlxToXmlTest {
 
@@ -30,7 +32,7 @@ public class SlxToXmlTest {
 	    System.out.println("Starting");
 	    
 	    //Create SLX valid reader
-	    SlxRecordReader srr = new SlxRecordReader(new File(ConfUtil.getFFFPath(configName)));
+	    SlxRecordReader srr = new SlxRecordReader(new File(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath())));
 	
 	    while(true){
 			SlxRecord r = srr.read();

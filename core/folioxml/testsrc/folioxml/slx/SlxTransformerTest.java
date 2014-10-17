@@ -1,10 +1,12 @@
 package folioxml.slx;
 
 import org.junit.Test;
+
 import folioxml.core.InvalidMarkupException;
 import folioxml.folio.FolioTokenReader;
 import folioxml.translation.SlxTranslatingReader;
 import folioxml.utils.ConfUtil;
+import folioxml.utils.YamlUtil;
 import folioxml.xml.SlxToXmlTransformer;
 
 import java.io.File;
@@ -22,8 +24,9 @@ public class SlxTransformerTest {
 	public void XmlExport(String configName)throws IOException, InvalidMarkupException{
     	
 	    System.out.println("Starting");
-	    FolioTokenReader ftr = new FolioTokenReader(new File(ConfUtil.getFFFPath(configName))); 
-	    FileOutputStream fos = new FileOutputStream(ConfUtil.getExportFile(configName,"Translation.slx",true)); 
+	    FolioTokenReader ftr = new FolioTokenReader(new File(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()))); 
+	    File file  = new File(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getExport(), true), "Translation.slx");
+	    FileOutputStream fos = new FileOutputStream(file); 
     	
 	    try{
 	    	SlxRecordReader srr = new SlxRecordReader(new SlxTranslatingReader(ftr));

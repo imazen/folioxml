@@ -5,6 +5,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.Version;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class TokenCombinerTest {
 	@Test
 	public void ShouldDie() throws IOException{
 		String text = "token1* token2 token3";
-		TestCombiner(new FolioEnuAnalyzer().tokenStream("field", new StringReader(text)),text.replace(' ', '-'));
+		TestCombiner(new FolioEnuAnalyzer().tokenStream("field", new StringReader(text)),"token1-token2-token3");
 	}
 	
 	

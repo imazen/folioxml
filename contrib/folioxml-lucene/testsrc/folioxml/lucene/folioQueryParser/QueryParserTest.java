@@ -5,7 +5,9 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
+import org.junit.Ignore;
 import org.junit.Test;
+
 import folioxml.lucene.analysis.folio.FolioEnuAnalyzer;
 import folioxml.lucene.analysis.folio.FolioEnuPhraseAnalyzer;
 import folioxml.core.InvalidMarkupException;
@@ -15,17 +17,17 @@ import java.io.*;
 public class QueryParserTest {
 
 
-	@Test
+	@Test @Ignore
 	public void TestQueryList() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException, ParseException{
 		TestQueryList(new StandardAnalyzer(Version.LUCENE_33), "queries-fixed.txt");
 	}
 	
-	@Test
+	@Test @Ignore
 	public void TestQueryListFolio() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException, ParseException{
 		TestQueryList(new FolioEnuAnalyzer(), "queries-fixed.txt");
 	}
 	
-	@Test
+	@Test @Ignore
 	public void TestQueryListFolioPhrase() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException, ParseException{
 		TestQueryList(new FolioEnuPhraseAnalyzer(), "queries-fixed.txt");
 	}

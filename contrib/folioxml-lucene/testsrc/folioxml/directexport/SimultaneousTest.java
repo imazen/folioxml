@@ -1,9 +1,12 @@
 package folioxml.directexport;
 
 import folioxml.export.html.ResolveQueryLinks;
+
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
+import org.junit.Ignore;
 import org.junit.Test;
+
 import folioxml.core.InvalidMarkupException;
 import folioxml.lucene.QueryResolverInfo;
 import folioxml.lucene.SlxIndexer;
@@ -11,6 +14,8 @@ import folioxml.lucene.SlxIndexingConfig;
 import folioxml.slx.SlxRecord;
 import folioxml.slx.SlxRecordReader;
 import folioxml.tools.OutputRedirector;
+import folioxml.utils.ConfUtil;
+import folioxml.utils.YamlUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,14 +26,14 @@ import java.util.Date;
 
 public class SimultaneousTest {
 	
-	@Test
+	@Test @Ignore
 	public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		Index("path-to-FolioHlp.FFF");	
+		Index(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void ExportHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		Export("path-to-FolioHlp.FFF");
+		Export(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
 		
 		
 	}

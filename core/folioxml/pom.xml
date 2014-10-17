@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>folioxml</groupId>
+		<artifactId>core</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<groupId>folioxml</groupId>
+	<artifactId>folioxml-core</artifactId>
+	<packaging>jar</packaging>
+
+	<name>folioxml</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>folioxml</groupId>
+			<artifactId>diff_match_patch</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<testSourceDirectory>testsrc</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.yaml</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+	</build>
+
+</project>

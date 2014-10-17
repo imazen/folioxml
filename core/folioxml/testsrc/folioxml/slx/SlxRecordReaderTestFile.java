@@ -1,6 +1,7 @@
 package folioxml.slx;
 
 import org.junit.Test;
+
 import folioxml.core.FileIncludeResolver;
 import folioxml.core.IIncludeResolutionService;
 import folioxml.core.InvalidMarkupException;
@@ -9,6 +10,7 @@ import folioxml.folio.FolioTokenReader;
 import folioxml.translation.SlxTranslatingReader;
 import folioxml.utils.ConfUtil;
 import folioxml.utils.Stopwatch;
+import folioxml.utils.YamlUtil;
 
 import java.io.*;
 
@@ -88,12 +90,13 @@ public class SlxRecordReaderTestFile{
     }
     public void core(boolean convert)throws IOException, InvalidMarkupException{
     	
-	    File f = new File(ConfUtil.getFFFPath("folio-help"));
+	    File f = new File(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
 	    System.out.println("Starting");
 	
 	    FileReader fr = new FileReader(f);
 	    BufferedWriter writer = null;
-	    if (convert) writer = new BufferedWriter(new FileWriter(ConfUtil.getExportFile("folio-help","folio-help-out.txt")));
+	    File file  = new File(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getExport()), "folio-help-out.txt");
+	    if (convert) writer = new BufferedWriter(new FileWriter(file));
 	    try{
 		    FolioTokenReader ftr = new FolioTokenReader(new FileReader(f),new FileIncludeResolver(f.getAbsolutePath()));
 		    SlxRecordReader srr = new SlxRecordReader(new SlxTranslatingReader(ftr));
