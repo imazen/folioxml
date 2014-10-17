@@ -1,3 +1,5 @@
+master: [![status](http://img.shields.io/travis/imazen/folioxml/master.svg)](https://travis-ci.org/imazen/folioxml/branches) most recent commit: [![status](http://img.shields.io/travis/imazen/folioxml.svg)](https://travis-ci.org/imazen/folioxml/branches) 
+
 
 # What is this?
 
