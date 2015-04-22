@@ -38,7 +38,18 @@ public class SimultaneousTest {
 		
 	}
 
-	
+    @Test @Ignore
+    public void IndexCustomFile() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+        Index(YamlUtil.getProperty(YamlUtil.getConfiguration().getCustomFile().getPath()));
+    }
+
+    @Test @Ignore
+    public void ExportCustomFile() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+        Export(YamlUtil.getProperty(YamlUtil.getConfiguration().getCustomFile().getPath()));
+
+
+    }
+
 	public void Index(String fffPath) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
     
 	    //Create SLX valid reader

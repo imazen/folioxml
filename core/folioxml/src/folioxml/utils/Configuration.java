@@ -3,6 +3,7 @@ package folioxml.utils;
 public class Configuration {
 	private Dirs folioHelp;
 	private Dirs folioXml;
+    private Dirs customFile;
 
 	public Configuration() {
 		super();
@@ -23,4 +24,12 @@ public class Configuration {
 	public void setFolioXml(Dirs folioXml) {
 		this.folioXml = folioXml;
 	}
+
+    public Dirs getCustomFile() {
+        return customFile;
+    }
+
+    public void setCustomFile(Dirs customFile) {
+        this.customFile = customFile;
+    }
 }
