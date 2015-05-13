@@ -524,6 +524,14 @@ public class FolioSlxTranslator{
     		
     		while(true){
     			if (i >= opts.size()) break;
+
+
+                if (i == n){
+                    if ("HE".equalsIgnoreCase(opts.get(i))){
+                        css.append("-folio-cell-header:true;");
+                        i++;
+                    }
+                }
     			
     			if (i == n) i = FolioCssUtils.tryParseCellStyleAttribute(i, opts, css);
     			if (i == n) i = tryParseOtherCellAttr(i, opts, t); //MD (rowspan), MR (colspan), HC (columnIsHeader)
