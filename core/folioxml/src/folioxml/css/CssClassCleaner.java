@@ -166,38 +166,26 @@ public class CssClassCleaner {
 		//Remove all characters that don't match the regex.
 		//When removing spaces, and the next character is lowercase, uppercase it.
 		StringBuilder sb = new StringBuilder(name.length());
-		
-		boolean startsWithHyphen = false; //name.startsWith("-"); Aug 12. Removed hyphen allowance for XML ID compat
-		
-		boolean lastCharSpace = false;
+
+		boolean lastCharDelimiter = false;
 		
 		for (int i = 0; i < name.length(); i++){
 			char c = name.charAt(i);
-			
-			boolean valid = false;
-			
-			//Allow the hypen as the first character
-			//if (startsWithHyphen && i == 0) valid = true; Aug 12. Removed hyphen allowance for XML ID compat
-			
-			//Allow [_a-zA-Z] as the character following.
-			if (i == (startsWithHyphen ? 1 : 0)){
-				if (isCharValid(c,false,true,true,false)) valid = true;
-			}
-			//And the remainder allow [_a-zA-Z0-9-]
-			if (i > (startsWithHyphen ? 1 : 0)){
-				if (isCharValid(c,true,true,true,true)) valid = true;
-			}
-			
+
+            //Allow [_a-zA-Z] as the first character
+            // Aug 12. Removed hyphen allowance for XML ID compat
+            //And the remainder allow [_a-zA-Z0-9-]
+			boolean valid = isCharValid(c,i > 0,true,true,i > 0);
+
 			if (valid){
 				//Uppercase lowercase letters following a space.
-				if (lastCharSpace && (c >= 'a' && c <= 'z')){
-					c = String.valueOf(c).toUpperCase(Locale.ENGLISH).charAt(0);
+				if (lastCharDelimiter && sb.length() > 0 && sb.charAt(sb.length() - 1) != '_'){
+                    sb.append('_');
 				}
 				//Keep the character
 				sb.append(c);
-				lastCharSpace = (c == ' ');
 			}
-			
+            lastCharDelimiter = (c == ' ' || c == '.' || c == ',' || c == '+' || c == '/' || c == '\\' || c == '#' || c == '%' || c == '(' || c == ':');
 		}
 		return sb.toString();
 	}
