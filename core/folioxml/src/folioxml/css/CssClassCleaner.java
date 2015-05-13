@@ -99,6 +99,7 @@ public class CssClassCleaner {
 		
 		
 		//TODO: What if there is both a character style named "Normal" and a link style named "Normal"? This needs the intelligence to know which Normal variant to use when the <span> or <link> tag is reached. Style-def isn't enough
+        //What if character-style, field, and highlighter have overlapping names?
 		//The map doesn't add new conflicts, but what if they already exist between style types?
 		
 		//First check if 'name' exists in the mappings.
@@ -106,7 +107,7 @@ public class CssClassCleaner {
 		
 		//If so, return precomputed result.
 		if (result != null) {
-			if (throwExceptionIfDuplicate) throw new InvalidMarkupException("Duplicate identifer encountered.");
+			if (throwExceptionIfDuplicate) throw new InvalidMarkupException("Duplicate mapping for (" + lowerName + ") encountered: " + result.getFirst() + " -> " + result.getSecond() + ". Please rename character styles, highlighters, and fields to use unique names; they cannot overlap in CSS.");
 			return result.getFirst();
 		}
 		
