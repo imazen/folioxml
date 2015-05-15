@@ -41,7 +41,11 @@ public class FolioLinkUtils{
         return false;
     }
     public static SlxToken translate(FolioToken t) throws InvalidMarkupException{
-    	if (t.matches("UL")) return FolioSlxTranslator.tryCommentOut(t, "UL"); //We comment out user links - we have no way to map them.
+    	if (t.matches("UL")) {
+            System.out.println("User link (unsupported Folio token):");
+            System.out.println(t.text);
+            return FolioSlxTranslator.tryCommentOut(t, "UL"); //We comment out user links - we have no way to map them.
+        }
     	
     	
         if (isClosingLinkTag(t)) return new SlxToken("</link>");
