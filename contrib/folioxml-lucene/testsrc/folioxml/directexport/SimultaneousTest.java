@@ -103,7 +103,7 @@ public class SimultaneousTest {
 	    while(true){
 			SlxRecord r = srr.read();
 		    if (r == null) break;//loop exit
-		    if (i == 0) indexConfig.UpdateFieldIndexingInfo(r);
+		    if (i == 0 && indexConfig != null) indexConfig.UpdateFieldIndexingInfo(r);
 		    //do slx first
 		    if (xs != null) xs.processRecord(r);
 		    xh.processRecord(r);
