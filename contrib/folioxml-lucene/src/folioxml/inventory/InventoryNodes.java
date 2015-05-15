@@ -196,13 +196,15 @@ public class InventoryNodes implements NodeListProcessor {
     private void logAndPullNode(Node n, String counter, String intro) throws InvalidMarkupException{
 
         //Unless type = popup, skip the internals for distinction.
-        String data = n.toTokenString();
-        if (n.get("type") != null && n.get("type").equalsIgnoreCase("popup")){
-            data = n.toXmlString(true);
+        String data = null;
+
+        if (n.matches("link")){
+            if(n.get("type") == null || !n.get("type").equalsIgnoreCase("popup")){
+                data = n.toTokenString();
+            }
         }
-        if (n.matches("p")){
-            data = n.toXmlString(false);
-        }
+        if (data == null) data = n.toXmlString(true);
+
         logUnique(data, counter);
         System.out.println(intro);
         System.out.println(n.toXmlString(true));
@@ -224,18 +226,17 @@ public class InventoryNodes implements NodeListProcessor {
 
     public NodeList processLinks(NodeList nodes) throws InvalidMarkupException {
 
-        NodeList links = nodes.filterByTagName("link", true);
-        if (nodes.filterByTagName("a", true).count() > 0){
+         if (nodes.filterByTagName("a", true).count() > 0){
             throw new InvalidMarkupException("Only raw XML can be inventoried.");
         }
 
         //Program, menu, data links are always local
-        logAndPullNodes(links.search(new NodeFilter("link","program",null)), "program links", "Program link:");
-        logAndPullNodes(links.search(new NodeFilter("link","dataLink",null)), "data links", "Data link:");
-        logAndPullNodes(links.search(new NodeFilter("link","menu",null)), "menu links", "Menu link:");
+        logAndPullNodes(nodes.search(new NodeFilter("link","program",null)), "program links", "Program link:");
+        logAndPullNodes(nodes.search(new NodeFilter("link","dataLink",null)), "data links", "Data link:");
+        logAndPullNodes(nodes.search(new NodeFilter("link","menu",null)), "menu links", "Menu link:");
 
         //Add number of href URL links.
-        NodeList urlLinks = links.search(new NodeFilter("link", "href", null));
+        NodeList urlLinks = nodes.search(new NodeFilter("link", "href", null));
 
         incrementBy("URL links", urlLinks.count());
         for (Node n:urlLinks.list()){
@@ -272,7 +273,7 @@ public class InventoryNodes implements NodeListProcessor {
         logAndPullNodes(nodes.search(new NodeFilter("link","popupTitle",null)), "named popup links", "Link to named popup:");
 
 
-        NodeList queryLinks = nodes.search(new NodeFilter("link","query"));
+        NodeList queryLinks = nodes.search(new NodeFilter("link","query", null));
         for (Node n:queryLinks.list()){
             if (n.get("infobase") != null){
                 logAndPullNode(n, "cross-infobase query links", "Cross-infobase query link:");
