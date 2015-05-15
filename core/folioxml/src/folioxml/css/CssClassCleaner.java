@@ -199,10 +199,10 @@ public class CssClassCleaner {
 	}
 	
 	public void process(SlxToken t) throws InvalidMarkupException{
-		process(t,getNamespace(t),false);
+		process(t,getNamespace(t), getPrefix(t),false);
 	}
 		
-	public void process(TokenBase t, String namespace, boolean throwExceptionIfDuplicate) throws InvalidMarkupException{
+	public void process(TokenBase t, String namespace, String prefix, boolean throwExceptionIfDuplicate) throws InvalidMarkupException{
 		if (!t.isTag()) return; //Only tags have attributes
 		
 		//Requires SLX valid. 
@@ -210,7 +210,7 @@ public class CssClassCleaner {
 		//For paragraphs, spans, links... 
 		String s = t.get("class");
 		if (s != null){
-			String ns = cleanId(s,namespace,throwExceptionIfDuplicate);
+			String ns = cleanId(prefix + s,namespace,throwExceptionIfDuplicate);
 			if (!s.equals(ns)) t.set("class", ns);
 		}
 		
@@ -226,7 +226,7 @@ public class CssClassCleaner {
 		//Index style-def tags only. Then repeat and get the rest.
 		for (TokenBase t:r.getTokens()){
 			if (t.isTag() && t.matches("style-def")){
-				process(t,getNamespace(t),true);
+				process(t,getNamespace(t), getPrefix(t),true);
 				//disabled at one point because of Neil's style class name changed quick fix was to disable
 			}
 		}
@@ -267,7 +267,26 @@ public class CssClassCleaner {
 		
 		return "span";
 	}
-	
+    private String getPrefix(TokenBase t) throws InvalidMarkupException{
+		/* Namespaces
+		 * Character styles
+			Link Styles
+			Paragraph Styles
+			Level Styles
+			Highlighter Styles
+			Field Styles
+		 */
+        String type = t.get("type");
+        if (t.matches("span|style-def") && "character-style".equalsIgnoreCase(type)) return "cs_";
+        if (t.matches("span|style-def") && "highlighter".equalsIgnoreCase(type)) return "hl_";
+
+
+        //All other span tags are fields.
+        //if (t.matches("span") || (t.matches("style-def") && TokenUtils.fastMatches("text|date|time|integer|decimal", type))) return "";
+
+        return "";
+    }
+
 	/**
 	 * Returns the original name for the specified token based on the class attribute and tag name
 	 * @param t
