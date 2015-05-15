@@ -149,8 +149,11 @@ public class FolioTokenReader extends folioxml.core.TokenReaderBase{
      */
     private static Pattern rSingleBracket = Pattern.compile("^(?<!\\<)<(?!\\<)");
 
+    public long tokensRead = 0;
 
     public FolioToken read() throws IOException, InvalidMarkupException{
+        tokensRead++;
+
         //Delegate if ready. Delete reference when done
         if (this.currentInnerReader != null){
             FolioToken st = this.currentInnerReader.read();
