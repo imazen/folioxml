@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import folioxml.inventory.FolioInventory;
 
 public class SimultaneousTest {
 	
@@ -49,6 +50,12 @@ public class SimultaneousTest {
 
 
     }
+
+    @Test @Ignore
+    public void InventoryCustomFile() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+        new FolioInventory().Inventory(YamlUtil.getProperty(YamlUtil.getConfiguration().getCustomFile().getPath()));
+    }
+
 
 	public void Index(String fffPath) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
     
