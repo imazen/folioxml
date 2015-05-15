@@ -117,6 +117,10 @@ public class SlxRecordReader {
     }
     
     public void close() throws IOException{
+        //Complain about missing record IDs.
+        if (recordIdsMissing > 0 ){
+            System.out.println(Integer.toString(recordIdsMissing) + " of " +Integer.toString (recordIdsMissing + recordIdsPresent) + " records were missing a record ID. Please re-export the infobase with record IDs enabled.");
+        }
     	stream.close();
     	stream = null;
     }
