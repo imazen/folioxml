@@ -60,7 +60,7 @@ public class SimultaneousTest {
 	public void Index(String fffPath) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
     
 	    //Create SLX valid reader
-	    SlxRecordReader srr = new SlxRecordReader(new File(fffPath));
+	    SlxRecordReader srr = new SlxRecordReader(new File(fffPath), false);
 	    srr.silent = true;
 	    //Index the data to the index location
 		new SlxIndexer(srr, SlxIndexingConfig.FolioQueryCompatible()).indexAll(fffPath.replace(".", "_"));
@@ -73,7 +73,7 @@ public class SimultaneousTest {
 	
 	public void Export(String sourceFile) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
 		File f = new File(sourceFile);
-		SlxRecordReader srr = new SlxRecordReader(f);
+		SlxRecordReader srr = new SlxRecordReader(f, false);
 		srr.silent = false;
 		String xmlFile = f.getParent() + File.separatorChar + f.getName()+ new SimpleDateFormat("-dd-MMM-yy-(s)").format(new Date()) + ".xml";
 	    DirectXmlExporter x = new DirectXmlExporter(srr,xmlFile);
