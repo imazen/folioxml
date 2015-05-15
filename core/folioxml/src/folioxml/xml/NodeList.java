@@ -228,6 +228,26 @@ public class NodeList  {
 		
 		return nl;
 	}
+
+
+
+    public NodeList flattenRecursive(){
+        //calculate the list size
+        int sizeNeeded = a.size();
+        for (Node n:a) if (n.children != null) sizeNeeded += n.children.count();
+
+
+        NodeList nl = new NodeList(sizeNeeded);
+        //Build the list
+        for (Node n:a) {
+            nl.list().add(n);
+            if (n.children != null) nl.list().addAll(n.children.flattenRecursive().list());
+        }
+
+        return nl;
+    }
+
+
 	//@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
