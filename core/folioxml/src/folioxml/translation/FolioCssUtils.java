@@ -976,7 +976,7 @@ tr	Common, align ("left" | "center" | "right" | "justify" | "char"), char (Chara
 				//Leave indent along
 				map.put("margin-left", Double.toString(margin) + "in");
 				map.put("padding-left", Double.toString(padding) + "in");
-				if (!silent) System.out.print("Fixing css (" + indent + "): " + css + "\n");
+				//if (!silent) System.out.print("Fixing css (" + indent + "): " + css + "\n");
 			}
 			
 			CssUtils.coalesce(map);
