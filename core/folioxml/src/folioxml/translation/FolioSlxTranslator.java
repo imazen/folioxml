@@ -399,7 +399,7 @@ public class FolioSlxTranslator{
             t.set("styleName", ft.get(0));
 
             if (ft.matches("LE")) t.set("type", "level");
-            if (ft.matches("PD")) t.set("type", "highligher");
+            if (ft.matches("PD")) t.set("type", "highlighter");
             if (ft.matches("PA")) t.set("type", "paragraph");
             
             int start  = 1;
