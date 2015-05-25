@@ -56,7 +56,7 @@ For conversion with query link resolution, see `contrib/folioxml-lucene/testsrc/
 
 ## Dependencies
 
-* JDK 1.6 (For OSX, see http://support.apple.com/kb/DL1572)
+* JDK 1.7
 * junit-4.11
 * commons-cli-1.2
 * commons-lang-2.4
