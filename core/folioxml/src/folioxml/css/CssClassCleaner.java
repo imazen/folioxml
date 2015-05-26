@@ -146,7 +146,7 @@ public class CssClassCleaner {
 			if (foundConflict){
 				for (Pair<String,String> pair: mappings.values()){
 					if (pair.getFirst().equalsIgnoreCase(sanitizedName)){
-						System.out.append("Found conflict in CSS name... " + name + " conflicted with existing entry " + pair.getSecond());
+						System.out.println("Found conflict in CSS name... " + name + " conflicted with existing entry " + pair.getSecond());
 						break;
 					}
 				}
