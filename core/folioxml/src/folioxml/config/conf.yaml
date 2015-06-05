@@ -1,0 +1,5 @@
+folio_help:
+  export_dir: files/folio-help/export/
+  index_dir: files/indexes/folio-help/
+  infobases:
+  -   path: files/folio-help/FOLIOHLP.FFF

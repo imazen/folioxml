@@ -1,5 +1,6 @@
 package folioxml.inventory;
 
+import folioxml.config.InfobaseConfig;
 import folioxml.core.InvalidMarkupException;
 import folioxml.directexport.DirectSlxExporter;
 import folioxml.directexport.DirectXhtmlExporter;
@@ -33,11 +34,9 @@ public class FolioInventory {
 //Check units are inches
 
 
-    public void Inventory(String fffPath) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
-        File f = new File(fffPath);
-        String baseFile = f.getParent() + File.separatorChar + f.getName()+ new SimpleDateFormat("-dd-MMM-yy-(s)").format(new Date());
-
-        Inventory(fffPath, baseFile + ".log.txt", baseFile + ".report.txt");
+    public void Inventory(InfobaseConfig ibase) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
+        String baseFile = ibase.generateExportBaseFile();
+        Inventory(ibase.getFlatFilePath(), baseFile + ".log.txt", baseFile + ".report.txt");
     }
     public void Inventory(String fffPath, String logPath, String reportPath) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
         File f = new File(fffPath);

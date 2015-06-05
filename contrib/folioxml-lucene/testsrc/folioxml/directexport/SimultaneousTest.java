@@ -1,7 +1,11 @@
 package folioxml.directexport;
 
+import folioxml.config.InfobaseConfig;
+import folioxml.config.InfobaseSet;
+import folioxml.config.TestConfig;
 import folioxml.export.html.ResolveQueryLinks;
 
+import folioxml.inventory.FolioInventory;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
 import org.junit.Ignore;
@@ -14,8 +18,8 @@ import folioxml.lucene.SlxIndexingConfig;
 import folioxml.slx.SlxRecord;
 import folioxml.slx.SlxRecordReader;
 import folioxml.tools.OutputRedirector;
-import folioxml.utils.ConfUtil;
-import folioxml.utils.YamlUtil;
+
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,41 +27,49 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import folioxml.inventory.FolioInventory;
 
 public class SimultaneousTest {
 	
 	@Test @Ignore
 	public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		Index(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
+		Index(folioxml.config.TestConfig.getFolioHlp().getFlatFilePath());
 	}
 	
 	@Test @Ignore
 	public void ExportHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		Export(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
+		Export(folioxml.config.TestConfig.getFolioHlp().getFlatFilePath());
 		
 		
 	}
 
     @Test @Ignore
     public void IndexCustomFile() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-        Index(YamlUtil.getProperty(YamlUtil.getConfiguration().getCustomFile().getPath()));
+       // Index(TestConfig.getFirst("custom").get));
     }
 
     @Test @Ignore
     public void ExportCustomFile() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-        Export(YamlUtil.getProperty(YamlUtil.getConfiguration().getCustomFile().getPath()));
+        //Export(YamlUtil.getProperty(YamlUtil.getConfiguration().getCustomFile().getPath()));
 
 
     }
 
-    @Test @Ignore
+    @Test
     public void InventoryCustomFile() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-        new FolioInventory().Inventory(YamlUtil.getProperty(YamlUtil.getConfiguration().getCustomFile().getPath()));
+       Inventory(TestConfig.get("rga"));
     }
 
 
-	public void Index(String fffPath) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+    public void Inventory(InfobaseSet set) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+
+        for(InfobaseConfig c: set.getInfobases()){
+            new FolioInventory().Inventory(c);
+        }
+
+    }
+
+
+    public void Index(String fffPath) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
     
 	    //Create SLX valid reader
 	    SlxRecordReader srr = new SlxRecordReader(new File(fffPath), false);
