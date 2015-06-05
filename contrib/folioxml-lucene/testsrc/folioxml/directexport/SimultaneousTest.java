@@ -54,9 +54,14 @@ public class SimultaneousTest {
 
     }
 
-    @Test
+    @Test  @Ignore
     public void InventoryCustomFile() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-       Inventory(TestConfig.get("rga"));
+       Inventory(TestConfig.get("testset"));
+    }
+
+    @Test @Ignore
+    public void InventorySet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+        new FolioInventory().InventorySet(TestConfig.get("testset"));
     }
 
 

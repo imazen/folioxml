@@ -1,5 +1,6 @@
 package folioxml.inventory;
 
+import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
 import folioxml.export.NodeListProcessor;
@@ -22,7 +23,7 @@ public class InventoryNodes implements NodeListProcessor {
 
     HashMap<String, Integer> stats = new HashMap<String, Integer>(30);
 
-    HashMap<String, HashSet<String>> uniques = new HashMap<String, HashSet<String>>(30);
+     HashMap<String, HashSet<String>> uniques = new HashMap<String, HashSet<String>>(30);
 
 
     private void increment(String statName){
@@ -35,6 +36,19 @@ public class InventoryNodes implements NodeListProcessor {
         }
 
 
+    }
+
+    public void PrintExternalInfobases(InfobaseSet internalInfobases){
+        HashSet<String> dests = uniques.get("destination infobases");
+        if (dests == null) return;
+
+        System.out.println("External infobases: ");
+        for (String val: dests){
+            if (internalInfobases.byName(val) == null){
+                System.out.println(val);
+            }
+        }
+        System.out.println();
     }
 
     public void PrintUniques(){
@@ -134,6 +148,10 @@ public class InventoryNodes implements NodeListProcessor {
                 logUnique(n.get("level"), "levels");
                 increment("level records");
             }
+
+            //TODO report unique combination of levels
+
+            
         }
 
         for (Node every: nodes.flattenRecursive().list()){
@@ -166,7 +184,8 @@ public class InventoryNodes implements NodeListProcessor {
 
         //TODO: export hidden text.
 
-        //TODO report unique combination of levels
+
+
 
 
         for (Node link:nodes.search(new NodeFilter("link", "infobase", null)).list())
