@@ -634,11 +634,20 @@ tr	Common, align ("left" | "center" | "right" | "justify" | "char"), char (Chara
      * @param css
      * @return
      */
-    public static int tryParseTabSet(int startIndex,List<String> opts, StringWriter css){
+    public static int tryParseTabSet(int startIndex,List<String> opts, StringWriter css) throws InvalidMarkupException {
         if (opts.get(startIndex).equalsIgnoreCase("TS")){
             int index = startIndex;
             index++;//move to first argument
-            assert(startIndex + 3 < opts.size()); //TS has a minimum of 3 arguments required
+
+            if (startIndex + 1 >= opts.size()){
+                //No arguments for tab stop?
+                System.out.println("Empty tab stop!");
+                return index;
+            }
+            //TS has a minimum of 3 arguments required
+            if(startIndex + 2 >= opts.size()){
+               throw new InvalidMarkupException("Invalid Tab Stob (TS) token: " + opts.subList(startIndex, opts.size() - 1).toString());
+            }
             while(true){
                 if (index >= opts.size()) return index; //we hit the end
                 if (index + 2 >= opts.size()) return index; //We don't have enough arguments for another tag set, quit
