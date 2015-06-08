@@ -41,7 +41,7 @@ public class FixHttpLinks implements NodeListProcessor {
             }
             String url = n.get("href");
             String repairedUrl = repairUrl(url);
-            if (!repairedUrl.equals(url)){
+            if (repairedUrl != null && !repairedUrl.equals(url)){
                 n.set("href",  repairedUrl);
             }
         }
