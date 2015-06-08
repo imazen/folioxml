@@ -8,6 +8,7 @@ import folioxml.core.InvalidMarkupException;
 import folioxml.directexport.DirectSlxExporter;
 import folioxml.directexport.DirectXhtmlExporter;
 import folioxml.directexport.DirectXmlExporter;
+import folioxml.export.NodeListProcessor;
 import folioxml.export.html.*;
 import folioxml.folio.FolioTokenReader;
 import folioxml.lucene.QueryResolverInfo;
@@ -93,7 +94,9 @@ public class FolioInventory {
         }
     }
 
-    public void InventorySet(InfobaseSet set) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
+    public void InventorySet(InfobaseSet set, NodeListProcessor preprocessor) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
+        if (preprocessor == null) preprocessor = new IdentityProcessor();
+
         String basePath = set.getInfobases().size() > 1 ? set.generateExportBaseFile() : set.getFirst().generateExportBaseFile();
         String reportPath = basePath + ".report.txt";
         String logPath = basePath + ".log.txt";
@@ -131,7 +134,7 @@ public class FolioInventory {
                     if  ("root".equals(r.getLevelType())){
                         root = rx;
                     }else{
-                        inventory.process((new NodeList(rx)));
+                        inventory.process(preprocessor.process(new NodeList(rx)));
                         recordsRead++;
                     }
                 }
