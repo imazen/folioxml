@@ -11,6 +11,8 @@ import folioxml.xml.NodeList;
 import folioxml.xml.Not;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import java.util.regex.*;
@@ -243,6 +245,15 @@ public class InventoryNodes implements NodeListProcessor {
         }
     }
 
+    private boolean validUrl(String s){
+        try{
+            URL u = new URL(s);
+            return true;
+        }catch(MalformedURLException e){
+            return false;
+        }
+    }
+
     public NodeList processLinks(NodeList nodes) throws InvalidMarkupException {
 
          if (nodes.filterByTagName("a", true).count() > 0){
@@ -261,6 +272,19 @@ public class InventoryNodes implements NodeListProcessor {
         for (Node n:urlLinks.list()){
             logUnique(n.get("href"),"URL links");
         }
+
+        for (Node n:urlLinks.list()){
+            String url = n.get("href");
+            if (!validUrl(url)){
+                logUnique(url,"invalid URL links");
+            }
+        }
+
+
+
+
+
+
         urlLinks.pull(); //Pull so we don't run into them later
 
 
