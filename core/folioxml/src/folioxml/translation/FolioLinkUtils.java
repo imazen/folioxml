@@ -58,8 +58,8 @@ public class FolioLinkUtils{
             if (t.matches("WW|PL")) {
             	//Web and program links. Program links are a superset of web links. Use Href for web addresses, program for exe's and documents.
             	String cmd  =t.get(1);
-            	if (isUrl(cmd) || t.matches("WW")) 
-            		st.set("href",cmd); //Href for these. PL may use a local path or .exe.... If it's a valid URL, use href.
+            	if (t.matches("WW") || isUrl(cmd))
+            		st.set("href",cmd.trim()); //Href for these. PL may use a local path or .exe.... If it's a valid URL, use href.
             	else 
             		st.set("program",cmd); //TODO: path variable expansion "%%" = path to infobase. "%?" = path to folio views.
             	
@@ -257,31 +257,15 @@ public class FolioLinkUtils{
     	throw new InvalidMarkupException("Failed to translate link to folio: " + t.toTokenString());
     }
     //SCHEME: ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-    protected static Pattern scheme = Pattern.compile("^[a-zA-Z][A-Za-z0-9+.-]*:\\/\\/");//\\G\\s++(\\w[\\w-:]*+)(?:\\s*+=\\s*+\"([^\"]*+)\"|\\s*+=\\s*+'([^']*+)'|\\s*+=\\s*+([^\\s=/>]*+)|(\\s*?))");
-    
-    
-    protected static Pattern simpleDomain = Pattern.compile("^[a-zA-Z][A-Za-z0-9+.-]*:\\/\\/");//\\G\\s++(\\w[\\w-:]*+)(?:\\s*+=\\s*+\"([^\"]*+)\"|\\s*+=\\s*+'([^']*+)'|\\s*+=\\s*+([^\\s=/>]*+)|(\\s*?))");
-    
-    
-    
+    protected static Pattern scheme = Pattern.compile("\\A\\s*(mailto:|[a-zA-Z][A-Za-z0-9+.-]*://)",Pattern.CASE_INSENSITIVE);
+    protected static Pattern www = Pattern.compile("\\A\\s*www\\.([a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\\.)+[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](/|\\Z)");
+
+
     private static boolean isUrl(String s){
-    	s = s.trim();//Trim whitespace
-    	boolean missingScheme = false;
-    	if (!scheme.matcher(s).find()){
-    		//No scheme specified. 
-    		//if (s.indexOf('\\') > -1) return false; //It means we have a windows path.
-    		
-    		//s = "http://" + s;
-    		//missingScheme = true;
-    		return false; //Don't try to help. If they forgot the http://, consider it a program
-    	}
-    	try{
-    		URL u = new URL(s); 
-    		//if (missingScheme && !TokenUtils.fastMatches(regex, u.getHost()))
-    		return true;
-    	}catch(MalformedURLException e){
-    		return false;
-    	}
+    	String address = s.trim();//Trim whitespace
+        ///www.something.something/ -> assume it's an (invalid) Url that can be fixed.
+        //If it starts with scheme, assume it's a URL. Programs and program paths don't start with schemes.
+    	return www.matcher(address).find() || scheme.matcher(address).find();
     }
     
     
