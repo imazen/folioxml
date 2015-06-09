@@ -1,4 +1,4 @@
-package folioxml.inventory;
+package folioxml.export;
 
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
