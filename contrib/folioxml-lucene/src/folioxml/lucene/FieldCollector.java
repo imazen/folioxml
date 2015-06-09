@@ -13,14 +13,14 @@ import java.util.TreeMap;
 
 public class FieldCollector {
 	
-	public FieldCollector(Document d, SlxIndexingConfig c){
+	public FieldCollector(Document d, IndexFieldOptsProvider c){
 		this.d = d;
 		this.c = c;
 	}
 	
 	public Document d;
 	
-	public SlxIndexingConfig c;
+	public IndexFieldOptsProvider c;
 
 	
 	public TreeMap<String, StringBuilder> fields = new TreeMap<String, StringBuilder>(String.CASE_INSENSITIVE_ORDER);

@@ -16,7 +16,7 @@ import folioxml.slx.SlxToken;
 import java.util.EnumSet;
 import java.util.TreeMap;
 
-public class SlxIndexingConfig implements AnalyzerPicker {
+public class SlxIndexingConfig implements AnalyzerPicker, IndexFieldOptsProvider {
 	
 	public SlxIndexingConfig(){
 		fields.put("groups", new IndexFieldOpts(new ListAnalyzer()));
