@@ -163,9 +163,7 @@ public class InventoryNodes implements NodeListProcessor {
         }
 
 
-        //TODO: generate diagnostics ff->SLX mapping report (TranslationTableDump)
-
-        //TODO: report on use of tabs inside paragraphs
+        //Report on use of tabs inside paragraphs
        for (Node para:nodes.search(new NodeFilter("p")).list()){
            //I guess recurse the tree and reset each time a breaking element opens or closes.
            boolean tabAlign = paragraph_uses_tab_alignment(para);
@@ -184,9 +182,7 @@ public class InventoryNodes implements NodeListProcessor {
         //TODO: report on use of underlining for non-links
 
 
-        //TODO: export hidden text.
-
-
+        //TODO: export hidden text. (better if we use SLX?)
 
 
 
