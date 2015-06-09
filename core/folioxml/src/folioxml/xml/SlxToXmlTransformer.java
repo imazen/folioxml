@@ -25,7 +25,6 @@ public class SlxToXmlTransformer {
 	}
 	public SlxToXmlTransformer(File f) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
 		this.srr = new SlxRecordReader(f);
-		silent(true);
 	}
 	
 	public SlxToXmlTransformer(boolean keepEmptyGhostTags, boolean createEmptyGhostsAtStartAndEnd, boolean reuseAttrMaps){
@@ -33,9 +32,6 @@ public class SlxToXmlTransformer {
 		this.keepEmptyGhostTags = keepEmptyGhostTags;
 		this.reuseAttrMaps = reuseAttrMaps;
 	}
-	
-	public boolean silent(){ return srr.silent;}
-	public void silent(boolean val) {srr.silent = val;}
 
 	/**
 	 * If true, ghost tags with no content will be maintained. If false, they will be deleted.

@@ -73,17 +73,18 @@ public class LuceneRecord { //Renamed to DocumentBuilder
 		
 		if (conf.Indexing.contains(SlxIndexingConfig.IndexingOptions.IndexGroups))
 			doc.add(addAnalyzedField("groups", attr.get("groups"))); //NDJ Sep 13, 2001: previous behavior was to only index groups on Normal level records.
-		
-		doc.add(addNonAnalyzedField("fullPath",r.fullPath()));
+
+        //NJ Jun 9 2015, dropping path indexing
+		//doc.add(addNonAnalyzedField("fullPath",r.fullPath()));
 		
 		if (!isRoot){
-			doc.add(addNonAnalyzedField("recordId", attr.get("recordId")));
-			doc.add(addNonAnalyzedField("localPath",r.localPath()));
-			doc.add(addNonAnalyzedField("parentPath",r.parentPath()));
+			//doc.add(addNonAnalyzedField("recordId", attr.get("recordId")));
+			//doc.add(addNonAnalyzedField("localPath",r.localPath()));
+			//doc.add(addNonAnalyzedField("parentPath",r.parentPath()));
 			
 			SlxRecord temp = r;
 			while (temp.parent != null){
-				doc.add(addNonAnalyzedField("parentPaths",temp.parentPath())); //Hey... different! paths, not path
+				//doc.add(addNonAnalyzedField("parentPaths",temp.parentPath())); //Hey... different! paths, not path
 				temp = temp.parent;
 			}
 			

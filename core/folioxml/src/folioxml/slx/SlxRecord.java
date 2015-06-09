@@ -240,22 +240,6 @@ public class SlxRecord extends SlxToken implements ISlxTokenWriter{
     		return parentHeading+ delimiter + heading;
     }
     
-    
-    
-    public String localPath() throws InvalidMarkupException{
-    	return "root".equalsIgnoreCase(this.getLevelType()) ? "" : this.get("recordId"); 
-    	//TODO: Add pluggable system that will allow  renaming record IDs, but in a safe manner...Keeping a dict of recordId->fullPath translations.
-    	//And a method to make sure all recordIds are and stay unique.
-    	//How about -- giving records alias paths... Lucene is a *search* engine - we can have multiple tokens in a single field. Maybe even make these return an array?
-    }
-    public String fullPath() throws InvalidMarkupException{
-    	String p = parentPath();
-    	if (p.endsWith("/")) p = p.substring(0, p.length() -1);
-    	return p + "/" + localPath();
-    }
-    public String parentPath() throws InvalidMarkupException{
-    	return (parent == null) ? "" : parent.fullPath();
-    }
 
     /**
      * Returns a list of the level names from *after* the root node up the the current node. Expects all ancestors to have a level value.

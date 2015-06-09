@@ -28,17 +28,16 @@ public class SlxRecordReader {
     	return root;
     }
 
-    public SlxRecordReader(ISlxTokenReader stream, ISlxTokenWriter postTransformFilter, boolean require_record_ids) throws InvalidMarkupException {
+    public SlxRecordReader(ISlxTokenReader stream, ISlxTokenWriter postTransformFilter) throws InvalidMarkupException {
         this.stream = stream;
         this.defaultFilter = postTransformFilter;
         root = nextRecordTag = new SlxRecord("<record level=\"root\">");
         cssCleaner = new CssClassCleaner();
         objectResolver = new ObjectResolver(root);
-        this.requireRecordIds = require_record_ids;
     }
 
     public SlxRecordReader(ISlxTokenReader stream) throws InvalidMarkupException {
-        this(stream, null, true);
+        this(stream, null);
     }
     
     /**
@@ -50,25 +49,10 @@ public class SlxRecordReader {
      * @throws IOException
      */
     public SlxRecordReader(File f) throws InvalidMarkupException, UnsupportedEncodingException, FileNotFoundException, IOException {
-        this(new SlxTranslatingReader(new FolioTokenReader(f)), null, true);
+        this(new SlxTranslatingReader(new FolioTokenReader(f)), null);
     }
 
-    /**
-     * Reads a folio flat file into an SlxRecord stream
-     * @param f
-     * @throws InvalidMarkupException
-     * @throws UnsupportedEncodingException
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public SlxRecordReader(File f, boolean require_record_ids) throws InvalidMarkupException, UnsupportedEncodingException, FileNotFoundException, IOException {
-        this(new SlxTranslatingReader(new FolioTokenReader(f)), null, require_record_ids);
-    }
-    
-    private boolean requireRecordIds = true;
 
-    private int recordIdsPresent = 0;
-    private int recordIdsMissing = 0;
 
     private ISlxTokenReader stream = null;
     private ISlxTokenWriter defaultFilter = null;
@@ -85,8 +69,7 @@ public class SlxRecordReader {
      * Points to the record token that was encountered on the last read(), and terminated it.
      */
     private SlxRecord nextRecordTag = null;
-    
-    private Set<String> processedIds = new HashSet<String>();
+
 	public boolean silent;
 
     /**
@@ -117,10 +100,6 @@ public class SlxRecordReader {
     }
     
     public void close() throws IOException{
-        //Complain about missing record IDs.
-        if (recordIdsMissing > 0 ){
-            System.out.println(Integer.toString(recordIdsMissing) + " of " +Integer.toString (recordIdsMissing + recordIdsPresent) + " records were missing a record ID. Please re-export the infobase with record IDs enabled.");
-        }
     	stream.close();
     	stream = null;
     }
@@ -152,7 +131,6 @@ public class SlxRecordReader {
         
         //Transformer
         SlxTransformer transformer = new SlxTransformer(postTransformFilter, r);
-        transformer.silent = this.silent;
 
         //Read folio tokens one-by-one
         while (stream.canRead()) {
@@ -161,33 +139,7 @@ public class SlxRecordReader {
             if (ft != null && ft.matches("record")) {
                 //Store for next read() call
                 this.nextRecordTag = new SlxRecord(ft);
-                //The record ID
-                String recordId = nextRecordTag.get("recordId");
-                
-                if (recordId != null){
-	                //Verify the recordId is unique right here.
-                	//Tested with 100,000 entries - less than 1% difference.
-                	//TODO: I think this takes ~10MB of extra memory, but that is probably because the strings are staying in memory.
-	                if (processedIds.contains(recordId)){
-	                	throw new InvalidMarkupException("Duplicate record ID detected",this.nextRecordTag);
-	                }else{
-	                	processedIds.add(recordId);
-	                }
-                    recordIdsPresent++;
-	                /*
-	                Record ID is optional. If used, it indicates a persistent ID for the record. This persistent ID allows you to re-create infobases without invalidating shadow files associated with the infobase. 
-	                Record IDs can be generated when an infobase is exported or specified in the flat file for import (should you choose to maintain the IDs yourself). 
-	                Record IDs are hexadecimal values ranging from 1 to FFFFFFFF (do not use spaces in the hex number).
-	                */
-                }else{
-                    recordIdsMissing ++;
 
-                    if (requireRecordIds){
-                        throw new InvalidMarkupException("Record found without a recordID. Please re-export with record IDs enabled.",this.nextRecordTag);
-                    }
-                	nextRecordTag.set("recordID", UUID.randomUUID().toString());
-                }
-                
                 break;
             }
             if (ft != null)
@@ -219,8 +171,7 @@ public class SlxRecordReader {
         //LV (level) tags can appear anywhere in the record, so calculateParent() must be called after the record has been parsed through the FolioSlxTransformer
         r.calculateParent(lastLevelRecord,true);
         r.ghostPairsGenerated  = true;
-        
-        r.set("fullPath", r.fullPath());
+
 
         //Store last level record for heirarchy calculations
         if (r.isLevelRecord()) lastLevelRecord = r;
