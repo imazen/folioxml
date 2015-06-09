@@ -3,9 +3,17 @@ package folioxml.directexport;
 import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.config.TestConfig;
+import folioxml.export.InfobaseSetPlugin;
+import folioxml.export.InfobaseSetVisitor;
+import folioxml.export.html.FixHttpLinks;
+import folioxml.export.html.MultiRunner;
+import folioxml.export.html.RenameImages;
 import folioxml.export.html.ResolveQueryLinks;
 
-import folioxml.inventory.FolioInventory;
+import folioxml.export.plugins.ExportInventory;
+import folioxml.export.plugins.ExportMappingsFiles;
+import folioxml.export.plugins.RenameFiles;
+import folioxml.lucene.InfobaseSetIndexer;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
 import org.junit.Ignore;
@@ -26,127 +34,40 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class SimultaneousTest {
-	
-	@Test @Ignore
-	public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		Index(folioxml.config.TestConfig.getFolioHlp().getFlatFilePath());
-	}
-	
-	@Test @Ignore
-	public void ExportHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		Export(folioxml.config.TestConfig.getFolioHlp().getFlatFilePath());
-		
-		
-	}
+
 
     @Test @Ignore
-    public void IndexCustomFile() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-       // Index(TestConfig.getFirst("custom").get));
+    public void IndexSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new InfobaseSetIndexer());
+        //plugins.add(new ExportMappingsFiles());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("testset"),plugins);
+
+        visitor.complete();
     }
 
-    @Test @Ignore
-    public void ExportCustomFile() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-        //Export(YamlUtil.getProperty(YamlUtil.getConfiguration().getCustomFile().getPath()));
-
-
-    }
-
-    @Test  @Ignore
-    public void InventoryCustomFile() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-       Inventory(TestConfig.get("testset"));
-    }
 
     @Test @Ignore
     public void InventorySet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-        new FolioInventory().InventorySet(TestConfig.get("testset"));
+
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new RenameFiles());
+        plugins.add(new ExportInventory());
+        //plugins.add(new ExportMappingsFiles());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("testset"),plugins);
+
+        visitor.complete();
+
     }
 
 
-    public void Inventory(InfobaseSet set) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
 
-        for(InfobaseConfig c: set.getInfobases()){
-            new FolioInventory().Inventory(c);
-        }
-
-    }
-
-
-    public void Index(String fffPath) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-    
-	    //Create SLX valid reader
-	    SlxRecordReader srr = new SlxRecordReader(new File(fffPath), false);
-	    srr.silent = true;
-	    //Index the data to the index location
-		new SlxIndexer(srr, SlxIndexingConfig.FolioQueryCompatible()).indexAll(fffPath.replace(".", "_"));
-		
-		//Close the original file
-		srr.close();
-	}
-	
-	
-	
-	public void Export(String sourceFile) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		File f = new File(sourceFile);
-		SlxRecordReader srr = new SlxRecordReader(f, false);
-		srr.silent = false;
-		String xmlFile = f.getParent() + File.separatorChar + f.getName()+ new SimpleDateFormat("-dd-MMM-yy-(s)").format(new Date()) + ".xml";
-	    DirectXmlExporter x = new DirectXmlExporter(srr,xmlFile);
-	    DirectXhtmlExporter xh = new DirectXhtmlExporter(srr,xmlFile.replace(".xml", ".xhtml"));
-	    DirectSlxExporter xs = new DirectSlxExporter(srr,xmlFile.replace(".xml", ".slx"));
-	    
-	    OutputRedirector redir = new OutputRedirector(xmlFile.replace(".xml", ".log.txt"));
-	    redir.open();
-	    
-	    //Support query link resolution if the lucene index exists.
-	    IndexSearcher searcher = null;
-	    File index = new File(sourceFile.replace(".", "_"));
-	    SlxIndexingConfig indexConfig = null;
-        QueryResolverInfo queryInfo = null;
-	    if (index.isDirectory()) {
-	    	searcher = new IndexSearcher(FSDirectory.open(index));
-	    	indexConfig = SlxIndexingConfig.FolioQueryCompatible();
-            queryInfo = new QueryResolverInfo(searcher, indexConfig.getRecordAnalyzer(), indexConfig.textField);
-
-	    	xh.queryLinkResolver = new ResolveQueryLinks(queryInfo);
-	    }
-	    //x.maxRecords = 250;
-	    //xh.maxRecords = 250;
-	    //TODO: I gotta 
-	    int i =0;
-	    try{
-	    while(true){
-			SlxRecord r = srr.read();
-		    if (r == null) break;//loop exit
-		    if (i == 0 && indexConfig != null) indexConfig.UpdateFieldIndexingInfo(r);
-		    //do slx first
-		    if (xs != null) xs.processRecord(r);
-		    xh.processRecord(r);
-		    //x.processRecord(r); //This will be broken - Html exporter corrupts the tokens
-		    
-		    
-		    i++;
-		    if (queryInfo != null && i % 1000 == 0) System.out.println("Query links resolved: " + queryInfo.workingQueryLinks + ", " +
-                    queryInfo.noresultQueryLinks + " with no results, and " +
-                    queryInfo.invalidQueryLinks + " with invalid syntax.");
-		    
-	    }
-	    }finally{
-	    	if (searcher != null) searcher.close();
-	    	srr.close();
-	    	x.close();
-	    	xh.close();
-	    	if (xs != null) xs.close();
-	    }
-	    System.out.println("Invalid query links (for syntax reasons): " + queryInfo.invalidQueryLinks);
-	    System.out.println("No result query links: " + queryInfo.noresultQueryLinks);
-	    System.out.println("Working query links: " + queryInfo.workingQueryLinks);
-	    System.out.println("Cross-infobase query links: " + queryInfo.crossInfobaseQueries);
-	    System.out.println("Read " +Integer.toString(i) + " records.");
-	    redir.close();
-	}
 
 }
 

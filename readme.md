@@ -50,6 +50,15 @@ You might, for example, want to add EllipsisAndDashes, which converts ... and --
 Our XML implementation offers regex-based search and replace that only affects text contents of nodes - and uses diff_match_patch underneath to minimize shift between container elements. VirutalCharSequence provides the abstraction for modifying the text of an XML tree as a single string. 
 
 
+## Considerations
+
+* Copy and rename referenced images, OLE objects, and embedded data links/PDFs.
+* Convert bitmaps to PNG.
+* Index infoabases using folio indexing rules so that query links can be evaluated.
+* Index multiple infobases to a single lucene index so cross-infobase queries and links can be resolved
+* Split at any record level; offer an interface to determine splitting rules.
+
+
 ## Conversion with intermediate lucene index
 
 For conversion with query link resolution, see `contrib/folioxml-lucene/testsrc/folioxml/directexport/SimultaneousTest.java`
