@@ -177,7 +177,7 @@ public class SlxRecord extends SlxToken implements ISlxTokenWriter{
         }
     }
     
-    private boolean isRoot() throws InvalidMarkupException{
+    public boolean isRootRecord() throws InvalidMarkupException{
     	return (this.getLevelType() != null && this.getLevelType().equalsIgnoreCase("root"));
     }
     
@@ -213,13 +213,21 @@ public class SlxRecord extends SlxToken implements ISlxTokenWriter{
 		if (this.getLevelType() != null ) set("heading", all.toString()); //Only fall back on level records
 		
     }
+
+    public String getHeading() throws InvalidMarkupException {
+        if (isRootRecord()) return ""; //for root, return nothing.
+        calculateHeading();
+        String heading = get("heading");
+        if (heading == null) throw new InvalidMarkupException("calculateParent must be called first");
+        return heading;
+    }
     
     public String getFullHeading(String delimiter, boolean mostSpecificFirst, int maxNames) throws InvalidMarkupException{
     	calculateHeading();
     	
     	if (maxNames == 0) return ""; //No names are wanted. Negative values mean there are no limits
     	
-    	if (isRoot()) return ""; //for root, return nothing.
+    	if (isRootRecord()) return ""; //for root, return nothing.
     	
     	String heading = get("heading");
     	if (heading == null) throw new InvalidMarkupException("calculateParent must be called first");
