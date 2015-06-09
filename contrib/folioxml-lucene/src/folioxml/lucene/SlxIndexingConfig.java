@@ -134,9 +134,14 @@ public class SlxIndexingConfig implements AnalyzerPicker, IndexFieldOptsProvider
 		}
 		return defaultOpts;
 	}
-	
-	
-	public Analyzer getAnalyzer(String fieldName) {
+
+    @Override
+    public String getDefaultField() {
+        return textField;
+    }
+
+
+    public Analyzer getAnalyzer(String fieldName) {
 		if (fieldName.equals(this.textField)) return textAnalyzer;
 		if (fields.containsKey(fieldName)){
 			Analyzer a = fields.get(fieldName).fieldAnalyzer;

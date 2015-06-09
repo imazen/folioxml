@@ -5,4 +5,5 @@ package folioxml.lucene;
  */
 public interface IndexFieldOptsProvider {
     IndexFieldOpts getFieldOptions(String fieldName);
+    String getDefaultField();
 }
