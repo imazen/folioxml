@@ -58,6 +58,12 @@ Our XML implementation offers regex-based search and replace that only affects t
 * Index multiple infobases to a single lucene index so cross-infobase queries and links can be resolved
 * Split at any record level; offer an interface to determine splitting rules.
 
+## Does not support
+
+* User links
+* Query templates
+* Hypergraphics (image maps)
+
 
 ## Conversion with intermediate lucene index
 

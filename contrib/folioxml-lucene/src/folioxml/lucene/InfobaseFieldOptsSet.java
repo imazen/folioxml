@@ -4,11 +4,13 @@ import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
 import folioxml.lucene.analysis.AnalyzerPicker;
 import folioxml.lucene.analysis.ListAnalyzer;
+import folioxml.lucene.analysis.LowercaseKeywordAnalyzer;
 import folioxml.slx.SlxRecord;
 import folioxml.slx.SlxToken;
 import folioxml.xml.Node;
 import folioxml.xml.XmlRecord;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.util.Version;
 
@@ -21,6 +23,7 @@ public class InfobaseFieldOptsSet implements IndexFieldOptsProvider, AnalyzerPic
     public InfobaseFieldOptsSet(XmlRecord root) throws InvalidMarkupException {
         fields.put("groups", new IndexFieldOpts(new ListAnalyzer()));
         fields.put("bookmarks", new IndexFieldOpts(new ListAnalyzer()));
+        fields.put("folioSectionHeading", new IndexFieldOpts(new LowercaseKeywordAnalyzer()));
 
         //<style-def type="field" fieldType="text|date|time|integer|decimal" format="[format string]" class="field name" indexOptions="TF,PF,TE,NO,PR,DT,FP,SW" />
         for (Node t : root.children.filterByTagName("style-def",true).list()) {

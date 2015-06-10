@@ -91,7 +91,7 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
                     contentSb.append(s);
                 }
                 if (t.matches("p|br|td|th|note") && !t.isOpening()) {
-                    contentSb.append(" ");contentSb.append(TokenUtils.entityDecodeString("&#x00A0;")); contentSb.append(" ");
+                    contentSb.append(TokenUtils.entityDecodeString(" &#x00A0; "));
                 }
                 if (t.isTag() && t.matches("bookmark")){
                     //Add bookmarks as-is
@@ -100,6 +100,9 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
             }
 
             doc.add(new Field(conf.getDefaultField(),contentSb.toString(), Field.Store.YES,Field.Index.ANALYZED, Field.TermVector.NO));
+
+            String folioSectionHeading = TokenUtils.entityDecodeString(r.getFullHeading(",",false,20)).trim();
+            doc.add(new Field("folioSectionHeading",folioSectionHeading,Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.NO));
 
 
             doc.add(new Field("title",r.getFullHeading(" - ",true,2),Field.Store.YES, Field.Index.NO));

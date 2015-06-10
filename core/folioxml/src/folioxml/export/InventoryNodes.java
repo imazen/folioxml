@@ -136,6 +136,10 @@ public class InventoryNodes implements NodeListProcessor {
 
 
     public NodeList process(NodeList nodes) throws InvalidMarkupException {
+        //Deep copy so we don't affect anything.
+        nodes = nodes.deepCopy();
+
+
         for (Node n:nodes.search(new NodeFilter("bookmark")).list())
             increment("bookmark definitions");
 
@@ -184,6 +188,16 @@ public class InventoryNodes implements NodeListProcessor {
 
         //TODO: export hidden text. (better if we use SLX?)
 
+
+        NodeList images = nodes.filterByTagName("img|object|a|link", true);
+        for (Node n:images.list()){
+            if (n.get("resolved") == null && n.get("href") != null && validUrl(n.get("href"))){
+                continue; //It's a valid URI
+            }
+            if (!"true".equalsIgnoreCase(n.get("resolved")) && !"popup".equalsIgnoreCase(n.get("type"))){
+                logUnique(n.toXmlString(false), "unresolved references");
+            }
+        }
 
 
         for (Node link:nodes.search(new NodeFilter("link", "infobase", null)).list())

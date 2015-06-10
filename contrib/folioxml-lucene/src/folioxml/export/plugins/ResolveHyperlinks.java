@@ -3,6 +3,8 @@ package folioxml.export.plugins;
 import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
+import folioxml.core.Pair;
+import folioxml.core.TokenUtils;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.html.ResolveQueryLinks;
 import folioxml.lucene.InfobaseFieldOptsSet;
@@ -110,12 +112,10 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
 
         NodeList queryLinks = nodes.search(new NodeFilter("link","query",null));
         for (Node n:queryLinks.list()){
-            String result = TryGetResultUri(n.get("infobase"), n.get("query"));
-            if (result != null){
-                n.set("href", result);
-                n.set("resolved", "true");
-            }else{
-                //Broken query link
+            Pair<String,String>  result = TryGetResultUri(n.get("infobase"),  TokenUtils.entityDecodeString(n.get("query")));
+            n.set("resolved", result.getSecond());
+            if (result.getFirst() != null){
+                n.set("href", result.getFirst());
             }
         }
 
@@ -125,13 +125,10 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         //Convert local jump links, delete cross-infobase links
         NodeList jumpLinks = nodes.search(new NodeFilter("link","jumpDestination",null));
         for (Node n:jumpLinks.list()){
-            String result = TryGetDestinationUri(n.get("infobase"), n.get("jumpDestination"));
-            if (result == null){
-                //broken jump link
-            }else{
-
-                n.set("href", result);
-                n.set("resolved", "true");
+            Pair<String,String> result = TryGetDestinationUri(n.get("infobase"), n.get("jumpDestination"));
+            n.set("resolved", result.getSecond());
+            if (result.getFirst() != null){
+                n.set("href", result.getFirst());
             }
         }
 
@@ -163,15 +160,12 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
     }
 
 
-    public String TryGetResultUri(String infobase, String query) throws InvalidMarkupException {
+    public Pair<String, String> TryGetResultUri(String infobase, String query) throws InvalidMarkupException, IOException {
         InfobaseConfig targetConfig = infobase == null ? currentInfobase : infobaseSet.byName(infobase);
         if (targetConfig == null){
-            return null; //Infobase external to set
+            return new Pair<String, String>(null, "destination infobase is external to configuration set");
         }
         Analyzer a = this.analyzersPerInfobase.get(targetConfig.getId());
-        if (a == null){
-            throw new InvalidMarkupException();
-        }
         try{
 
             //Lookup analyzer based on infobase
@@ -180,41 +174,46 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
             if (q == null) {
                 System.out.println("Failed to convert query: " + query);
                 //info.invalidQueryLinks ++;
+                return new Pair<String, String>(null, "failed to parse query");
             }
             else {
                 String newQuery = q.toString() ;
                 ScoreDoc[] hits = searcher.search(q,1).scoreDocs;
                 if (hits.length > 0){
                     //info.workingQueryLinks++;
-                    return searcher.doc(hits[0].doc).get("uri");
+                    return new Pair<String, String>(searcher.doc(hits[0].doc).get("uri"), "true");
                 }else {
+
                     //info.noresultQueryLinks++;
                     System.out.println("No results for " + newQuery +  "     (Previously " + query + ")");
+                    return new Pair<String, String>(null, "no results for query " + newQuery);
                 }
-                return null;
             }
         }catch(InvalidMarkupException ex){
             System.out.println("Failed on: " + query);
             System.out.println(ex.getMessage());
             //info.invalidQueryLinks++;
+            return new Pair<String, String>(null, "exception occurred: " + ex.toString());
         } catch (IOException e) {
             System.out.println("Failed on: " + query);
             // TODO Auto-generated catch block
             e.printStackTrace();
            // info.invalidQueryLinks++;
+            return new Pair<String, String>(null, "exception occurred: " + e.toString());
         } catch (ParseException e) {
             System.out.println("Failed on: " + query);
             // TODO Auto-generated catch block
             e.printStackTrace();
             //info.invalidQueryLinks++;
+            return new Pair<String, String>(null, "exception occurred: " + e.toString());
         }
-        return null;
+
     }
 
-    public String TryGetDestinationUri(String infobase, String jumpDestination) throws IOException {
+    public Pair<String, String> TryGetDestinationUri(String infobase, String jumpDestination) throws IOException, InvalidMarkupException {
         InfobaseConfig targetConfig = infobase == null ? currentInfobase : infobaseSet.byName(infobase);
         if (targetConfig == null){
-            return null; //Infobase external to set
+            return new Pair<String, String>(null, "destination infobase is external to configuration set");
         }
 
         BooleanQuery q = new BooleanQuery();
@@ -223,12 +222,18 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         ScoreDoc[] hits = searcher.search(q,1).scoreDocs;
         if (hits.length > 0){
             //info.workingQueryLinks++;
-            return searcher.doc(hits[0].doc).get("uri");
+            String newUri = searcher.doc(hits[0].doc).get("uri");
             //TODO: improve by modifying uri fragment to link directly to bookmark
+            if (newUri == null){
+                //We aren't providing structure
+                throw new InvalidMarkupException("Hyperlinks cannot be resolved unless ExportStructure (or another plugin that populates the uri attribute for records) is installed prior to indexing");
+            }
+            return new Pair<String, String>(newUri, "true");
+
         }else {
             //TODO; broken jump link!
+            return new Pair<String, String>(null, "no corresponding jump destination");
         }
-        return null;
     }
 
 

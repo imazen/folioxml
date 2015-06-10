@@ -33,7 +33,10 @@ public class FixImagePaths implements NodeListProcessor {
 				
 				//Fix path. It will be relative, since it is from a local embedded object.
 				String src = n.get(attr);
-				if (src != null) n.set(attr, modifyImageUrl(src));
+				if (src != null) {
+                    n.set(attr, modifyImageUrl(src));
+                    n.set("resolved", "true");
+                }
 				
 			}
 		}
