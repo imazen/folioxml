@@ -13,6 +13,7 @@ import folioxml.export.html.ResolveQueryLinks;
 import folioxml.export.plugins.ExportInventory;
 import folioxml.export.plugins.ExportMappingsFiles;
 import folioxml.export.plugins.RenameFiles;
+import folioxml.export.plugins.ResolveHyperlinks;
 import folioxml.lucene.InfobaseSetIndexer;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
@@ -45,6 +46,17 @@ public class SimultaneousTest {
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new InfobaseSetIndexer());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"),plugins);
+        visitor.complete();
+    }
+
+    @Test @Ignore
+    public void InventoryHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new RenameFiles());
+        plugins.add(new ResolveHyperlinks());
+        plugins.add(new ExportInventory());
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"),plugins);
         visitor.complete();
     }
