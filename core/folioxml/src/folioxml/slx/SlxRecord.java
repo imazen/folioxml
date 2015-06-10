@@ -232,7 +232,8 @@ public class SlxRecord extends SlxToken implements ISlxTokenWriter{
     	String heading = get("heading");
     	if (heading == null) throw new InvalidMarkupException("calculateParent must be called first");
     	
-    	
+    	heading = heading.trim();
+
     	if (heading.length() == 0) {
     		if (parent == null) return ""; //Nothing left
     		return parent.getFullHeading(delimiter,mostSpecificFirst,maxNames);
