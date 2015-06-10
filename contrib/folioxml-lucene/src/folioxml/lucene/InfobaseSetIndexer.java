@@ -53,7 +53,7 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
     InfobaseConfig currentInfobase;
     @Override
     public ISlxTokenReader wrapSlxReader(ISlxTokenReader reader) {
-        return null;
+        return reader;
     }
 
     Document doc = null;
@@ -79,6 +79,7 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
             StringBuilder contentSb = new StringBuilder();
             SlxContextStack stack = new SlxContextStack(false,false);
             List<String> destinations = new ArrayList<String>();
+            stack.process(r);
             for (SlxToken t : r.getTokens()) {
                 stack.process(t);// call this on each token.
 

@@ -16,6 +16,7 @@ import folioxml.xml.Node;
 import folioxml.xml.NodeFilter;
 import folioxml.xml.NodeList;
 import folioxml.xml.XmlRecord;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
@@ -65,13 +66,15 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         infobaseSet = set;
         searcher = null;
 
-        File index = Paths.get(set.getExportDir(true)).resolve("lucene_index").toFile();
+        File index = new File(set.getIndexDir());
         QueryResolverInfo queryInfo = null;
         if (index.isDirectory()) {
             searcher = new IndexSearcher(FSDirectory.open(index));
             //Load and parse all infobase root nodes
             //query infoabse="x" && level="root", then load and parse slx to load the query resolver.
             loadAnalyzers();
+        }else{
+            System.err.println("Failed to locate lucene index; links will not be resolved");
         }
     }
 
@@ -94,11 +97,12 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
     @Override
     public void onRecordTransformed(SlxRecord dirty_slx, XmlRecord r) throws InvalidMarkupException, IOException {
 
+        if (searcher == null) return; //Do nothing if we can't access lucene.
         NodeList nodes = new NodeList(r);
 
         //All jump destinations must be an anchor tag, or we can't link to them.
         for (Node n:nodes.search(new NodeFilter("bookmark")).list())
-            n.setTagName("a").set("id", hashDestination(currentInfobase.getId(), n.get("name")));
+            n.set("id", hashDestination(currentInfobase, n.get("name")));
 
 
 
@@ -109,7 +113,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
             String result = TryGetResultUri(n.get("infobase"), n.get("query"));
             if (result != null){
                 n.set("href", result);
-                n.setTagName("a");
+                n.set("resolved", "true");
             }else{
                 //Broken query link
             }
@@ -125,16 +129,17 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
             if (result == null){
                 //broken jump link
             }else{
-                n.setTagName("a");
+
                 n.set("href", result);
+                n.set("resolved", "true");
             }
         }
 
     }
 
-    public  String hashDestination(String infobase, String name)  {
+    private  String hashDestination(InfobaseConfig infobase, String name)  {
         //Normalize destination infobase ID.
-        String iid = infobaseSet.byName(infobase).getId();
+        String iid = infobase.getId();
 
         //Ids may not begin with a number, prefix
         return "d" + Integer.toHexString(iid.hashCode()) + "_" + Integer.toHexString(name.hashCode());
@@ -158,14 +163,19 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
     }
 
 
-    public String TryGetResultUri(String infobase, String query){
-        InfobaseConfig targetConfig = infobaseSet.byName(infobase);
+    public String TryGetResultUri(String infobase, String query) throws InvalidMarkupException {
+        InfobaseConfig targetConfig = infobase == null ? currentInfobase : infobaseSet.byName(infobase);
         if (targetConfig == null){
             return null; //Infobase external to set
         }
+        Analyzer a = this.analyzersPerInfobase.get(targetConfig.getId());
+        if (a == null){
+            throw new InvalidMarkupException();
+        }
         try{
+
             //Lookup analyzer based on infobase
-            QueryParser qp = new QueryParser(this.analyzersPerInfobase.get(targetConfig.getId()), InfobaseFieldOptsSet.getStaticDefaultField());
+            QueryParser qp = new QueryParser(a, InfobaseFieldOptsSet.getStaticDefaultField());
             Query q = qp.parse(query);
             if (q == null) {
                 System.out.println("Failed to convert query: " + query);
@@ -202,7 +212,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
     }
 
     public String TryGetDestinationUri(String infobase, String jumpDestination) throws IOException {
-        InfobaseConfig targetConfig = infobaseSet.byName(infobase);
+        InfobaseConfig targetConfig = infobase == null ? currentInfobase : infobaseSet.byName(infobase);
         if (targetConfig == null){
             return null; //Infobase external to set
         }
