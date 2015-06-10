@@ -30,7 +30,7 @@ public class RenameImages extends FixImagePaths {
     //Drop extension in XML - assumes our uploader also drops the extension and replaces it with a content type
     //Convert BMP files to PNG.
 
-    protected static Pattern object_file = Pattern.compile("\\A([^\\\\/]+)[\\\\/]FFF([0-9]+).(OB|OLE)\\Z");
+    protected static Pattern object_file = Pattern.compile("\\A([^\\\\/]+)[\\\\/]FFF([0-9]+).(OB|OLE|BMP)\\Z");
     protected static Pattern data_file = Pattern.compile("\\A([^\\\\/]+)[\\\\/]Data[\\\\/]([^\\\\/]+)\\Z");
 
 
