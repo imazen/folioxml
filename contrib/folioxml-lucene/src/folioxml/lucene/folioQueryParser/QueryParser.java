@@ -14,6 +14,7 @@ import folioxml.lucene.folioQueryParser.QueryToken.TokenType;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Locale;
 
 /*
  * Supports field and group searches. Boolean  Does not support wild
@@ -57,16 +58,16 @@ public class QueryParser {
 			//Parse the field type and name out.
 			String type = t.headers.get(0).text;
 			
-			if (TokenUtils.fastMatches("contents|headings|partition|rank|weight|server",type))
+			if (TokenUtils.fastMatches("headings|partition|rank|weight|server",type))
 				throw new InvalidMarkupException("Support for [" + type + " ...] in queries is not yet implemented.",t.headers.get(0));
 			
-			if (TokenUtils.fastMatches("field|group|highlighter|level|popup|note",type)){
+			if (TokenUtils.fastMatches("contents|field|group|highlighter|level|popup|note",type)){
 				t.headers.remove(0);
 			}else{
 				type = "Field";
 			}
-			
-			if (TokenUtils.fastMatches("field|highlighter|level|popup|note",type)){
+
+			if (TokenUtils.fastMatches("contents|field|highlighter|level|popup|note",type)){
 				//Concatenate the text from the tokens to find the field/highlighter/level/popup/note 'field name' to search on.
 				String header = TokenUtils.fastMatches("popup|note",type) ? (type + "s") : "";
 				for(int i = 0; i < t.headers.size(); i++){
@@ -75,25 +76,36 @@ public class QueryParser {
 					if (h.children != null && h.children.size() > 0) throw new InvalidMarkupException("Invalid character in field, level, or highlighter name - #, @ or /");
 				}
 				//So, now we have a field name. Pass it down to all children so they can be created properly.
-				if (!TokenUtils.fastMatches("level",type))
+				if (!TokenUtils.fastMatches("level|contents",type))
 					t.setFieldNameRecursive(header.trim());
 				
 				//Piggyback off the () query creation
 				QueryToken n = new QueryToken(TokenType.OpenGroup,"(");
 				n.children = t.children;
 				Query q = Convert(n);
-				if (!TokenUtils.fastMatches("level",type)){
+				if (!TokenUtils.fastMatches("level|contents",type)){
 					//Now, we have to do something special if there are no children.
 					if (q == null) return new PrefixQuery(new Term(t.fieldName,"*"));
 					else return q;
-				}else{
-					//Level queries are really an AND query, they don't change the field name.
+				}else if (TokenUtils.fastMatches("level",type)){
+					//Levelqueries are really an AND query, they don't change the field name.
 					if (q == null) return null;
 					BooleanQuery bq = new BooleanQuery();
 					bq.add(q, Occur.MUST);
 					bq.add(new TermQuery(new Term("level", header.trim())), Occur.MUST);
 					return bq;
-				}
+				} else if (TokenUtils.fastMatches("contents",type)){
+
+                    //We need to drop apostrophes around headings
+                    //contents queries don't change the field name.
+                    TermQuery tocQuery = new TermQuery(new Term("folioSectionHeading", header.replace("'","").trim().toLowerCase(Locale.ENGLISH)));
+
+                    if (q == null) return tocQuery;
+                    BooleanQuery bq = new BooleanQuery();
+                    bq.add(q, Occur.MUST);
+                    bq.add(tocQuery, Occur.MUST);
+                    return bq;
+                }
 				
 			}else if (TokenUtils.fastMatches("group",type)){
 				t.setFieldNameRecursive("groups");
@@ -105,7 +117,7 @@ public class QueryParser {
 				}
 				return parseSimpleQuery("groups", header.trim());
 			}
-			
+
 
 		}
 		if (t.type == TokenType.Term){

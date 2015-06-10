@@ -34,16 +34,16 @@ public class QueryToken{
     public static Pattern rNot = Pattern.compile("^(?:\\^|not)", Pattern.CASE_INSENSITIVE);
     public static Pattern rColon = Pattern.compile("^\\:{1,2}");
     //Unquoted strings may contain apostrophes, but they cannot start with them. 
-    public static Pattern rTerm = Pattern.compile("^(?:[^'\"\\s~:/@#\\|\\^\\&\\[\\]\\(\\)\\\\\\{\\}][^\"\\s~:\\|\\^\\&\\[\\]\\(\\)\\\\\\{\\}]*+|" + 
+    public static Pattern rTerm = Pattern.compile("^(?:,|" +
     						       "\"(?:[^\"]++|\"\")++\"|" + 
-    						       "'(?:[^']++|'')++')");
+    						       "'(?:[^']++|'')++'|" +
+                                    "[^'\",\\s~:/@#\\|\\^\\&\\[\\]\\(\\)\\\\\\{\\}][^\"\\s~:\\|\\^\\&\\[\\]\\(\\)\\\\\\{\\}]*+)");
     public static Pattern rTermSuffix = Pattern.compile("^[/#@][0-9Ss]+");
     
     /**
      * An array of the patterns we look for, in the correct order.
      */
-    public static Pattern[] tokenPatterns = new Pattern[]{rGrouping, rWhitespace,rNot, rOr,rXor,rColon, rWhitespace, rTermSuffix,rTerm }; //rComment should come before rTag, since rTag matches opening comment tags.
-
+    public static Pattern[] tokenPatterns = new Pattern[]{rGrouping, rWhitespace,rNot, rOr,rXor,rColon, rWhitespace, rTermSuffix,rTerm };
     
     public QueryToken(Pattern p, String text) throws InvalidMarkupException{
     	this.text = text;
