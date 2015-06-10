@@ -40,6 +40,14 @@ import java.util.List;
 
 public class SimultaneousTest {
 
+    @Test @Ignore
+    public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new InfobaseSetIndexer());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"),plugins);
+        visitor.complete();
+    }
 
     @Test @Ignore
     public void IndexSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{

@@ -134,6 +134,14 @@ public class YamlInfobaseSet implements InfobaseSet{
         return System.getProperty("file.separator");
     }
 
+    @Override
+    public String getIndexDir() {
+        String indexPath =  getStringAsPath("index_dir", FolderCreation.None);
+        if (indexPath == null){
+            indexPath = Paths.get(getExportDir(true)).resolve("combined_lucene_index").toString();
+        }
+        return indexPath;
+    }
 
     private String fixSlashes(String path){
         char otherSlash = slash().charAt(0) == '/' ? '\\' : '/';

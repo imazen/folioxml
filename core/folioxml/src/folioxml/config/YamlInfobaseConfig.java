@@ -32,9 +32,9 @@ public class YamlInfobaseConfig implements InfobaseConfig {
 
     @Override
     public String getIndexDir() {
-        String indexPath =  getStringAsPath("index_dir", FolderCreation.None) == null ? parent.getStringAsPath("index_dir",  FolderCreation.None) : getStringAsPath("index_dir",  FolderCreation.None);
+        String indexPath =  getStringAsPath("index_dir", FolderCreation.None);
         if (indexPath == null){
-            indexPath = Paths.get(getFlatFilePath()).resolveSibling("lucene_index").toString();
+            indexPath = Paths.get(getExportDir(true)).resolve(getId() + "_lucene_index").toString();
         }
         return indexPath;
     }

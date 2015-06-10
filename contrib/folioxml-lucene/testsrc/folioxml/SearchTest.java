@@ -35,7 +35,6 @@ public class SearchTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
     	new SimultaneousTest().IndexHelp();
-    	new SimultaneousTest().ExportHelp();
     }
 
     @AfterClass
@@ -79,7 +78,7 @@ public class SearchTest {
          start = new Date().getTime();
         //Directory dir = FSDirectory.getDirectory(PathProvider.getDataDir());
         // Now search the index. If you pass in a directory instance, you are responsible for closing it. If you pass in a path, it will open and close the directory instance itself.
-         String indexDir = folioxml.config.TestConfig.getFolioHlp().getFlatFilePath().replace(".", "_");
+         String indexDir = folioxml.config.TestConfig.getFolioHlp().getIndexDir();
         IndexSearcher isearcher = new IndexSearcher(FSDirectory.open(new File(indexDir)));
         System.out.println("creating index searcher took " + ( new Date().getTime() - start) + " milliseconds");
         

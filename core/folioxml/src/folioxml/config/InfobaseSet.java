@@ -22,6 +22,7 @@ public interface InfobaseSet {
 
     public InfobaseConfig byName(String name);
 
+    public String getIndexDir();
     public String getStringAsPath(String key, FolderCreation pathOptions);
     public String getString(String key);
     public boolean getBool(String key);
