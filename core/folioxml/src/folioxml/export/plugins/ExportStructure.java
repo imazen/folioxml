@@ -105,6 +105,7 @@ public class ExportStructure implements InfobaseSetPlugin {
         next.getAttributes().put("level", xr.get("level"));
         p.PopulateNodeInfo(xr, next);
         next.setRelativePath(p.getRelativePathFor(next));
+        current = next;
         return next;
     }
 
