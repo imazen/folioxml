@@ -5,7 +5,10 @@ public class XmlFormatter {
 	public XmlFormatter(int startingIndent){
 		defaultIndentDepth = startingIndent;
 	}
-	
+    public XmlFormatter(int startingIndent, String indentString){
+        defaultIndentDepth = startingIndent;
+        this.indentString = indentString;
+    }
 	public String indentString = "\t";
 	public int optimalLineLength = 80;
 	public String inlineElementsRegex = "span|link|a";
@@ -45,7 +48,7 @@ public class XmlFormatter {
 		if (n.isTag() && !n.matches(inlineElementsRegex)){
 			if (!onNewLine) sb.append('\n');
 			
-			for (int i = 0; i < indentDepth; i++) sb.append('\t');
+			for (int i = 0; i < indentDepth; i++) sb.append(indentString);
 			
 			n.writeTokenTo(sb);
 			//write a newline after
@@ -57,14 +60,14 @@ public class XmlFormatter {
 				onNewLine = sb.length() > 0 ? (sb.charAt(sb.length() -1) == '\n') : true;
 				if (!onNewLine) sb.append('\n');
 				//Write tabs
-				for (int i = 0; i < indentDepth; i++) sb.append('\t');
+				for (int i = 0; i < indentDepth; i++) sb.append(indentString);
 				 //Closing tag
 				sb.append(n.getClosingTagString());
 				sb.append('\n');
 			}
 		}else{
 			if (onNewLine){
-				for (int i = 0; i < indentDepth; i++) sb.append('\t');
+				for (int i = 0; i < indentDepth; i++) sb.append(indentString);
 			}
 			if (n.isTag()){
 				n.writeTokenTo(sb); //Opening tag
@@ -78,7 +81,7 @@ public class XmlFormatter {
 			}else{ //text and comments
 				//Build indent string
 				StringBuilder indentStr = new StringBuilder(indentDepth + 1);
-				for (int i = 0; i < indentDepth; i++) indentStr.append('\t');
+				for (int i = 0; i < indentDepth; i++) indentStr.append(indentString);
 				
 				//Write text wrapped
 				writeText(n.toTokenString(),sb,optimalLineLength,indentStr.toString());
