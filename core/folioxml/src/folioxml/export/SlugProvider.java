@@ -38,11 +38,12 @@ public class SlugProvider implements NodeInfoProvider{
 
         if ("Issue".equalsIgnoreCase(r.getLevelType())){
             //then apply regex to months
-            slug = slug.replaceFirst("\\A\\d\\d?/\\d\\d\\s+", "").trim();
+            slug = slug.replaceFirst("\\A\\d\\d?/\\d\\d\\s+", "").trim(); //Drop the d/m prefix
+            slug = slug.replaceAll("\\A.*(January|February|March|April|May|June|July|August|September|October|November|December).*\\Z", "$1"); //If present, just use the month.
         }
         // strip out all characters except letters, digits, dashes, underscores, tildes (~) and dollar signs,
         slug = slug.replaceAll("[^a-zA-Z0-9-_~$]", " ");
-        slug = slug.replaceAll("[ \t\r\n]+", "-");
+        slug = slug.replaceAll("[ \t\r\n]+", "-").toLowerCase(Locale.ENGLISH);
 
         FileNode parentScope = f.getParent() == null ? silentRoot : f.getParent();
 

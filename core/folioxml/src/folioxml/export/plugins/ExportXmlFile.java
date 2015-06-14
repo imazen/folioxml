@@ -87,10 +87,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
         }
 
         else{
-            if (file == null){
-                //TODO: log this! dropping record
-                return;
-            }
+
             FileNode common = openFileNodes.isEmpty() ? null : getCommonAncestor(file, openFileNodes.peek(), true);
             closeAllUntil(common);
             if (common != file){
@@ -160,7 +157,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
 
     private void openChildren() throws IOException {
         FileNode top = openFileNodes.peek();
-        if (top == null) return; 
+        if (top == null) return;
         if (getBool(top, "bodyOpen", false)){
             closeElement("body");
             setBool(top,"bodyOpen", false);

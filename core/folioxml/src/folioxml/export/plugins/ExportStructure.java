@@ -58,17 +58,19 @@ public class ExportStructure implements InfobaseSetPlugin {
         clean_slx.set("heading", heading);
     }
 
+    int recordIndex =0;
     @Override
     public void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException { 
 
         String id = xr.get("recordId");
-        if (id == null) id = UUID.randomUUID().toString();
-        xr.set("uri", id); //We set the URI so it can be indexed, and used for hyperlink resolution.
 
-        String hash = id;
-        xr.set("id", "record_" + hash);
+
+        String rid = "r" + Integer.toString(recordIndex);
+        recordIndex++;
+        xr.set("id", rid);
+
         //Many browsers/ebooks require an anchor tag, and can't navigate to a div ID.
-        Node c = new Node("<a id=\"" + hash + "\" ></a>");
+        Node c = new Node("<a id=\"a" +rid + "\" ></a>");
         xr.addChild(c, 0);
 
     }
@@ -81,6 +83,7 @@ public class ExportStructure implements InfobaseSetPlugin {
 
     @Override
     public FileNode assignFileNode(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
+
 
         if (!p.startNewFile(xr)) return  current;
 
@@ -112,7 +115,14 @@ public class ExportStructure implements InfobaseSetPlugin {
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
 
-        if (file != null) file.getAttributes().put("path", file.getRelativePath());
+        String path = file.getRelativePath();
+
+        //We set the URI so it can be indexed, and used for hyperlink resolution.
+        xr.set("uri", path + "#a" + xr.get("id"));
+
+        //We set the file path
+        file.getAttributes().put("path", path);
+
     }
 
 
