@@ -44,10 +44,6 @@ public class StaticFileNode implements FileNode{
         this.relativePath = relativePath;
     }
 
-    public StaticFileNode getRoot(){
-        if (parent == null) return this;
-        return getP().getRoot();
-    }
 
     public int incrementCounter(String counterName, Integer startAt){
         Integer current = getCounter(counterName, startAt) + 1;

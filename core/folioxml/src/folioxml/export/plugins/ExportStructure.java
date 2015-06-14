@@ -91,13 +91,16 @@ public class ExportStructure implements InfobaseSetPlugin {
         //Locate the node's parents
         if (current != null){
             XmlRecord commonAncestor = ((XmlRecord)current.getBag().get("record")).getCommonAncestor(xr,true);
-            StaticFileNode candidateParent = current;
-            while (candidateParent != null){
-                if (((XmlRecord)candidateParent.getBag().get("record")) == commonAncestor) {
-                    parent = candidateParent;
-                    break;
-                }else{
-                    candidateParent = (StaticFileNode)candidateParent.getParent();
+            if (commonAncestor.isRootRecord()) commonAncestor = null;
+            if (commonAncestor != null){
+                StaticFileNode candidateParent = current;
+                while (candidateParent != null){
+                    if (((XmlRecord)candidateParent.getBag().get("record")) == commonAncestor) {
+                        parent = candidateParent;
+                        break;
+                    }else{
+                        candidateParent = (StaticFileNode)candidateParent.getParent();
+                    }
                 }
             }
         }
