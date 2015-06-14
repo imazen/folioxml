@@ -97,7 +97,8 @@ public class SimultaneousTest {
                 CleanupSlxStuff.CleanupOptions.PullMenuLinks,
                 CleanupSlxStuff.CleanupOptions.DropTypeAttr,
                 CleanupSlxStuff.CleanupOptions.RenameLinkToA,
-                CleanupSlxStuff.CleanupOptions.RenameBookmarks));
+                CleanupSlxStuff.CleanupOptions.RenameBookmarks,
+                CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
         MultiRunner xhtml = new MultiRunner(cleanup, new Images(), new Notes(), new Popups(), new SplitSelfClosingTags());
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(new SlugProvider("")));
@@ -108,7 +109,8 @@ public class SimultaneousTest {
 
         plugins.add(new ApplyProcessor(xhtml));
         plugins.add(new ExportCssFile());
-        plugins.add(new ExportXmlFile(true));
+        //plugins.add(new ExportXmlFile(true));
+        plugins.add(new ExportHtmlFiles());
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("testset"),plugins);
 
         visitor.complete();

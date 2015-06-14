@@ -43,10 +43,9 @@ public class XmlRecord extends Node {
         return s;
     }
 
-    private SlxRecord getRoot(SlxRecord record){
-        if (record == null) return null;
-        if (record.parent == null) return record;
-        else return getRoot(record.parent);
+    public XmlRecord getRoot(){
+        if (parent == null) return this;
+        else return parent.getRoot();
     }
 
     public Deque<XmlRecord> getAncestors(boolean includeSelf){

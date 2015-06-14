@@ -70,13 +70,19 @@ public class YamlInfobaseSet implements InfobaseSet{
 
     @Override
     public String getExportFile(String filename, boolean createFolders) {
-        return Paths.get(getExportDir(createFolders)).resolve(filename).toAbsolutePath().toString();
+
+        String path = Paths.get(getExportDir(createFolders)).resolve(filename).toAbsolutePath().toString();
+        YamlInfobaseConfig.createFoldersInPath(path, createFolders ? FolderCreation.CreateParents : FolderCreation.None);
+
+        return path;
     }
 
     @Override
     // Generates a base path that can be used for logs, reports, etc.
     public String generateExportBaseFile() {
-        return getExportFile(name.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-zA-Z_-]", "") + "-all" + new SimpleDateFormat("-dd-MMM-yy-(s)").format(new Date()), true);
+        String cleanName = name.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-zA-Z_-]", "");
+        String exportFolderName =  cleanName + "-all" + new SimpleDateFormat("-dd-MMM-yy-(s)").format(new Date());
+        return getExportFile(Paths.get(exportFolderName).resolve(cleanName).toString(), true);
     }
 
     @Override

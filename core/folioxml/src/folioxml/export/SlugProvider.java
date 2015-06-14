@@ -45,6 +45,9 @@ public class SlugProvider implements NodeInfoProvider{
         slug = slug.replaceAll("[^a-zA-Z0-9-_~$]", " ");
         slug = slug.replaceAll("[ \t\r\n]+", "-").toLowerCase(Locale.ENGLISH);
 
+        //Then truncate if longer than 100 chars
+        if (slug.length() > 100) slug = slug.substring(0,100);
+
         FileNode parentScope = f.getParent() == null ? silentRoot : f.getParent();
 
         //Access sibling slugs to ensure uniqueness.
