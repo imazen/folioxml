@@ -75,7 +75,7 @@ public class FolioSlxTranslator{
 
             //Get the ID
             String recordId = ft.getOptionAfter("ID");
-            if (recordId != null)  t.set("recordId", recordId);
+            if (recordId != null)  t.set("folioId", recordId);
 
             //Get the custom heading flag
             if (ft.hasOption("CH")) t.set("customHeading", "true");

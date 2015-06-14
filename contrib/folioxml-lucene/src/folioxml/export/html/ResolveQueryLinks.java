@@ -31,7 +31,7 @@ public class ResolveQueryLinks implements NodeListProcessor {
 		ScoreDoc[] hits = searcher.search(query,1).scoreDocs;
 		if (hits.length > 0){
 			info.workingQueryLinks++;
-			return searcher.doc(hits[0].doc).get("recordId");
+			return searcher.doc(hits[0].doc).get("folioId");
 		}else {
 			info.noresultQueryLinks++;
 			System.out.println("No results for " + newQuery +  "     (Previously " + original + ")");

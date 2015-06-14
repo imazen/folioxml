@@ -78,7 +78,7 @@ public class LuceneRecord { //Renamed to DocumentBuilder
 		//doc.add(addNonAnalyzedField("fullPath",r.fullPath()));
 		
 		if (!isRoot){
-			//doc.add(addNonAnalyzedField("recordId", attr.get("recordId")));
+			//doc.add(addNonAnalyzedField("folioId", attr.get("folioId")));
 			//doc.add(addNonAnalyzedField("localPath",r.localPath()));
 			//doc.add(addNonAnalyzedField("parentPath",r.parentPath()));
 			

@@ -62,8 +62,6 @@ public class ExportStructure implements InfobaseSetPlugin {
     @Override
     public void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException { 
 
-        String id = xr.get("recordId");
-
 
         String rid = "r" + Integer.toString(recordIndex);
         recordIndex++;
