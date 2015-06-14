@@ -22,9 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by nathanael on 6/9/15.
- */
+
 public class InfobaseSetVisitor {
 
     public InfobaseSetVisitor(InfobaseSet set, List<InfobaseSetPlugin> plugins){
@@ -85,10 +83,25 @@ public class InfobaseSetVisitor {
 
                     XmlRecord rx = new SlxToXmlTransformer().convert(r);
 
+
                     //onRecordTransformed
                     for(InfobaseSetPlugin p: plugins)
-                        p.onRecordTransformed(r,rx);
+                        p.onRecordTransformed(rx,r);
 
+
+                    FileNode fn = null;
+                    //assignFileNode
+                    for(InfobaseSetPlugin p: plugins){
+                        FileNode temp = p.assignFileNode(rx,r);
+                        if (temp != null) {
+                            fn = temp;
+                            break;
+                        }
+                    }
+
+                    //onRecordComplete
+                    for(InfobaseSetPlugin p: plugins)
+                        p.onRecordComplete(rx,fn);
 
                     if  (r.isRootRecord()){
                         root = rx;

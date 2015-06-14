@@ -3,6 +3,7 @@ package folioxml.export.plugins;
 import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
+import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.html.RenameImages;
 import folioxml.slx.ISlxTokenReader;
@@ -40,11 +41,23 @@ public class RenameFiles implements InfobaseSetPlugin {
     }
 
     @Override
-    public void onRecordTransformed(SlxRecord dirty_slx, XmlRecord r) throws InvalidMarkupException, IOException {
+    public void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
         if  (!dirty_slx.isRootRecord()){
-            renamer.process(new NodeList(r));
+            renamer.process(new NodeList(xr));
         }
     }
+
+    @Override
+    public FileNode assignFileNode(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
+        return null;
+    }
+
+    @Override
+    public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
+
+    }
+
+
 
     @Override
     public void endInfobase(InfobaseConfig infobase) throws IOException, InvalidMarkupException {

@@ -4,6 +4,7 @@ import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.FolioToSlxDiagnosticTool;
 import folioxml.core.InvalidMarkupException;
+import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
@@ -11,9 +12,7 @@ import folioxml.xml.XmlRecord;
 
 import java.io.IOException;
 
-/**
- * Created by nathanael on 6/9/15.
- */
+
 public class ExportMappingsFiles implements InfobaseSetPlugin {
 
     public ExportMappingsFiles(){}
@@ -40,9 +39,21 @@ public class ExportMappingsFiles implements InfobaseSetPlugin {
     }
 
     @Override
-    public void onRecordTransformed(SlxRecord dirty_slx, XmlRecord r) throws InvalidMarkupException, IOException {
+    public void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
 
     }
+
+    @Override
+    public FileNode assignFileNode(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
+        return null;
+    }
+
+    @Override
+    public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
+
+    }
+
+
 
     @Override
     public void endInfobase(InfobaseConfig infobase) throws IOException, InvalidMarkupException {

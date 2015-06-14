@@ -18,23 +18,26 @@ public class StylesheetBuilder {
 	
 
 	
-	private void getDefaultCss(StringBuilder sb){
-		sb.append("td p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins... 
-		sb.append("th p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins... 
+	private void getDefaultCss(String applySelector, StringBuilder sb){
+		sb.append(applySelector + "td p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins...
+		sb.append(applySelector + "th p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins...
 		
-		sb.append("p {margin:0; margin-top:0.2em;} p._empty{ padding-top:1em; }\n"); //Empty paragraphs get padding to mimic folio model.
+		sb.append(applySelector + "p {margin:0; margin-top:0.2em;} p._empty{ padding-top:1em; }\n"); //Empty paragraphs get padding to mimic folio model.
 		
-		sb.append("body {font-family: \"Times New Roman\"; font-size:12pt; line-height:1.0em; white-space-collapse: preserve; white-space:pre-wrap; margin:30px;}\n"); //Set the default font size and face. Folio uses TimesNewRoman 12
+		sb.append(applySelector.length() == 0 ? "body" :  applySelector + " {font-family: \"Times New Roman\"; font-size:12pt; line-height:1.0em; white-space-collapse: preserve; white-space:pre-wrap; margin:30px;}\n"); //Set the default font size and face. Folio uses TimesNewRoman 12
 		//white-space-collapse: preserve; - Tries to maintain compatibility with Folio's treatment of whitespace.
 		//font-weight: bolder; text-align: center 
 		
-		sb.append("th {font-weight:auto;text-align:auto;}\n"); //Reset to act like td - what is folio behavior?
+		sb.append(applySelector + "th {font-weight:auto;text-align:auto;}\n"); //Reset to act like td - what is folio behavior?
 	}
 	
-	public String getCss() throws InvalidMarkupException{
+	public String getCss(String applySelector) throws InvalidMarkupException{
 		StringBuilder sb = new StringBuilder();
-		
-		getDefaultCss(sb);
+
+        if (applySelector == null) applySelector = "";
+        if (applySelector.length() > 0 && !applySelector.endsWith(" ")) applySelector += " ";
+
+		getDefaultCss(applySelector,sb);
 		
 		for(SlxToken t:root.getTokens()){
 			if (t.matches("style-def")){
@@ -50,8 +53,8 @@ public class StylesheetBuilder {
 					if (selector.length() == 0) selector = "span";
 					selector += "." + cls;
 					
-					sb.append(selector + " {\n");
-					sb.append(style.replace(";", ";\n"));
+					sb.append(applySelector + selector + " {\n  ");
+					sb.append(style.replace(";", ";\n  "));
 					sb.append("}\n");
 					
 				}
@@ -61,7 +64,7 @@ public class StylesheetBuilder {
 	}
 	
 	public String getCssAndStyleTags() throws InvalidMarkupException{
-		return "<style type=\"text/css\">\n" + getCss() + "</style>";
+		return "<style type=\"text/css\">\n" + getCss(null) + "</style>";
 	}
 }
 

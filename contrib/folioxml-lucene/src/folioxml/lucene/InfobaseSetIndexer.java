@@ -4,6 +4,7 @@ import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
+import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.lucene.analysis.AnalyzerPicker;
 import folioxml.lucene.analysis.DynamicAnalyzer;
@@ -112,8 +113,20 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
         }
     }
 
+
+
     @Override
-    public void onRecordTransformed(SlxRecord dirty_slx, XmlRecord r) throws InvalidMarkupException, IOException {
+    public FileNode assignFileNode(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
+        return null;
+    }
+
+    @Override
+    public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
+
+    }
+
+    @Override
+    public void onRecordTransformed( XmlRecord r, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
         //Add URI
         if (r.get("uri") != null) doc.add(new Field("uri",r.get("uri"),Field.Store.YES, Field.Index.NOT_ANALYZED));
 

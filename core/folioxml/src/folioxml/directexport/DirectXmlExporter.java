@@ -55,7 +55,7 @@ public class DirectXmlExporter {
 	public void processRecord(SlxRecord r) throws InvalidMarkupException, IOException{
 		boolean isRoot = "root".equals(r.getLevelType());
 		if (isRoot){
-			css = new StylesheetBuilder(r).getCss();
+			css = new StylesheetBuilder(r).getCss("");
 			levels = r.get("levels") != null ? r.get("levels") : r.get("levelDefOrder");
 			root = r;
 		}

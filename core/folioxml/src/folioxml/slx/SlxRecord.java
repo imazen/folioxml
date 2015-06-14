@@ -1,6 +1,7 @@
 package folioxml.slx;
 
 import folioxml.core.InvalidMarkupException;
+import folioxml.core.TokenUtils;
 import folioxml.xml.XmlRecord;
 
 import java.io.IOException;
@@ -196,12 +197,21 @@ public class SlxRecord extends SlxToken implements ISlxTokenWriter{
 			stack.process(t);// call this on each token.
 			if (!stack.has("note|popup|table") ){
 				if (t.isTextOrEntity()){
+                    String s = t.markup;
+                    if (t.isEntity()) s = TokenUtils.entityDecodeString(s);
 					if (stack.find("span", "recordHeading", false) != null) {
-					    title.append(t.markup);
-					    System.out.println("Heading: " + t.markup);
+					    title.append(s);
 					}
-					if (firstParagraph) all.append(t.markup); //The failover is the entire first paragraph (that contains text or whitespace)
+					if (firstParagraph) all.append(s); //The failover is the entire first paragraph (that contains text or whitespace)
 				}
+
+                if (t.matches("p|br|td|th|note") && !t.isOpening()) {
+                    if (stack.find("span", "recordHeading", false) != null) {
+                        title.append(" ");
+                    }
+                    if (firstParagraph) all.append(" ");
+                }
+
 				if (t.matches("p") && t.isClosing() && all.toString().length() > 0) firstParagraph = false;
 			}
 			
@@ -210,8 +220,8 @@ public class SlxRecord extends SlxToken implements ISlxTokenWriter{
 		
 		
 		this.set("heading", title.toString());
-		if (this.getLevelType() != null ) set("heading", all.toString()); //Only fall back on level records
-		
+		if (this.getLevelType() != null && this.get("heading").length() < 1) set("heading", all.toString()); //Only fall back on level records
+
     }
 
     public String getHeading() throws InvalidMarkupException {

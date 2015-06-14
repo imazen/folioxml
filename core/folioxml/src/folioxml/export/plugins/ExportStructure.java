@@ -1,18 +1,39 @@
 package folioxml.export.plugins;
 
 
+import com.sun.org.apache.xalan.internal.lib.NodeInfo;
 import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
+import folioxml.core.Pair;
+import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
+import folioxml.export.NodeInfoProvider;
+import folioxml.export.StaticFileNode;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
+import folioxml.xml.Node;
+import folioxml.xml.NodeFilter;
+import folioxml.xml.NodeList;
 import folioxml.xml.XmlRecord;
+import sun.swing.SwingUtilities2;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
+
 
 public class ExportStructure implements InfobaseSetPlugin {
+
+
+    private NodeInfoProvider p;
+    public ExportStructure(NodeInfoProvider p){
+        this.p = p;
+    }
+
+
     @Override
     public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException, InvalidMarkupException {
 
@@ -30,15 +51,71 @@ public class ExportStructure implements InfobaseSetPlugin {
 
     @Override
     public void onSlxRecordParsed(SlxRecord clean_slx) throws InvalidMarkupException, IOException {
-
+        String heading =  clean_slx.getHeading();
+        if (heading != null){
+            heading = heading.replaceAll("[ \t\r\n]+", " ").trim();
+        }
+        clean_slx.set("heading", heading);
     }
 
     @Override
-    public void onRecordTransformed(SlxRecord dirty_slx, XmlRecord r) throws InvalidMarkupException, IOException {
-        String id = r.get("recordId");
+    public void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException { 
+
+        String id = xr.get("recordId");
         if (id == null) id = UUID.randomUUID().toString();
-        r.set("uri", id);
+        xr.set("uri", id); //We set the URI so it can be indexed, and used for hyperlink resolution.
+
+        String hash = id;
+        xr.set("id", "record_" + hash);
+        //Many browsers/ebooks require an anchor tag, and can't navigate to a div ID.
+        Node c = new Node("<a id=\"" + hash + "\" ></a>");
+        xr.addChild(c, 0);
+
     }
+
+
+
+    StaticFileNode current = null;
+
+
+
+    @Override
+    public FileNode assignFileNode(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
+
+        if (!p.startNewFile(xr)) return  current;
+
+        StaticFileNode parent = null;
+        //Locate the node's parents
+        if (current != null){
+            XmlRecord commonAncestor = ((XmlRecord)current.getBag().get("record")).getCommonAncestor(xr,true);
+            StaticFileNode candidateParent = current;
+            while (candidateParent != null){
+                if (((XmlRecord)candidateParent.getBag().get("record")) == commonAncestor) {
+                    parent = candidateParent;
+                    break;
+                }else{
+                    candidateParent = (StaticFileNode)candidateParent.getParent();
+                }
+            }
+        }
+
+
+        StaticFileNode next = new StaticFileNode(parent);
+        next.getBag().put("record", xr);
+        next.getAttributes().put("level", xr.get("level"));
+        p.PopulateNodeInfo(xr, next);
+        next.setRelativePath(p.getRelativePathFor(next));
+        return next;
+    }
+
+    @Override
+    public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
+
+        if (file != null) file.getAttributes().put("path", file.getRelativePath());
+    }
+
+
+
 
     @Override
     public void endInfobase(InfobaseConfig infobase) throws IOException, InvalidMarkupException {

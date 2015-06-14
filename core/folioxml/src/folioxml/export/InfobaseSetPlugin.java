@@ -11,9 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-/**
- * Created by nathanael on 6/9/15.
- */
+
 public interface InfobaseSetPlugin {
     void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException, InvalidMarkupException;
 
@@ -23,9 +21,14 @@ public interface InfobaseSetPlugin {
 
     void onSlxRecordParsed(SlxRecord clean_slx) throws InvalidMarkupException, IOException;
 
-    void onRecordTransformed(SlxRecord dirty_slx, XmlRecord r) throws InvalidMarkupException, IOException;
+    void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException;
+
+    FileNode assignFileNode(XmlRecord xr, SlxRecord dirty_slx)  throws InvalidMarkupException, IOException;
+
+    void onRecordComplete(XmlRecord xr, FileNode file)  throws InvalidMarkupException, IOException;
+
 
     void endInfobase(InfobaseConfig infobase) throws IOException, InvalidMarkupException;
 
-    void endInfobaseSet(InfobaseSet set) throws IOException;
+    void endInfobaseSet(InfobaseSet set) throws IOException, InvalidMarkupException;
 }

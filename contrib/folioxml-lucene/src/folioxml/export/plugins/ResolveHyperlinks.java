@@ -5,6 +5,7 @@ import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.Pair;
 import folioxml.core.TokenUtils;
+import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.html.ResolveQueryLinks;
 import folioxml.lucene.InfobaseFieldOptsSet;
@@ -97,7 +98,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
     }
 
     @Override
-    public void onRecordTransformed(SlxRecord dirty_slx, XmlRecord r) throws InvalidMarkupException, IOException {
+    public void onRecordTransformed( XmlRecord r, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
 
         if (searcher == null) return; //Do nothing if we can't access lucene.
         NodeList nodes = new NodeList(r);
@@ -131,6 +132,16 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
                 n.set("href", result.getFirst());
             }
         }
+
+    }
+
+    @Override
+    public FileNode assignFileNode(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
+        return null;
+    }
+
+    @Override
+    public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
 
     }
 

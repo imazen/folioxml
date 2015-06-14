@@ -189,10 +189,14 @@ public class InventoryNodes implements NodeListProcessor {
         //TODO: export hidden text. (better if we use SLX?)
 
 
-        NodeList images = nodes.filterByTagName("img|object|a|link", true);
+        NodeList images = nodes.filterByTagName("img|object|link|a", true);
         for (Node n:images.list()){
             if (n.get("resolved") == null && n.get("href") != null && validUrl(n.get("href"))){
                 continue; //It's a valid URI
+            }
+            if (n.get("id") != null && n.get("href") == null && "a".equalsIgnoreCase(n.getTagName())){
+                //It's an anchor, skip
+                continue;
             }
             if (!"true".equalsIgnoreCase(n.get("resolved")) && !"popup".equalsIgnoreCase(n.get("type"))){
                 logUnique(n.toXmlString(false), "unresolved references");
@@ -266,17 +270,17 @@ public class InventoryNodes implements NodeListProcessor {
 
     public NodeList processLinks(NodeList nodes) throws InvalidMarkupException {
 
-         if (nodes.filterByTagName("a", true).count() > 0){
+       /*  if (nodes.filterByTagName("a", true).count() > 0){
             throw new InvalidMarkupException("Only raw XML can be inventoried.");
-        }
+        }*/
 
         //Program, menu, data links are always local
-        logAndPullNodes(nodes.search(new NodeFilter("link","program",null)), "program links", "Program link:");
-        logAndPullNodes(nodes.search(new NodeFilter("link","dataLink",null)), "data links", "Data link:");
-        logAndPullNodes(nodes.search(new NodeFilter("link","menu",null)), "menu links", "Menu link:");
+        logAndPullNodes(nodes.search(new NodeFilter("link|a","program",null)), "program links", "Program link:");
+        logAndPullNodes(nodes.search(new NodeFilter("link|a","dataLink",null)), "data links", "Data link:");
+        logAndPullNodes(nodes.search(new NodeFilter("link|a","menu",null)), "menu links", "Menu link:");
 
         //Add number of href URL links.
-        NodeList urlLinks = nodes.search(new NodeFilter("link", "href", null));
+        NodeList urlLinks = nodes.search(new NodeFilter("link|a", "href", null));
 
         incrementBy("URL links", urlLinks.count());
         for (Node n:urlLinks.list()){
@@ -299,7 +303,7 @@ public class InventoryNodes implements NodeListProcessor {
 
 
         //jump and cross-infobase jump links
-        NodeList jumpLinks = nodes.search(new NodeFilter("link","jumpDestination",null));
+        NodeList jumpLinks = nodes.search(new NodeFilter("link|a","jumpDestination",null));
         for (Node n:jumpLinks.list()){
             if (n.get("infobase") != null){
                 logAndPullNode(n, "cross-infobase bookmark links", "Cross-infobase jump link:");
@@ -310,7 +314,7 @@ public class InventoryNodes implements NodeListProcessor {
         }
 
         //object and cross-infobase object links
-        NodeList objectLinks = nodes.search(new NodeFilter("link","objectName",null));
+        NodeList objectLinks = nodes.search(new NodeFilter("link|a","objectName",null));
         for (Node n:objectLinks.list()){
             if (n.get("infobase") != null){
                 logAndPullNode(n, "cross-infobase object links", "Cross-infobase object link:");
@@ -320,13 +324,13 @@ public class InventoryNodes implements NodeListProcessor {
         }
 
         //Inline popups (not originally links)
-        logAndPullNodes(nodes.search(new NodeFilter("link","type","popup")), "inline popups", "Inline popup link:");
+        logAndPullNodes(nodes.search(new NodeFilter("link|a","type","popup")), "inline popups", "Inline popup link:");
 
         //Named popup links
-        logAndPullNodes(nodes.search(new NodeFilter("link","popupTitle",null)), "named popup links", "Link to named popup:");
+        logAndPullNodes(nodes.search(new NodeFilter("link|a","popupTitle",null)), "named popup links", "Link to named popup:");
 
 
-        NodeList queryLinks = nodes.search(new NodeFilter("link","query", null));
+        NodeList queryLinks = nodes.search(new NodeFilter("link|a","query", null));
         for (Node n:queryLinks.list()){
             if (n.get("infobase") != null){
                 logAndPullNode(n, "cross-infobase query links", "Cross-infobase query link:");

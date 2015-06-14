@@ -3,8 +3,10 @@ package folioxml.xml;
 import org.apache.commons.lang.NotImplementedException;
 import folioxml.core.InvalidMarkupException;
 import folioxml.slx.SlxRecord;
+import org.yaml.snakeyaml.util.ArrayStack;
 
 import java.io.IOException;
+import java.util.*;
 
 public class XmlRecord extends Node {
 	
@@ -20,7 +22,55 @@ public class XmlRecord extends Node {
 	}
 
 	public XmlRecord parent = null;
-	
-	
-	
+
+    public boolean isRootRecord() throws InvalidMarkupException{
+        return (this.getLevelType() != null && this.getLevelType().equalsIgnoreCase("root"));
+    }
+
+    /**
+     * Returns true if there is a value for the 'level' attribute
+     * @return
+     */
+    public boolean isLevelRecord() throws InvalidMarkupException{
+        return getLevelType() != null;
+    }
+    /**
+     * returns this.get("level"). Returns null if the string is empty.
+     * @return
+     */
+    public String getLevelType() throws InvalidMarkupException{
+        String s= this.get("level"); if (s == null || s.length() == 0) return null;
+        return s;
+    }
+
+    private SlxRecord getRoot(SlxRecord record){
+        if (record == null) return null;
+        if (record.parent == null) return record;
+        else return getRoot(record.parent);
+    }
+
+    public Deque<XmlRecord> getAncestors(boolean includeSelf){
+        Deque<XmlRecord> parents = new ArrayDeque<XmlRecord>();
+
+        XmlRecord current = this;
+        if (includeSelf) parents.add(this);
+        while (current.parent != null){
+            parents.addLast(current.parent);
+            current = current.parent;
+        }
+        return parents;
+    }
+
+    public XmlRecord getCommonAncestor(XmlRecord other, boolean includeSelves){
+        Deque<XmlRecord> parents = this.getAncestors(includeSelves);
+        Deque<XmlRecord> otherParents = other.getAncestors(includeSelves);
+        XmlRecord common = null;
+        while (!parents.isEmpty() && !otherParents.isEmpty()){
+            XmlRecord c = parents.removeLast();
+            if (c == otherParents.removeLast()) common = c;
+            else break;
+        }
+        return common;
+    }
+
 }
