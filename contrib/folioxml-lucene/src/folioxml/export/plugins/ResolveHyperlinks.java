@@ -7,10 +7,7 @@ import folioxml.core.Pair;
 import folioxml.core.TokenUtils;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
-import folioxml.export.html.ResolveQueryLinks;
 import folioxml.lucene.InfobaseFieldOptsSet;
-import folioxml.lucene.QueryResolverInfo;
-import folioxml.lucene.SlxIndexingConfig;
 import folioxml.lucene.analysis.DynamicAnalyzer;
 import folioxml.lucene.folioQueryParser.QueryParser;
 import folioxml.slx.ISlxTokenReader;
@@ -20,7 +17,6 @@ import folioxml.xml.NodeFilter;
 import folioxml.xml.NodeList;
 import folioxml.xml.XmlRecord;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.*;
@@ -28,7 +24,6 @@ import org.apache.lucene.store.FSDirectory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,7 +65,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         searcher = null;
 
         File index = new File(set.getIndexDir());
-        QueryResolverInfo queryInfo = null;
+
         if (index.isDirectory()) {
             searcher = new IndexSearcher(FSDirectory.open(index));
             //Load and parse all infobase root nodes
