@@ -1,7 +1,5 @@
 package folioxml.directexport;
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
 import folioxml.config.TestConfig;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.InfobaseSetVisitor;
@@ -10,26 +8,15 @@ import folioxml.export.html.*;
 
 import folioxml.export.plugins.*;
 import folioxml.lucene.InfobaseSetIndexer;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.store.FSDirectory;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import folioxml.core.InvalidMarkupException;
-import folioxml.lucene.QueryResolverInfo;
-import folioxml.lucene.SlxIndexer;
-import folioxml.lucene.SlxIndexingConfig;
-import folioxml.slx.SlxRecord;
-import folioxml.slx.SlxRecordReader;
-import folioxml.tools.OutputRedirector;
 
 
-
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class SimultaneousTest {
@@ -81,7 +68,6 @@ public class SimultaneousTest {
         plugins.add(new ApplyProcessor(new FixHttpLinks()));
         plugins.add(new ResolveHyperlinks());
         plugins.add(new ExportInventory());
-        plugins.add(new ExportInventory());
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("testset"),plugins);
 
         visitor.complete();
@@ -100,6 +86,7 @@ public class SimultaneousTest {
                 CleanupSlxStuff.CleanupOptions.RenameBookmarks,
                 CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
         MultiRunner xhtml = new MultiRunner(cleanup, new Images(), new Notes(), new Popups(), new SplitSelfClosingTags());
+
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(new SlugProvider("")));
         plugins.add(new RenameFiles());
@@ -109,8 +96,8 @@ public class SimultaneousTest {
 
         plugins.add(new ApplyProcessor(xhtml));
         plugins.add(new ExportCssFile());
-        //plugins.add(new ExportXmlFile(true));
-        plugins.add(new ExportHtmlFiles());
+        plugins.add(new ExportXmlFile(true));
+        //plugins.add(new ExportHtmlFiles());
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("testset"),plugins);
 
         visitor.complete();

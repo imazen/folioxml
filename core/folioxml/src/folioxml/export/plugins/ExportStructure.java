@@ -2,6 +2,7 @@ package folioxml.export.plugins;
 
 
 import com.sun.org.apache.xalan.internal.lib.NodeInfo;
+import folioxml.config.ExportLocations;
 import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
@@ -35,7 +36,7 @@ public class ExportStructure implements InfobaseSetPlugin {
 
 
     @Override
-    public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException, InvalidMarkupException {
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
 
     }
 
@@ -60,16 +61,7 @@ public class ExportStructure implements InfobaseSetPlugin {
 
     int recordIndex =0;
     @Override
-    public void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException { 
-
-
-        String rid = "r" + Integer.toString(recordIndex);
-        recordIndex++;
-        xr.set("id", rid);
-
-        //Many browsers/ebooks require an anchor tag, and can't navigate to a div ID.
-        Node c = new Node("<a id=\"a" +rid + "\" ></a>");
-        xr.addChild(c, 0);
+    public void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
 
     }
 
@@ -116,13 +108,25 @@ public class ExportStructure implements InfobaseSetPlugin {
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
 
+
+        String rid = "r" + Integer.toString(recordIndex);
+        recordIndex++;
+        xr.set("id", rid);
+
+        //Many browsers/ebooks require an anchor tag, and can't navigate to a div ID.
+        Node c = new Node("<a id=\"a" +rid + "\" ></a>");
+        xr.addChild(c, 0);
+
+
         String path = file.getRelativePath();
 
+        String fragment = "#a" + xr.get("id");
         //We set the URI so it can be indexed, and used for hyperlink resolution.
-        xr.set("uri", path + "#a" + xr.get("id"));
+        xr.set("uri", path + fragment);
 
-        //We set the file path
-        file.getAttributes().put("path", path);
+        //Store the path bits so we can re-create a relative path
+        file.getAttributes().put("relative_path", path);
+        file.getAttributes().put("uri_fragment", "#a" + xr.get("id"));
 
     }
 

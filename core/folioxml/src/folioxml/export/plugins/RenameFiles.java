@@ -1,5 +1,6 @@
 package folioxml.export.plugins;
 
+import folioxml.config.ExportLocations;
 import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
@@ -18,11 +19,11 @@ import java.io.IOException;
  */
 public class RenameFiles implements InfobaseSetPlugin {
 
-
     RenameImages renamer;
     @Override
-    public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException {
-        renamer = new RenameImages(set);
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException {
+        renamer = new RenameImages(set, export);
+
     }
 
     @Override
@@ -42,9 +43,7 @@ public class RenameFiles implements InfobaseSetPlugin {
 
     @Override
     public void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
-        if  (!dirty_slx.isRootRecord()){
-            renamer.process(new NodeList(xr));
-        }
+
     }
 
     @Override
@@ -54,7 +53,9 @@ public class RenameFiles implements InfobaseSetPlugin {
 
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
-
+        if  (!xr.isRootRecord()){
+            renamer.process(new NodeList(xr), file);
+        }
     }
 
 
@@ -66,9 +67,7 @@ public class RenameFiles implements InfobaseSetPlugin {
 
     @Override
     public void endInfobaseSet(InfobaseSet set) throws IOException {
-        System.out.println("Copying referenced files...");
-        renamer.CopyFiles();
-        System.out.println("Converting bitmaps to png...");
-        renamer.CompressFiles();
+        System.out.println("Copying/converting referenced files...");
+        renamer.CopyConvertFiles();
     }
 }

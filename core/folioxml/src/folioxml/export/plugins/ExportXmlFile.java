@@ -1,7 +1,6 @@
 package folioxml.export.plugins;
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
+import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
 import folioxml.css.StylesheetBuilder;
@@ -31,11 +30,14 @@ public class ExportXmlFile implements InfobaseSetPlugin {
     private boolean  skipNormalRecords = true;
 
     @Override
-    public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException {
-        out  = new OutputStreamWriter(new FileOutputStream(exportBaseName + ".xml"), "UTF8");
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException {
+        out  = new OutputStreamWriter(new FileOutputStream(export.getLocalPath(set.getId() + ".xml", AssetType.Xml, FolderCreation.CreateParents).toString()), "UTF8");
 
         out.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
         openElement("infobases");
+
+        skipNormalRecords = set.getBool("skip_normal_records");
+
     }
 
     boolean infobaseTagOpened = false;

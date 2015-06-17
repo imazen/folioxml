@@ -1,9 +1,6 @@
 package folioxml.export.plugins;
 
-import folioxml.config.FolderCreation;
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
-import folioxml.config.YamlInfobaseConfig;
+import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
 import folioxml.export.FileNode;
@@ -20,16 +17,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Deque;
 
-/**
- * Created by nathanael on 6/13/15.
- */
+
 public class ExportHtmlFiles implements InfobaseSetPlugin {
 
     protected OutputStreamWriter out;
-    private String exportBaseName;
+    private ExportLocations export;
     @Override
-    public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException, InvalidMarkupException {
-        this.exportBaseName = exportBaseName;
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
+        this.export = export;
     }
 
     @Override
@@ -83,12 +78,15 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
 
         if (out != null) throw new IOException(); //Invalid state
 
+        String css_name = "foliostyle.css";
+        String js_name = "popins.js";
 
-        Path htmlPath = Paths.get(exportBaseName + fn.getRelativePath() + ".html");
-        Path cssPath = Paths.get(exportBaseName + ".css");
-        Path jsPath = Paths.get(exportBaseName + ".js");
 
-        YamlInfobaseConfig.createFoldersInPath(htmlPath.toString(), FolderCreation.CreateParents);
+        Path htmlPath = export.getLocalPath(fn.getRelativePath() , AssetType.Html, FolderCreation.CreateParents);
+
+        String cssUri = export.getUri(css_name, AssetType.Css, htmlPath);
+        String jsUri = export.getUri(js_name, AssetType.Javascript, htmlPath);
+
         out  = new OutputStreamWriter(new FileOutputStream(htmlPath.toFile()), "UTF8");
 
         out.append("<!DOCTYPE html>\n");
@@ -100,8 +98,8 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         out.write(TokenUtils.lightEntityEncode(fn.getAttributes().get("heading")));
         closeElement("title");
         writeIndent();
-        out.append("<link rel='stylesheet' type='text/css' href='" + htmlPath.getParent().relativize(cssPath).toString() + "' />");
-        out.append("<script type='text/javascript' src='" + htmlPath.getParent().relativize(jsPath).toString() + "'></script>");
+        out.append("<link rel='stylesheet' type='text/css' href='" + cssUri + "' />");
+        out.append("<script type='text/javascript' src='" + jsUri+ "'></script>");
 
         closeElement("head");
         openElement("body");

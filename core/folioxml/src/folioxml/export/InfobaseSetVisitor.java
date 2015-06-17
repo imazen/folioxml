@@ -1,7 +1,6 @@
 package folioxml.export;
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
+import folioxml.config.*;
 import folioxml.core.FolioToSlxDiagnosticTool;
 import folioxml.core.InvalidMarkupException;
 import folioxml.export.html.IdentityProcessor;
@@ -19,6 +18,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,15 +36,17 @@ public class InfobaseSetVisitor {
 
 
     public void complete() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
-        String basePath = set.getInfobases().size() > 1 ? set.generateExportBaseFile() : set.getFirst().generateExportBaseFile();
-        String reportPath = basePath + ".report.txt";
-        String logPath = basePath + ".log.txt";
 
-        OutputRedirector redir = new OutputRedirector(logPath);
+        ExportLocations export = set.generateExportLocations();
+
+        Path reportPath = export.getLocalPath("report.txt", AssetType.Text, FolderCreation.CreateParents);
+        Path logPath =export.getLocalPath("log.txt", AssetType.Text, FolderCreation.CreateParents);
+
+        OutputRedirector redir = new OutputRedirector(logPath.toString());
         redir.open();
         //Plugin hooks
         for(InfobaseSetPlugin p: plugins)
-            p.beginInfobaseSet(set,basePath);
+            p.beginInfobaseSet(set,export);
 
 
         ISlxTokenReader slxReader = null;
@@ -132,7 +134,7 @@ public class InfobaseSetVisitor {
         }
 
         try{
-            redir = new OutputRedirector(reportPath);
+            redir = new OutputRedirector(reportPath.toString());
             redir.open();
             System.out.printf("Read %s records and %s tokens from %s infobases.\n", recordCount, tokenCount, set.getInfobases().size());
             //Plugin hooks

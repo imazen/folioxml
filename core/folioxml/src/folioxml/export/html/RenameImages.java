@@ -1,8 +1,12 @@
 package folioxml.export.html;
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
+import folioxml.config.*;
+import folioxml.core.InvalidMarkupException;
 import folioxml.core.Pair;
+import folioxml.core.TokenUtils;
+import folioxml.export.FileNode;
+import folioxml.xml.Node;
+import folioxml.xml.NodeList;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -10,21 +14,81 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class RenameImages extends FixImagePaths {
+public class RenameImages {
 
-    public RenameImages(InfobaseSet infobase_set) {
+    ExportLocations export;
+
+    public RenameImages(InfobaseSet infobase_set, ExportLocations export) {
         this.infobase_set = infobase_set;
+        this.export = export;
         signatures = AllFileSignatures();
     }
+
+    public void process(NodeList nodes, FileNode document) throws InvalidMarkupException, IOException {
+        //
+        NodeList images = nodes.filterByTagName("img|object|a|link", true);
+        for (Node n:images.list()){
+            if (TokenUtils.fastMatches("bitmap|metafile|picture", n.get("handler")) || n.matches("img")){
+                String attr = n.matches("img|object") ? "src" : "href";
+
+                //Fix path. It will be relative, since it is from a local embedded object.
+                String src = n.get(attr);
+                if (src != null) {
+                    String resultUri = modifyImageUrl(src, document);
+                    n.set(attr, resultUri);
+                    n.set("resolved", "true");
+                }
+
+            }
+            //TODO: catch the rest
+        }
+    }
+
+
     private ArrayList<Pair<String, byte[]>> signatures;
 
     private InfobaseSet infobase_set;
+
+
+    public class BundledAsset{
+
+        public BundledAsset(){}
+        public Path originalDiskLocation;
+        public String originalFileExtension;
+        public String originalPath;
+        public Path targetDiskLocation;
+        public String targetFileExtension;
+        public String targetPath;
+
+        public InfobaseConfig infobase;
+        public boolean dataLink;
+
+        public URL targetUrl;
+
+        public boolean success;
+        public String error_message;
+
+
+    }
+
+      BundledAsset fail(String path, String message) {
+         BundledAsset b = new BundledAsset();
+         b.success = false;
+         b.error_message = path;
+         b.originalPath = path;
+         System.err.println(path);
+         System.err.println(message);
+         return b;
+     }
+
 
     //Flags
     //Drop extension in XML - assumes our uploader also drops the extension and replaces it with a content type
@@ -34,43 +98,27 @@ public class RenameImages extends FixImagePaths {
     protected static Pattern data_file = Pattern.compile("\\A([^\\\\/]+)[\\\\/]Data[\\\\/]([^\\\\/]+)\\Z");
 
 
-    private HashMap<String, String> renamed = new HashMap<String, String>();
-    public HashMap<String, String> to_copy = new HashMap<String, String>();
-    public HashMap<String, String> to_compress = new HashMap<String, String>();
-    public HashMap<String, String> failed = new HashMap<String, String>();
+    private HashMap<String, BundledAsset> assets = new HashMap<String, BundledAsset>();
 
-    public void CopyFiles() throws IOException{
-        for(Map.Entry<String,String> pair: to_copy.entrySet()){
-            Path target = Paths.get(pair.getValue());
-            Path source = Paths.get(pair.getKey());
+
+    public void CopyConvertFiles() throws IOException{
+        for(Map.Entry<String,BundledAsset> pair: assets.entrySet()){
+            BundledAsset target = pair.getValue();
+            if (!target.success) continue;
+
             //If the destination file doesn't exist, copy
-            if (!Files.exists(target)){
-                if (!Files.isDirectory(target.getParent())){
-                    Files.createDirectory(target.getParent());
+            if (!Files.exists(target.targetDiskLocation)){
+                if (!Files.isDirectory(target.targetDiskLocation.getParent())){
+                    Files.createDirectory(target.targetDiskLocation.getParent());
                 }
                 try{
-                    Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES);
+                    if ("bmp".equals(target.originalFileExtension) && "png".equals(target.targetFileExtension)){
+                        ConvertToPng(target.originalDiskLocation.toFile(), target.targetDiskLocation.toFile());
+                    }else {
+                        Files.copy(target.originalDiskLocation,  target.targetDiskLocation, StandardCopyOption.COPY_ATTRIBUTES);
+                    }
                 }catch(IOException e){
-                    System.err.println("Failed to copy to " + pair.getValue());
-                    e.printStackTrace(System.err);
-                }
-
-            }
-        }
-    }
-    public void CompressFiles() throws IOException{
-        for(Map.Entry<String,String> pair: to_compress.entrySet()){
-            Path target = Paths.get(pair.getValue());
-            Path source = Paths.get(pair.getKey());
-            //If the destination file doesn't exist, copy
-            if (!Files.exists(target)){
-                if (!Files.isDirectory(target.getParent())){
-                    Files.createDirectory(target.getParent());
-                }
-                try{
-                    ConvertToPng(source.toFile(),target.toFile());
-                }catch(IOException e){
-                    System.err.println("Failed to compress to " + pair.getValue());
+                    System.err.println("Failed to copy/compress to " + pair.getValue());
                     e.printStackTrace(System.err);
                 }
 
@@ -88,73 +136,80 @@ public class RenameImages extends FixImagePaths {
 
 
 
-    private String failure(String path, String message){
-        failed.put(path, message);
-        System.err.println(path);
-        System.err.println(message);
-        return path;
-    }
-    @Override
-    public String modifyImageUrl(String path) {
-        //If we have renamed this file before, reuse result
-        if (renamed.containsKey(path))
-            return renamed.get(path);
+    private BundledAsset parse(String path) throws IOException {
 
-        //Did we fail to access or categorize this file?
-        if (failed.containsKey(path))
-            return path;
-
-        InfobaseConfig ib = null;
+        BundledAsset b = new BundledAsset();
+        b.success = true;
+        b.originalPath = path;
 
         Matcher m = data_file.matcher(path);
-        if (!m.find()) m = object_file.matcher(path);
+        b.dataLink = true;
+        if (!m.find()) {
+            m = object_file.matcher(path);
+            b.dataLink = false;
+        }
 
         if (!m.find()){
             //Not a data link or object/ole? skip.
-            return failure(path, "Path is not a Data link or OB/OLE file.");
+            return fail(path, "Path is not a Data link or OB/OLE file.");
         }
 
 
         //Which infobase does it correspond with
-        ib = infobase_set.byName(m.group(1));
-        if (ib == null){
-            return failure(path, "Failed to find corresponding InfobaseConfig for '" + m.group(1) + "'");
+        b.infobase = infobase_set.byName(m.group(1));
+        if (b.infobase == null){
+            return fail(path, "Failed to find corresponding InfobaseConfig for '" + m.group(1) + "'");
         }
 
         //What's the full source file path
-        java.nio.file.Path image = Paths.get(ib.getFlatFilePath()).resolveSibling(path.replace("\\", File.separator));
+        b.originalDiskLocation = Paths.get(b.infobase.getFlatFilePath()).resolveSibling(path.replace("\\", File.separator)).toAbsolutePath();
 
 
-        boolean recompress = false;
+
         String filename = null;
         if (m.pattern() == data_file){
-            filename = m.group(2).toLowerCase(Locale.ENGLISH); //Use existing filename
+            b.targetPath = m.group(2).toLowerCase(Locale.ENGLISH); //Use existing filename
         }else{
             //object or OLE file
             byte[] buffer = null;
             try{
-                buffer = getFileSignature(image.toFile());
+                buffer = getFileSignature(b.originalDiskLocation.toFile());
             } catch (IOException e) {
                 e.printStackTrace();
-                return failure(path, image.toString() + "\n" + e.toString());
+                return fail(path, b.originalDiskLocation.toString() + "\n" + e.toString());
             }
             String ext = getExtensionForSignature(buffer);
             if (ext == null){
-                return failure(path, "Unknown file type; unrecognized signature in " + path);
+                return fail(path, "Unknown file type; unrecognized magic byte signature.");
             }
-
-            if (ext.equalsIgnoreCase("bmp")){
-                recompress = true;
-                ext = "png";
-            }
+            b.originalFileExtension = ext;
+            //Convert bmp to png
+            b.targetFileExtension = ext.equalsIgnoreCase("bmp") ? "png" : ext;
             //m.group(3) == OB or OLE
-            filename = m.group(2) + "." + ext;
+            b.targetPath = m.group(2) + "." + b.targetFileExtension;
         }
 
-        String relative = Paths.get(ib.getId()).resolve(filename).toString();
-        renamed.put(path, relative);
-        (recompress ? to_compress : to_copy).put(image.toAbsolutePath().toString(), Paths.get(ib.getExportDir(false)).resolve(relative).toString());
-        return relative;
+        b.targetPath = Paths.get(b.infobase.getId()).resolve(Paths.get(b.targetPath)).toString();
+        b.targetDiskLocation = export.getLocalPath(b.targetPath, AssetType.Image, FolderCreation.None);
+        return b;
+    }
+
+    public String modifyImageUrl(String path, FileNode document_base) throws IOException {
+
+        BundledAsset b;
+        //If we have renamed this file before, reuse result
+        if (assets.containsKey(path)) {
+            b = assets.get(path);
+        } else{
+            b = parse(path);
+            assets.put(path, b);
+        }
+        if (!b.success) return path;
+        //TODO: log failure path into attributes, perhaps?
+
+        Path document = export.getLocalPath(document_base.getRelativePath(), AssetType.Html, FolderCreation.None);
+
+        return export.getUri(b.targetPath,AssetType.Image,document);
     }
 
 

@@ -1,7 +1,6 @@
 package folioxml.export.plugins;
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
+import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.Pair;
 import folioxml.core.TokenUtils;
@@ -17,6 +16,8 @@ import folioxml.xml.NodeFilter;
 import folioxml.xml.NodeList;
 import folioxml.xml.XmlRecord;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.*;
@@ -24,6 +25,7 @@ import org.apache.lucene.store.FSDirectory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,12 +61,16 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         }
     }
 
+    ExportLocations export;
+
     @Override
-    public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException, InvalidMarkupException {
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
         infobaseSet = set;
         searcher = null;
+        this.export = export;
 
-        File index = new File(set.getIndexDir());
+        File index = export.getLocalPath("lucene_index", AssetType.LuceneIndex, FolderCreation.None).toFile();
+
 
         if (index.isDirectory()) {
             searcher = new IndexSearcher(FSDirectory.open(index));
@@ -95,8 +101,18 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
     @Override
     public void onRecordTransformed( XmlRecord r, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
 
+
+    }
+
+    @Override
+    public FileNode assignFileNode(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
+        return null;
+    }
+
+    @Override
+    public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
         if (searcher == null) return; //Do nothing if we can't access lucene.
-        NodeList nodes = new NodeList(r);
+        NodeList nodes = new NodeList(xr);
 
         //All jump destinations must be an anchor tag, or we can't link to them.
         for (Node n:nodes.search(new NodeFilter("bookmark")).list())
@@ -108,7 +124,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
 
         NodeList queryLinks = nodes.search(new NodeFilter("link","query",null));
         for (Node n:queryLinks.list()){
-            Pair<String,String>  result = TryGetResultUri(n.get("infobase"),  TokenUtils.entityDecodeString(n.get("query")));
+            Pair<String,String>  result = TryGetResultUri(n.get("infobase"),  TokenUtils.entityDecodeString(n.get("query")),file);
             n.set("resolved", result.getSecond());
             if (result.getFirst() != null){
                 n.set("href", result.getFirst());
@@ -121,22 +137,12 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         //Convert local jump links, delete cross-infobase links
         NodeList jumpLinks = nodes.search(new NodeFilter("link","jumpDestination",null));
         for (Node n:jumpLinks.list()){
-            Pair<String,String> result = TryGetDestinationUri(n.get("infobase"), n.get("jumpDestination"));
+            Pair<String,String> result = TryGetDestinationUri(n.get("infobase"), n.get("jumpDestination"),file);
             n.set("resolved", result.getSecond());
             if (result.getFirst() != null){
                 n.set("href", result.getFirst());
             }
         }
-
-    }
-
-    @Override
-    public FileNode assignFileNode(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
-        return null;
-    }
-
-    @Override
-    public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
 
     }
 
@@ -165,8 +171,17 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         */
     }
 
+    public String GetUriFor(Document d, FileNode n, String overrideFragment) throws IOException {
+        String relative_path = d.get("relative_path");
+        String uri_fragment = d.get("uri_fragment");
 
-    public Pair<String, String> TryGetResultUri(String infobase, String query) throws InvalidMarkupException, IOException {
+        Path doc_base = export.getLocalPath(n.getRelativePath(),AssetType.Html,FolderCreation.None);
+
+        return export.getUri(relative_path,AssetType.Html, doc_base) + ((overrideFragment == null) ? uri_fragment : overrideFragment);
+    }
+
+
+    public Pair<String, String> TryGetResultUri(String infobase, String query, FileNode fn) throws InvalidMarkupException, IOException {
         InfobaseConfig targetConfig = infobase == null ? currentInfobase : infobaseSet.byName(infobase);
         if (targetConfig == null){
             return new Pair<String, String>(null, "destination infobase is external to configuration set");
@@ -186,8 +201,9 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
                 String newQuery = q.toString() ;
                 ScoreDoc[] hits = searcher.search(q,1).scoreDocs;
                 if (hits.length > 0){
+                    Document d = searcher.doc(hits[0].doc);
                     //info.workingQueryLinks++;
-                    return new Pair<String, String>(searcher.doc(hits[0].doc).get("uri"), "true");
+                    return new Pair<String, String>(GetUriFor(d, fn,null), "true");
                 }else {
 
                     //info.noresultQueryLinks++;
@@ -216,7 +232,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
 
     }
 
-    public Pair<String, String> TryGetDestinationUri(String infobase, String jumpDestination) throws IOException, InvalidMarkupException {
+    public Pair<String, String> TryGetDestinationUri(String infobase, String jumpDestination, FileNode fn) throws IOException, InvalidMarkupException {
         InfobaseConfig targetConfig = infobase == null ? currentInfobase : infobaseSet.byName(infobase);
         if (targetConfig == null){
             return new Pair<String, String>(null, "destination infobase is external to configuration set");
@@ -227,8 +243,9 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         q.add(new TermQuery(new Term("destinations", jumpDestination)), BooleanClause.Occur.MUST);
         ScoreDoc[] hits = searcher.search(q,1).scoreDocs;
         if (hits.length > 0){
+            String bookmarkHash = hashDestination(currentInfobase, jumpDestination);
             //info.workingQueryLinks++;
-            String newUri = searcher.doc(hits[0].doc).get("uri");
+            String newUri = GetUriFor(searcher.doc(hits[0].doc),fn, "#"  + bookmarkHash);
             //TODO: improve by modifying uri fragment to link directly to bookmark
             if (newUri == null){
                 //We aren't providing structure

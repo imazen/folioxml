@@ -1,7 +1,6 @@
 package folioxml.lucene;
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
+import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
 import folioxml.export.FileNode;
@@ -40,8 +39,10 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
     IndexWriter w;
 
     @Override
-    public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException {
-        w = new IndexWriter(FSDirectory.open(new File(set.getIndexDir())), new IndexWriterConfig(Version.LUCENE_33, new DynamicAnalyzer(this)).setOpenMode(IndexWriterConfig.OpenMode.CREATE));
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException {
+
+        File folder = export.getLocalPath("lucene_index", AssetType.LuceneIndex, FolderCreation.None).toFile();
+        w = new IndexWriter(FSDirectory.open(folder), new IndexWriterConfig(Version.LUCENE_33, new DynamicAnalyzer(this)).setOpenMode(IndexWriterConfig.OpenMode.CREATE));
 
     }
 
@@ -122,21 +123,32 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
 
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
+        //Add URI
+        if (xr.get("uri") != null) doc.add(new Field("uri",xr.get("uri"),Field.Store.YES, Field.Index.NOT_ANALYZED));
+        //Add
 
+        String relative_path = file.getAttributes().get("relative_path");
+        String uri_fragment = file.getAttributes().get("uri_fragment");
+
+        if (relative_path == null || uri_fragment == null){
+            throw new InvalidMarkupException("Both relative_path and uri_fragment must be defined on the FileNode for indexing");
+        }
+
+        doc.add(new Field("relative_path", relative_path,Field.Store.YES, Field.Index.NOT_ANALYZED));
+        doc.add(new Field("uri_fragment", uri_fragment,Field.Store.YES, Field.Index.NOT_ANALYZED));
+
+        if (xr.isRootRecord()){
+            //Configure field indexing based on the .DEF file.
+            conf = new InfobaseFieldOptsSet(xr);
+            doc.add(new Field("xml",xr.toXmlString(false),Field.Store.YES, Field.Index.NO));
+        }
+
+        w.addDocument(doc);
     }
 
     @Override
     public void onRecordTransformed( XmlRecord r, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
-        //Add URI
-        if (r.get("uri") != null) doc.add(new Field("uri",r.get("uri"),Field.Store.YES, Field.Index.NOT_ANALYZED));
 
-        if (dirty_slx.isRootRecord()){
-            //Configure field indexing based on the .DEF file.
-            conf = new InfobaseFieldOptsSet(r);
-            doc.add(new Field("xml",r.toXmlString(false),Field.Store.YES, Field.Index.NO));
-        }
-
-        w.addDocument(doc);
     }
 
     @Override

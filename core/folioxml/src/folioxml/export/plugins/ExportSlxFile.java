@@ -1,7 +1,6 @@
 package folioxml.export.plugins;
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
+import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.css.StylesheetBuilder;
 import folioxml.export.FileNode;
@@ -18,8 +17,8 @@ public class ExportSlxFile implements InfobaseSetPlugin {
     protected OutputStreamWriter out;
 
     @Override
-    public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws FileNotFoundException, UnsupportedEncodingException {
-        this.out  = new OutputStreamWriter(new FileOutputStream(exportBaseName + ".slx"), "UTF8");
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException {
+        this.out  = new OutputStreamWriter(new FileOutputStream(export.getLocalPath("export.slx", AssetType.Slx, FolderCreation.CreateParents).toFile()), "UTF8");
     }
 
     @Override

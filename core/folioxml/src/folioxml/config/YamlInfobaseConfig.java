@@ -55,7 +55,7 @@ public class YamlInfobaseConfig implements InfobaseConfig {
     // Generates a base path that can be used for logs, reports, etc.
     public String generateExportBaseFile() {
 
-        String exportFolderName =  getId() + new SimpleDateFormat("-dd-MMM-yy-(s)").format(new Date());
+        String exportFolderName =  getId() + new SimpleDateFormat("-dd-MMM-yy-(S)").format(new Date());
         return getExportFile(Paths.get(exportFolderName).resolve(getId()).toString(), true);
 
     }
@@ -82,8 +82,18 @@ public class YamlInfobaseConfig implements InfobaseConfig {
     }
 
     @Override
+    public ExportLocations generateExportLocations() {
+        Object el = data.get("export_locations");
+        return new YamlExportLocations(Paths.get(parent.basedir), this.getId(), new Date(), (Map<String,Object>)el);
+    }
+
+    @Override
     public String getStringAsPath(String key,  FolderCreation pathOptions) {
         return getStringAsPath(key, null, pathOptions);
+    }
+
+    public  Object getObject(String key) {
+        return data.get(key);
     }
 
     public String getStringAsPath(String key, String base_path, FolderCreation pathOptions) {

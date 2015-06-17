@@ -1,5 +1,6 @@
 package folioxml.export;
 
+import folioxml.config.ExportLocations;
 import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
@@ -13,7 +14,7 @@ import java.io.UnsupportedEncodingException;
 
 
 public interface InfobaseSetPlugin {
-    void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException, InvalidMarkupException;
+    void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException;
 
     void beginInfobase(InfobaseConfig infobase) throws IOException;
 

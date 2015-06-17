@@ -2,6 +2,7 @@ package folioxml.config;
 
 import org.yaml.snakeyaml.Yaml;
 
+import javax.naming.ConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,6 +41,11 @@ public class YamlInfobaseSet implements InfobaseSet{
     Map<String, InfobaseConfig> infobasesByAlias;
 
     @Override
+    public String getId() {
+        return name;
+    }
+
+    @Override
     public InfobaseConfig getFirst() {
         return infobases.get(0);
     }
@@ -50,6 +56,7 @@ public class YamlInfobaseSet implements InfobaseSet{
     }
 
     @Override
+    @Deprecated
     public String getExportDir(boolean create) {
         String exportPath = getStringAsPath("export_dir", create ? FolderCreation.CreateAsDir : FolderCreation.None);
 
@@ -77,7 +84,16 @@ public class YamlInfobaseSet implements InfobaseSet{
         return path;
     }
 
+
     @Override
+    public ExportLocations generateExportLocations() {
+        Object el = data.get("export_locations");
+        return new YamlExportLocations(Paths.get(basedir), this.name, new Date(), (Map<String,Object>)el);
+    }
+
+    @Override
+
+    @Deprecated
     // Generates a base path that can be used for logs, reports, etc.
     public String generateExportBaseFile() {
         String cleanName = name.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-zA-Z_-]", "");
@@ -108,6 +124,15 @@ public class YamlInfobaseSet implements InfobaseSet{
         Object o = data.get(key);
         return o == null ? null : o.toString();
     }
+
+
+
+    @Override
+    public  Object getObject(String key) {
+        return data.get(key);
+    }
+
+
 
     @Override
     public boolean getBool(String key) {

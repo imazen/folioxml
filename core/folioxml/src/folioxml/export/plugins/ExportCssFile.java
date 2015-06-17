@@ -1,7 +1,6 @@
 package folioxml.export.plugins;
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
+import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.Pair;
 import folioxml.css.StylesheetBuilder;
@@ -14,6 +13,7 @@ import folioxml.xml.XmlRecord;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +22,13 @@ public class ExportCssFile implements InfobaseSetPlugin {
 
     List<Pair<InfobaseConfig,SlxRecord>> allInfobases = new ArrayList<Pair<InfobaseConfig, SlxRecord>>();
 
+    public static String CSS_FILE_NAME = "foliostyle.css";
+
     String cssFile;
     @Override
-    public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException, InvalidMarkupException {
-        cssFile = exportBaseName + ".css";
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
+        cssFile = export.getLocalPath(CSS_FILE_NAME, AssetType.Css, FolderCreation.CreateParents).toString();
+
     }
 
     InfobaseConfig current;
@@ -48,9 +51,6 @@ public class ExportCssFile implements InfobaseSetPlugin {
 
     @Override
     public void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
-        String recordClass = xr.get("class");
-        String addClass = "infobase-" + current.getId();
-        xr.set("class" , recordClass == null ? addClass : addClass + " " + recordClass);
 
     }
 
@@ -61,6 +61,9 @@ public class ExportCssFile implements InfobaseSetPlugin {
 
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
+        String recordClass = xr.get("class");
+        String addClass = "infobase-" + current.getId();
+        xr.set("class" , recordClass == null ? addClass : addClass + " " + recordClass);
 
     }
 

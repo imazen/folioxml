@@ -1,5 +1,6 @@
 package folioxml.export.plugins;
 
+import folioxml.config.ExportLocations;
 import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
@@ -19,10 +20,11 @@ public class ExportInventory implements InfobaseSetPlugin {
     public ExportInventory(){}
 
     InventoryNodes inventory = null;
-    @Override
-    public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException {
-        inventory = new InventoryNodes();
 
+
+    @Override
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
+        inventory = new InventoryNodes();
     }
 
     @Override
@@ -42,9 +44,7 @@ public class ExportInventory implements InfobaseSetPlugin {
 
     @Override
     public void onRecordTransformed(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
-        if  (!dirty_slx.isRootRecord()){
-            inventory.process(new NodeList(xr));
-        }
+
     }
 
     @Override
@@ -54,7 +54,9 @@ public class ExportInventory implements InfobaseSetPlugin {
 
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
-
+        if  (!xr.isRootRecord()){
+            inventory.process(new NodeList(xr));
+        }
     }
 
 

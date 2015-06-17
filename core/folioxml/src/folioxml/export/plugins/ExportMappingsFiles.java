@@ -1,7 +1,6 @@
 package folioxml.export.plugins;
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
+import folioxml.config.*;
 import folioxml.core.FolioToSlxDiagnosticTool;
 import folioxml.core.InvalidMarkupException;
 import folioxml.export.FileNode;
@@ -16,9 +15,11 @@ import java.io.IOException;
 public class ExportMappingsFiles implements InfobaseSetPlugin {
 
     public ExportMappingsFiles(){}
-    @Override
-    public void beginInfobaseSet(InfobaseSet set, String exportBaseName) throws IOException {
 
+    ExportLocations export;
+    @Override
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
+        this.export = export;
     }
 
     @Override
@@ -57,7 +58,7 @@ public class ExportMappingsFiles implements InfobaseSetPlugin {
 
     @Override
     public void endInfobase(InfobaseConfig infobase) throws IOException, InvalidMarkupException {
-        if (tool != null) tool.outputDataFiles(infobase.generateExportBaseFile() + ".mappings.txt");
+        if (tool != null) tool.outputDataFiles(export.getLocalPath(infobase.getId() + ".mappings.txt", AssetType.Text, FolderCreation.CreateParents).toString());
         tool = null;
 
     }
