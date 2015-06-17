@@ -24,10 +24,14 @@ public class StylesheetBuilder {
 		
 		sb.append(applySelector + "p {margin:0; margin-top:0.2em;} p._empty{ padding-top:1em; }\n"); //Empty paragraphs get padding to mimic folio model.
 		
-		sb.append(applySelector.length() == 0 ? "body" :  applySelector + " {font-family: \"Times New Roman\"; font-size:12pt; line-height:1.0em; white-space-collapse: preserve; white-space:pre-wrap; margin:30px;}\n"); //Set the default font size and face. Folio uses TimesNewRoman 12
+
+		//Set the default font size and face. Folio uses TimesNewRoman 12
 		//white-space-collapse: preserve; - Tries to maintain compatibility with Folio's treatment of whitespace.
 		//font-weight: bolder; text-align: center 
-		
+		// margin:30px;
+		sb.append(applySelector.length() == 0 ? "body" :  applySelector + " {font-family: \"Times New Roman\"; font-size:12pt; line-height:1.0em; white-space-collapse: preserve; white-space:pre-wrap;}\n");
+
+
 		sb.append(applySelector + "th {font-weight:auto;text-align:auto;}\n"); //Reset to act like td - what is folio behavior?
 	}
 	
