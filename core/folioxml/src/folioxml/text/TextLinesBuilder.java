@@ -33,9 +33,7 @@ public class TextLinesBuilder {
         return lines;
     }
 
-
-    public TabUsage analyzeTabUsage(NodeList nl) throws InvalidMarkupException {
-        List<StringBuilder> lines = generateLines(nl);
+    public TabUsage analyzeTabUsage(List<StringBuilder> lines) throws InvalidMarkupException {
         TabUsage result = TabUsage.None;
         for(StringBuilder l:lines){
             Matcher m = tabsInTheMiddle.matcher(l);
@@ -49,6 +47,10 @@ public class TextLinesBuilder {
             }
         }
         return result;
+    }
+    public TabUsage analyzeTabUsage(NodeList nl) throws InvalidMarkupException {
+        List<StringBuilder> lines = generateLines(nl);
+        return analyzeTabUsage(lines);
     }
 
     public enum TabUsage{

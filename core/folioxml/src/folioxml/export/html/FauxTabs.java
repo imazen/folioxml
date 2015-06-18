@@ -93,8 +93,12 @@ public class FauxTabs implements NodeListProcessor {
         if (next == null){
             //Default tab stops
             next = new FixedTabStop();
-            next.location = tabAt + defaultTabSize;
-            next.leader = " ";
+            int lastTabSet = tabStops.size() > 0 ? tabStops.get(tabStops.size() - 1).location : 0;
+
+            int offset = (int)Math.ceil((double)(tabAt + 1 - lastTabSet) / (double)defaultTabSize) * defaultTabSize;
+
+            next.location = lastTabSet + offset;
+            next.leader = TokenUtils.entityDecodeString(" &#160;");
             next.just = TabStopJustify.Left;
         }
 
@@ -127,7 +131,7 @@ public class FauxTabs implements NodeListProcessor {
         if (pi == null) pi = new ParagraphInfo();
         Double charWidth = pi.getCharWidthInches();
 
-        int defaultTabSize = (int)Math.ceil(2.0 / charWidth);
+        int defaultTabSize = (int)Math.ceil(0.5 / charWidth);
 
 
 
@@ -246,7 +250,9 @@ public class FauxTabs implements NodeListProcessor {
             double fontInches = FolioCssUtils.toInches(StylesheetBuilder.DEFAULT_FONT_SIZE);
             if (fontSize != null) fontInches = FolioCssUtils.toInches(fontSize,fontInches);
 
-            return fontSizeToCharWidthRatio() * fontInches;
+            //We need to expand the tab positions to help account for the growth from variable-width to fixed-width font.
+            //Thus the 0.8
+            return fontSizeToCharWidthRatio() * fontInches * 0.8;
         }
     }
 
@@ -280,7 +286,7 @@ public class FauxTabs implements NodeListProcessor {
 
 
         if ("NO".equalsIgnoreCase(m.group(3)))
-            ts.leaderPattern = TokenUtils.entityDecodeString(" &nbsp;");
+            ts.leaderPattern = TokenUtils.entityDecodeString(" &#160;");
         if ("DS".equalsIgnoreCase(m.group(3)))
             ts.leaderPattern = TokenUtils.entityDecodeString(" .");
         if ("DO".equalsIgnoreCase(m.group(3)))
@@ -361,14 +367,27 @@ document.write("<strong>Avg: " + (sum / id) + "px, " + (sum / id / 96) + "in</st
         //For indentation-only use, we could apply a leader of " &nbsp; " (decoded) and leave the class name unchanged.
         NodeList paragraphs = nodes.searchOuter(new NodeFilter("p"));
         for (Node p: paragraphs.list()) {
+            List<StringBuilder> lines = new TextLinesBuilder().generateLines(new NodeList(p));
             //Analyze tab usage
-            TextLinesBuilder.TabUsage tabs = new TextLinesBuilder().analyzeTabUsage(new NodeList(p));
+            TextLinesBuilder.TabUsage tabs = new TextLinesBuilder().analyzeTabUsage(lines);
             if (tabs == TextLinesBuilder.TabUsage.Indentation){
                 FakeTabs(p,exclusions);
                 p.addClass("faux_tabs_indentation");
             }else if (tabs == TextLinesBuilder.TabUsage.Tabulation){
                 FakeTabs(p,exclusions);
                 p.addClass("faux_tabulation");
+            }
+
+            if (tabs == TextLinesBuilder.TabUsage.Tabulation){
+                //Do before/after per line
+                List<StringBuilder> newLines = new TextLinesBuilder().generateLines(new NodeList(p));
+                for(int i =0; i < lines.size() && i < newLines.size(); i++){
+                    //System.out.print("O:");
+                    //System.out.println(lines.get(i));
+                    ///System.out.print("N:");
+                    System.out.println(newLines.get(i));
+                }
+
             }
         }
 
