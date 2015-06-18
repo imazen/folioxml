@@ -501,9 +501,34 @@ public class NodeList  {
 	}
 	public NodeList searchBetween(Node after, Node before, IFilter ... filters) throws InvalidMarkupException{
 		NodeList nl = new NodeList(count());
-		searchNodesBetween(after,before,nl,new And(filters),false,true);
+		searchNodesBetween(after, before, nl, new And(filters), null, false, true);
 		return nl;
 	}
+
+
+	public NodeList textEntityNodesBetween(Node after, Node before, IFilter exclude) throws InvalidMarkupException {
+		NodeList nl = new NodeList(countMatchingNodes(new TextEntityFilter(1)));
+		searchNodesBetween(after, before, nl, new TextEntityFilter(1),exclude, false, true);
+		return nl;
+	}
+
+	///Recursive
+	public int countMatchingNodes(IFilter filter) throws InvalidMarkupException {
+		int len = 0;
+		for (Node n : this.a) {
+			//Local length
+			if (filter.matches(n)){
+				len++;
+			} else if (n.children != null) {
+				len += n.children.countMatchingNodes(filter);
+			}
+
+		}
+		return len;
+	}
+
+
+
 	/**
 	 * 1 means B was found. We are done. 
 	 * 0 means A was found, but B wasn't. 
@@ -511,12 +536,11 @@ public class NodeList  {
 	 * 
 	 * You must pass a non-null value to B to get a result of 1... otherwise you will get 0.
 	 * 
-	 * @param sb
 	 * @param a
 	 * @param b
 	 * @return
 	 */
-	private int searchNodesBetween(Node a, Node b, NodeList addTo, IFilter filter, boolean outermostOnly, boolean recursive) throws InvalidMarkupException{
+	private int searchNodesBetween(Node a, Node b, NodeList addTo, IFilter filter, IFilter exclude, boolean outermostOnly, boolean recursive) throws InvalidMarkupException{
 		boolean afound = (a == null); //If it is null, A has already been found
 		boolean bfound = false; //If b is null, we are searching to the end.
 		for (Node n:this.a){
@@ -525,18 +549,21 @@ public class NodeList  {
 				return 1; //We are done. Stop.
 			}
 			boolean matches = false;
-			if (afound && !bfound){
+			boolean excluded = exclude != null && exclude.matches(n);
+			boolean searchChildren = recursive && n.children != null && !excluded;
+
+			if (afound && !bfound && !excluded){
 				matches =  (filter.matches(n));
 			}
 			
 			if (matches){
 				addTo.list().add(n);
-				if (outermostOnly) continue; //Don't process children in outermostOnly mode
+				if (outermostOnly) searchChildren = false; //Don't process children in outermostOnly mode
 			}
 			
 			//Process children.
-			if (n.children != null && recursive) {
-				int result = n.children.searchNodesBetween(afound ? null : a, b,addTo,filter,outermostOnly,recursive);	
+			if (searchChildren) {
+				int result = n.children.searchNodesBetween(afound ? null : a, b,addTo,filter,exclude, outermostOnly,recursive);
 				if (result == 1) return 1; //We're done. We found B.
 				if (result == 0) afound = true; //We found A... we can start writing now.
 				//Nothing to do for -1
@@ -659,7 +686,20 @@ public class NodeList  {
 		
 		return false;
 	}
-
+	///False if the list contains any nodes (recursively) that are not valid phrasing content per HTML5
+	public boolean phrasingContentOnly() {
+		//https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#Phrasing_content
+		for (Node every : flattenRecursive().list()) {
+			if (every.isTag()) {
+				if (!every.matches("abbr|audio|b|bdo|br|button|canvas|cite|code|command|datalist|dfn|em|embded|i|iframe|img|input|kbd|keygen|label|mark|math|meter|noscript|object|output|progress|q|ruby|samp|script|select|small|span|strong|sub|sup|svg|textarea|time|var|video|wbr|")
+						&&
+						!every.matches("a|area|del|ins|map|link|meta|bookmark")) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 	
 }
 /*

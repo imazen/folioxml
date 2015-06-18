@@ -917,6 +917,14 @@ tr	Common, align ("left" | "center" | "right" | "justify" | "char"), char (Chara
     	return val;
     }
     
+    public static Double toInches(String cssUnit, Double ifAuto){
+        //0.0138888889 inches in a point.
+        //1 centimeter = 0.393700787 inches
+
+        if ("auto".equalsIgnoreCase(cssUnit)) return ifAuto;
+        return toInches(cssUnit);
+    }
+    
     /**
      * Returns true if the specified string could be a unit specification (i.e, decimal followed by p|c|t
      * @param u

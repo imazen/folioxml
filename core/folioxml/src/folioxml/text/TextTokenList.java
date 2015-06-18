@@ -5,6 +5,7 @@ import folioxml.core.TokenBase.TokenType;
 import folioxml.xml.IFilter;
 import folioxml.xml.Node;
 import folioxml.xml.NodeList;
+import folioxml.xml.TextEntityFilter;
 
 import java.util.ArrayList;
 
@@ -12,7 +13,7 @@ public class TextTokenList extends ArrayList<ITextToken>{
 	
 	
 	public TextTokenList(Node n, IFilter excludeRecursive) throws InvalidMarkupException{
-		this.ensureCapacity(countTextNodes(n)); //Minimize reallocs.
+		this.ensureCapacity(new NodeList(n).countMatchingNodes(new TextEntityFilter(1))); //Minimize reallocs.
 		addNodeRecursive(n, excludeRecursive);
 	}
 	/**
@@ -23,27 +24,14 @@ public class TextTokenList extends ArrayList<ITextToken>{
 	 */
 	public TextTokenList(NodeList n, IFilter excludeRecursive) throws InvalidMarkupException{
 		int size = 0;
-		for (Node c:n.list()) size += countTextNodes(c);
+		size += n.countMatchingNodes(new TextEntityFilter(1));
 		this.ensureCapacity(size); //Minimize reallocs.
 		
 		for (Node c:n.list()) addNodeRecursive(c, excludeRecursive);
 		
 	}
 
-	/**
-	 * Counts the number of non-empty text nodes so the arrays can be created appropriately.
-	 * @param n
-	 * @return
-	 */
-	private int countTextNodes(Node n){
-		//Local length
-		int len = (n.isTextOrEntity() && n.markup.length() > 0)  ? 1 : 0;
-		if (n.children == null) return len;
-		//Recursive.
-		for (Node c:n.children.list())
-			len += countTextNodes(c);	
-		return len;
-	}
+
 	/**
 	 * Adds all the text nodes within n (or n itself) recursively to the arrays.
 	 * @param n
@@ -63,22 +51,4 @@ public class TextTokenList extends ArrayList<ITextToken>{
 	}
 	
 
-	
-	 class NodeTextTokenWrapper implements ITextToken{
-		private Node n;
-		public NodeTextTokenWrapper(Node n){
-			this.n = n;
-		}
-		public String getText(){
-			return n.markup;
-		}
-		public void setText(String s){
-			n.markup = s;
-			n.type = TokenType.Text;
-			if (s.length() == 0){
-				//Delete
-				n.remove(true); //Delete token from parent.
-			}
-		}
-	}
 }
