@@ -116,9 +116,9 @@ public class InventoryNodes implements NodeListProcessor {
            TextLinesBuilder.TabUsage tabs = new TextLinesBuilder().analyzeTabUsage(new NodeList(para));
            boolean canPre = para.children == null || para.children.phrasingContentOnly();
            if (tabs != TextLinesBuilder.TabUsage.None){
-               System.out.println("Tab-aligned paragraph:");
+               //System.out.println("Tab-aligned paragraph:");
                increment("tab-aligned paragraphs");
-               System.out.println(para.toXmlString(true));
+               //System.out.println(para.toXmlString(true));
                if (!canPre){
                    logAndPullNode(para,"tab-aligned paragraphs that contain block elements", "Tab-aligned paragraph with block elements:");
                }
@@ -249,7 +249,8 @@ public class InventoryNodes implements NodeListProcessor {
         NodeList jumpLinks = nodes.search(new NodeFilter("link|a","jumpDestination",null));
         for (Node n:jumpLinks.list()){
             if (n.get("infobase") != null){
-                logAndPullNode(n, "cross-infobase bookmark links", "Cross-infobase jump link:");
+                //logAndPullNode(n, "cross-infobase bookmark links", "Cross-infobase jump link:");
+                n.pull();
             }else{
                 increment("bookmark links");
                 n.pull();
