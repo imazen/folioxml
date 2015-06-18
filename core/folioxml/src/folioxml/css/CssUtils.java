@@ -1,8 +1,8 @@
 package folioxml.css;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import folioxml.core.Pair;
+
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
@@ -48,6 +48,39 @@ public class CssUtils {
 			}
 		}		
 		return map;
+	}
+
+	public static List<Pair<String,String>> parseCssAsList(String css, boolean expandBorderPaddingToParts){
+		List<Pair<String,String>> pairs = new ArrayList<Pair<String,String>>();
+
+		if (css == null) return pairs; //Empty css
+
+		//Strip all comments
+		css = rComment.matcher(css).replaceAll(" ");
+
+		//Split into pairs (watch for escapes!)
+		String[] spairs = css.split("(?!\\\\);");
+
+
+		for(String s:spairs){
+			s = s.trim();
+			if (s.length() == 0) continue;
+
+			String[] parts = s.split("(?!\\\\):");
+			assert(parts.length == 2): s; //Or we have invalid syntax.
+
+			String key = parts[0].trim().toLowerCase(Locale.ENGLISH);
+			String value = parts[1].trim();
+			if (expandBorderPaddingToParts && (key.equalsIgnoreCase("border") || key.equalsIgnoreCase("padding"))){
+				pairs.add(new Pair<String, String>(key + "-top", value));
+				pairs.add(new Pair<String, String>(key + "-left", value));
+				pairs.add(new Pair<String, String>(key + "-right", value));
+				pairs.add(new Pair<String, String>(key + "-bottom", value));
+			}else{
+				pairs.add(new Pair<String, String>(key, value));
+			}
+		}
+		return pairs;
 	}
 	/**
 	 * Combines matching padding-left,-right,-top, -bottom elements into a single pair. (Also handles border and margin).
