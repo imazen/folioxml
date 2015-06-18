@@ -5,6 +5,7 @@ import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
 import folioxml.export.NodeListProcessor;
 import folioxml.slx.SlxToken;
+import folioxml.text.TextLinesBuilder;
 import folioxml.xml.Node;
 import folioxml.xml.NodeFilter;
 import folioxml.xml.NodeList;
@@ -74,65 +75,7 @@ public class InventoryNodes implements NodeListProcessor {
     }
 
 
-    private Pattern tabsInTheMiddle = Pattern.compile("\\A\\s*[a-zA-Z0-9_-]+\\t+");
 
-    private boolean paragraph_uses_tab_alignment(Node p){
-        List<StringBuilder> lines = new ArrayList<StringBuilder>();
-        add_lines(p, lines);
-
-        for(StringBuilder l:lines){
-            Matcher m = tabsInTheMiddle.matcher(l);
-            if (m.find()) return true;
-        }
-
-        return false;
-    }
-
-    private boolean phrasing_content_only(NodeList nodes){
-        //https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#Phrasing_content
-        for (Node every: nodes.flattenRecursive().list()){
-            if (every.isTag()){
-                if (!every.matches("abbr|audio|b|bdo|br|button|canvas|cite|code|command|datalist|dfn|em|embded|i|iframe|img|input|kbd|keygen|label|mark|math|meter|noscript|object|output|progress|q|ruby|samp|script|select|small|span|strong|sub|sup|svg|textarea|time|var|video|wbr|")
-                        &&
-                    !every.matches("a|area|del|ins|map|link|meta|bookmark")){
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-
-
-    private void add_lines(Node n, List<StringBuilder> lines){
-        if (n.matches("p|br|table|td|th|note|div|record")) line_new(lines);
-
-        if (n.isTag() && n.children != null){
-            for(Node c:n.children.list()){
-                add_lines(c,lines);
-            }
-        }else if (n.isTextOrEntity()){
-            String s = n.markup;
-            if (n.isEntity()) s = TokenUtils.entityDecodeString(s);
-            last_line(lines).append(s);
-        }
-
-        if (n.matches("p|br|table|td|th|note|div|record")) line_new(lines);
-
-    }
-
-    private StringBuilder last_line(List<StringBuilder> lines){
-        if (lines.size() == 0){
-            lines.add(new StringBuilder());
-        }
-        return lines.get(lines.size() - 1);
-    }
-
-    private void line_new(List<StringBuilder> lines){
-        if (lines.size() == 0 || lines.get(lines.size() - 1).length() > 0){
-            lines.add(new StringBuilder());
-        }
-    }
 
 
     public NodeList process(NodeList nodes) throws InvalidMarkupException {
@@ -170,9 +113,9 @@ public class InventoryNodes implements NodeListProcessor {
         //Report on use of tabs inside paragraphs
        for (Node para:nodes.search(new NodeFilter("p")).list()){
            //I guess recurse the tree and reset each time a breaking element opens or closes.
-           boolean tabAlign = paragraph_uses_tab_alignment(para);
-           boolean canPre = para.children == null || phrasing_content_only(para.children);
-           if (tabAlign){
+           TextLinesBuilder.TabUsage tabs = new TextLinesBuilder().analyzeTabUsage(new NodeList(para));
+           boolean canPre = para.children == null || para.children.phrasingContentOnly();
+           if (tabs != TextLinesBuilder.TabUsage.None){
                System.out.println("Tab-aligned paragraph:");
                increment("tab-aligned paragraphs");
                System.out.println(para.toXmlString(true));

@@ -16,7 +16,7 @@ public class StylesheetBuilder {
 		this.root = root;
 	}
 	
-
+	public  static final String DEFAULT_FONT_SIZE = "12pt";
 	
 	private void getDefaultCss(String applySelector, StringBuilder sb){
 		sb.append(applySelector + "td p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins...
@@ -29,10 +29,14 @@ public class StylesheetBuilder {
 		//white-space-collapse: preserve; - Tries to maintain compatibility with Folio's treatment of whitespace.
 		//font-weight: bolder; text-align: center 
 		// margin:30px;
-		sb.append(applySelector.length() == 0 ? "body" :  applySelector + " {font-family: \"Times New Roman\"; font-size:12pt; line-height:1.0em; white-space-collapse: preserve; white-space:pre-wrap;}\n");
+		sb.append(applySelector.length() == 0 ? "body" :  applySelector + " {font-family: \"Times New Roman\"; font-size:" + DEFAULT_FONT_SIZE + "; line-height:1.0em; white-space-collapse: preserve; white-space:pre-wrap;}\n");
+
 
 
 		sb.append(applySelector + "th {font-weight:auto;text-align:auto;}\n"); //Reset to act like td - what is folio behavior?
+
+		//Add faux-tabulation rules
+		sb.append(applySelector + "p.faux_tabulation {white-space: pre-wrap; white-space-collapse: preserve; font-family: \"Courier New\", monospace; }\n");
 	}
 	
 	public String getCss(String applySelector) throws InvalidMarkupException{
