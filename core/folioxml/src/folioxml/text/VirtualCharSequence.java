@@ -57,7 +57,7 @@ import java.util.regex.Pattern;
 			int charIndex = 0;
 			for (int i = 0; i < textTokens.size(); i++){
 				ITextToken t = textTokens.get(i);
-				String s = t.getText();
+				String s = decodeEntities ? TokenUtils.entityDecodeString(t.getText()) : t.getText();
 				if (s.length() > 0){
 					//Only add non-empty nodes
 					nodes[ix] = t;
@@ -196,6 +196,10 @@ import java.util.regex.Pattern;
 		
 		public CharSequence subSequence(int start, int end) {
 			return text.subSequence(start, end);
+		}
+
+		public int indexOf(String s, int fromIndex){
+			return text.indexOf(s, fromIndex);
 		}
 		public String toString(){
 			return text.toString();
