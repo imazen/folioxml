@@ -46,6 +46,9 @@ public class StylesheetBuilder {
         if (applySelector.length() > 0 && !applySelector.endsWith(" ")) applySelector += " ";
 
 		getDefaultCss(applySelector,sb);
+
+		StringBuilder replace_underline = new StringBuilder(applySelector + ".replace_underline, ");
+		String text_underline = "text-decoration:underline;";
 		
 		for(SlxToken t:root.getTokens()){
 			if (t.matches("style-def")){
@@ -59,15 +62,28 @@ public class StylesheetBuilder {
 					if (type.equalsIgnoreCase("paragraph")) selector = "p";
 					if (type.equalsIgnoreCase("link")) selector = "a";
 					if (selector.length() == 0) selector = "span";
-					selector += "." + cls;
-					
-					sb.append(applySelector + selector + " {\n  ");
+
+					selector = applySelector + selector + "." + cls;
+
+					//Factor out non-link underlines into a single rule.
+					if (!type.equalsIgnoreCase("link") && style.indexOf(text_underline, 0) >= 0){
+						replace_underline.append(selector);
+						replace_underline.append(", ");
+						style = style.replace(text_underline, "");
+					}
+
+					sb.append(selector + " {\n  ");
 					sb.append(style.replace(";", ";\n  "));
 					sb.append("}\n");
 					
 				}
 			}
 		}
+		//Write underlining rule last
+		sb.append(replace_underline.toString().replaceFirst(", \\Z",""));
+		sb.append("{\n  ");
+		sb.append(text_underline);
+		sb.append("\n}\n");
 		return sb.toString();
 	}
 	
