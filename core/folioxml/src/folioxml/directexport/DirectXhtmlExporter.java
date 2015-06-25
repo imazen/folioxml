@@ -4,6 +4,7 @@ import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
 import folioxml.export.NodeListProcessor;
 import folioxml.export.deprecated.BookmarksAndJumpLinks;
+import folioxml.export.deprecated.FixImagePaths;
 import folioxml.export.deprecated.RecordAnchorWriter;
 import folioxml.export.html.*;
 import folioxml.slx.SlxRecord;
