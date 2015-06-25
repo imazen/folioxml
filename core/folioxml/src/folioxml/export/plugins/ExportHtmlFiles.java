@@ -2,6 +2,7 @@ package folioxml.export.plugins;
 
 import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
+import folioxml.core.TokenBase;
 import folioxml.core.TokenUtils;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
@@ -24,6 +25,13 @@ import java.util.List;
 
 
 public class ExportHtmlFiles implements InfobaseSetPlugin {
+
+    public ExportHtmlFiles(boolean addNavLinks){
+        this.addNavLinks = addNavLinks;
+    }
+
+
+    boolean addNavLinks;
 
     protected OutputStreamWriter out;
     private ExportLocations export;
@@ -61,8 +69,17 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
         if (lastFile != file){
-            if (lastFile != null && out != null) closeFile();
+            if (lastFile != null && out != null) {
+                //New URI
+                String newUri = export.getUri(file.getRelativePath(), AssetType.Html, export.getLocalPath(lastFile.getRelativePath(), AssetType.Html, FolderCreation.None));
+                writeNextLink(newUri, file);
+                closeFile();
+            }
             openFile(file, xr);
+            if (lastFile != null){
+                String previousUrl = export.getUri(lastFile.getRelativePath(), AssetType.Html,export.getLocalPath(file.getRelativePath(),AssetType.Html, FolderCreation.None));
+                writePrevLink(previousUrl, lastFile);
+            }
             lastFile = file;
         }
         out.write(xr.toXmlString(false));
@@ -156,6 +173,27 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         out.append("</");
         out.append(elementName);
         out.append(">\n");
+    }
+
+    private void writeLink(String uri, String text) throws IOException, InvalidMarkupException {
+        Node a = new Node("<a>" + TokenUtils.lightEntityEncode(text) + "</a>");
+        a.setTagName("a");
+        a.addClass("pagination_link");
+        a.set("href", uri);
+
+
+        out.write(a.toXmlString(false));
+    }
+
+
+    private void writeNextLink(String uri, FileNode target) throws IOException, InvalidMarkupException {
+        writeLink(uri, "Next: " + target.getAttributes().get("heading"));
+    }
+
+    private void writePrevLink(String uri, FileNode target) throws IOException, InvalidMarkupException {
+
+        writeLink(uri, "Prev: " + target.getAttributes().get("heading"));
+
     }
 
 }
