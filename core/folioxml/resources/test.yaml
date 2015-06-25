@@ -10,3 +10,9 @@ folio_help:
       path: "files/folio-help/export/{id}-{stamp}/{input}"
     luceneindex:
       path: "files/indexes/folio-help/"
+    image:
+      path: files/folio-help/export/{input}
+    html:
+      path: "files/folio-help/export/{id}-{stamp}/{input}.html"
+
+

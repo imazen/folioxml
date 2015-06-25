@@ -61,7 +61,7 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
         if (lastFile != file){
-            if (lastFile != null) closeFile();
+            if (lastFile != null && out != null) closeFile();
             openFile(file, xr);
             lastFile = file;
         }
@@ -88,8 +88,6 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
 
 
         String filename = fn.getRelativePath();
-        if (filename.length() == 0 && xr == root) filename = "_xmlroot_info";
-
         Path htmlPath = export.getLocalPath(filename , AssetType.Html, FolderCreation.CreateParents);
 
 

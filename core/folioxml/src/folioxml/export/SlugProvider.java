@@ -25,6 +25,7 @@ public class SlugProvider implements NodeInfoProvider{
     public void PopulateNodeInfo(XmlRecord r, FileNode f) throws InvalidMarkupException {
         f.getBag().put("slug", getSlug(r,f));
         f.getAttributes().put("heading", r.get("heading"));
+
     }
 
     public String getSlug(XmlRecord r, FileNode f) throws InvalidMarkupException {
@@ -71,6 +72,9 @@ public class SlugProvider implements NodeInfoProvider{
 
     @Override
     public String getRelativePathFor(FileNode fn) {
+        if (fn.getParent() == null){
+            return "_xmldef";
+        }
         StringBuilder sb = new StringBuilder();
         Deque<StaticFileNode> list = ((StaticFileNode)fn).getAncestors(true);
         StaticFileNode n = null;

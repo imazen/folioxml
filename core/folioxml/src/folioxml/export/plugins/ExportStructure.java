@@ -78,7 +78,7 @@ public class ExportStructure implements InfobaseSetPlugin {
         //Locate the node's parents
         if (current != null){
             XmlRecord commonAncestor = ((XmlRecord)current.getBag().get("record")).getCommonAncestor(xr,true);
-            if (commonAncestor.isRootRecord()) commonAncestor = null;
+            if (commonAncestor != null && commonAncestor.isRootRecord()) commonAncestor = null;
             if (commonAncestor != null){
                 StaticFileNode candidateParent = current;
                 while (candidateParent != null){

@@ -16,9 +16,7 @@ public class TestConfig {
     public static Map<String,InfobaseSet> getAllUncached(){
 
 
-        String path = "resources/test.yaml";
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        InputStream foo = loader.getResourceAsStream(path);
+        InputStream foo = TestConfig.class.getResourceAsStream("../../test.yaml");
 
         String classDir = TestConfig.class.getProtectionDomain().getCodeSource().getLocation().getFile();
         String workingDir = Paths.get(classDir).getParent().getParent().getParent().getParent().toAbsolutePath().toString();
