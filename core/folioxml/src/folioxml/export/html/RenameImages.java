@@ -33,21 +33,83 @@ public class RenameImages {
     }
 
     public void process(NodeList nodes, FileNode document) throws InvalidMarkupException, IOException {
-        //
-        NodeList images = nodes.filterByTagName("img|object|a|link", true);
-        for (Node n:images.list()){
-            if (TokenUtils.fastMatches("bitmap|metafile|picture", n.get("handler")) || n.matches("img")){
-                String attr = n.matches("img|object") ? "src" : "href";
 
-                //Fix path. It will be relative, since it is from a local embedded object.
-                String src = n.get(attr);
-                if (src != null) {
-                    String resultUri = modifyImageUrl(src, document);
+        Path document_base = export.getLocalPath(document.getRelativePath(), AssetType.Html, FolderCreation.None);
+
+        //
+        NodeList images = nodes.filterByTagName("img|object|link", true);
+        for (Node n:images.list()){
+            //If it's an image, convert it to an img tag, if it's a data link, convert to 'a'.
+
+
+            //If type="ole" - oops!
+            //if type="folio" - we can fix this.
+
+            //link, dataLink
+            //link, objectName,
+            //object, type="folio"
+            //object type="data-link"
+
+
+            boolean isImage = (n.matches("object") && TokenUtils.fastMatches("bitmap|metafile|picture", n.get("handler"))) || n.matches("img");
+
+
+            boolean isImageLink = n.matches("link|a") && TokenUtils.fastMatches("bitmap|metafile|picture", n.get("handler"));
+
+
+            boolean isObjectLink = n.matches("link") && (n.get("objectName") != null || n.get("dataLink") != null);
+
+            if (n.matches("link") && !isObjectLink) continue; //We don't care about web, program, query, popup, jump, or menu links.
+            /*boolean isLinkToImage
+
+
+            if (TokenUtils.fastMatches("folio|data-link", n.get("type"))){
+                continue;
+            }
+
+            boolean isDataLink =
+
+            if (TokenUtils.fastMatches("bitmap|metafile|picture",handler)){ //Convert these three types to "img" tags immediately.
+
+
+            }*/
+
+
+            String attr = n.matches("img|object") ? "src" : "href";
+
+            //Fix path. It will be relative, since it is from a local embedded object.
+            String src = n.get(attr);
+            if (src != null) {
+                //Parse the file signature (cached on 'src'
+                BundledAsset b = getAsset(src);
+
+                if (b.success){
+                    String resultUri = export.getUri(b.targetPath, AssetType.Image, document_base);
                     n.set(attr, resultUri);
                     n.set("resolved", "true");
+                    if (isImage){
+                        n.setTagName("img");
+                        n.removeAttr("type");
+                        n.removeAttr("handler");
+                        n.set("alt", n.get("name")); //The alt tag can use the name
+                        n.removeAttr("name");
+                    }else if (isImageLink){
+                        n.setTagName("a");
+                        n.removeAttr("type");
+                        n.removeAttr("handler");
+                        n.set("alt", n.get("objectName")); //The alt tag can use the name
+                        n.removeAttr("objectName");
+                    }else{
+
+                    }
+                }else{
+                    //Unscucessfully.
+
                 }
 
             }
+
+
             //TODO: catch the rest
         }
     }
@@ -194,16 +256,21 @@ public class RenameImages {
         return b;
     }
 
-    public String modifyImageUrl(String path, FileNode document_base) throws IOException {
+    public BundledAsset getAsset(String path) throws IOException {
 
         BundledAsset b;
         //If we have renamed this file before, reuse result
         if (assets.containsKey(path)) {
             b = assets.get(path);
-        } else{
+        } else {
             b = parse(path);
             assets.put(path, b);
         }
+        return b;
+    }
+    public String modifyImageUrl(String path, FileNode document_base) throws IOException {
+
+        BundledAsset b = getAsset(path);
         if (!b.success) return path;
         //TODO: log failure path into attributes, perhaps?
 

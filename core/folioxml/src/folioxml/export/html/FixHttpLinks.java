@@ -43,6 +43,11 @@ public class FixHttpLinks implements NodeListProcessor {
             String repairedUrl = repairUrl(url);
             if (repairedUrl != null && !repairedUrl.equals(url)){
                 n.set("href",  repairedUrl);
+                n.setTagName("a"); //Just those we change.
+            }else{
+                if (validUrl(url)){
+                    n.setTagName("a"); //And those that validate as a correct URL w/schema & everything.
+                }
             }
         }
         return nodes;
