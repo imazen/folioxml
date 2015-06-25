@@ -398,14 +398,11 @@ document.write("<strong>Avg: " + (sum / id) + "px, " + (sum / id / 96) + "in</st
                 p.addClass("faux_tabulation");
             }
 
-            if (tabs == TextLinesBuilder.TabUsage.Tabulation){
+            if (tabs != TextLinesBuilder.TabUsage.None){
                 //Do before/after per line
                 List<StringBuilder> newLines = new TextLinesBuilder().generateLines(new NodeList(p));
                 for(int i =0; i < lines.size() && i < newLines.size(); i++){
-                    //System.out.print("O:");
-                    //System.out.println(lines.get(i));
-                    ///System.out.print("N:");
-                    logs.getNamedStream("fauxtabs").append(newLines.get(i)).append("\n");
+                    logs.getNamedStream("faux_" + tabs.toString().toLowerCase()).append(newLines.get(i)).append("\n");
                 }
 
             }

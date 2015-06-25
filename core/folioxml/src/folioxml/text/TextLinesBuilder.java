@@ -19,6 +19,7 @@ public class TextLinesBuilder {
 
     private Pattern tabsInTheMiddle = Pattern.compile("\\A\\s*[^\\t\\r\\n]+\\t+");
 
+    private Pattern numberedList = Pattern.compile("\\A\\s*?[0-9iv]+[\\.\\)]\\t+[^\\t\\n]*\\Z");
 
 
     public TextLinesBuilder(){}
@@ -36,7 +37,12 @@ public class TextLinesBuilder {
     public TabUsage analyzeTabUsage(List<StringBuilder> lines) throws InvalidMarkupException {
         TabUsage result = TabUsage.None;
         for(StringBuilder l:lines){
-            Matcher m = tabsInTheMiddle.matcher(l);
+
+            Matcher m = numberedList.matcher(l);
+
+            if (m.find()) return TabUsage.Indentation; //Numbered list indentation;
+
+            m = tabsInTheMiddle.matcher(l);
             if (m.find()) return TabUsage.Tabulation; //Tabulation is a quick exit, no escalation from there
             m = tabsAtTheStart.matcher(l);
             if (m.find()){
