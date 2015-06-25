@@ -101,7 +101,7 @@ public class SimultaneousTest {
                 CleanupSlxStuff.CleanupOptions.RenameLinkToA,
                 CleanupSlxStuff.CleanupOptions.RenameBookmarks,
                 CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
-        MultiRunner xhtml = new MultiRunner(cleanup, new Images(), new Notes(), new Popups(), new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags());
+        MultiRunner xhtml = new MultiRunner( new Images(), new Notes(), new Popups(), cleanup,new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags());
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(new SlugProvider("")));
