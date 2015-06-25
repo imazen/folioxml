@@ -99,7 +99,7 @@ public class SimultaneousTest {
         plugins.add(new ApplyProcessor(xhtml));
         plugins.add(new ExportCssFile());
         //plugins.add(new ExportXmlFile(true));
-        plugins.add(new ExportHtmlFiles(true));
+        plugins.add(new ExportHtmlFiles(true,true));
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"), plugins);
 
         visitor.complete();
@@ -176,7 +176,7 @@ public class SimultaneousTest {
         plugins.add(new ApplyProcessor(xhtml));
         plugins.add(new ExportCssFile());
         //plugins.add(new ExportXmlFile(true));
-        plugins.add(new ExportHtmlFiles(true));
+        plugins.add(new ExportHtmlFiles(true,true));
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"), plugins);
 
         visitor.complete();

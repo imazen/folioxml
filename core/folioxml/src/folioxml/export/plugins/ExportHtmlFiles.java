@@ -26,11 +26,12 @@ import java.util.List;
 
 public class ExportHtmlFiles implements InfobaseSetPlugin {
 
-    public ExportHtmlFiles(boolean addNavLinks){
+    public ExportHtmlFiles(boolean addNavLinks, boolean useHighslide){
         this.addNavLinks = addNavLinks;
+        this.useHighslide = useHighslide;
     }
 
-
+    boolean useHighslide;
     boolean addNavLinks;
 
     protected OutputStreamWriter out;
@@ -113,10 +114,10 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         //Add highslide javascript/css
         String highslideFolder = export.getUri("highslide/", AssetType.Javascript, htmlPath) + "/";
 
-        jsUris.add(URI.create(highslideFolder).resolve("highslide-with-html.js").toString());
-        cssUris.add(URI.create(highslideFolder).resolve("highslide.css").toString());
-
-
+        if (useHighslide) {
+            jsUris.add(URI.create(highslideFolder).resolve("highslide-with-html.js").toString());
+            cssUris.add(URI.create(highslideFolder).resolve("highslide.css").toString());
+        }
 
         out  = new OutputStreamWriter(new FileOutputStream(htmlPath.toFile()), "UTF8");
 
@@ -133,6 +134,9 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
             out.append("<link rel='stylesheet' type='text/css' href='" + uri + "' />\n");
         for (String uri: jsUris)
             out.append("<script type='text/javascript' src='" + uri+ "'></script>\n");
+
+        if (useHighslide)
+            out.append("<script type=\"text/javascript\">hs.graphicsDir = '" + URI.create(highslideFolder).resolve("graphics") + "/';</script>\n");
 
         closeElement("head");
         openElement("body");
