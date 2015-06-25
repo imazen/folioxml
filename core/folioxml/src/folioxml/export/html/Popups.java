@@ -32,7 +32,7 @@ public class Popups implements NodeListProcessor {
 			Node popup = objects.search(new NodeFilter("popup")).first();
 			if (popup == null) continue; //TODO: Log and warn about this...
 			
-			String id = UUID.randomUUID().toString();
+			String id = "popup_" + UUID.randomUUID().toString();
 			String heading = popup.get("title") != null ? popup.get("title").replace("'","\\'") : ""; //TODO: AND html encoding is needed too...
 			t.addClass("highslide popupLink");
 			t.set("href","#");

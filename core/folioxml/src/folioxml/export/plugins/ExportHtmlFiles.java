@@ -13,9 +13,13 @@ import folioxml.xml.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 
 
 public class ExportHtmlFiles implements InfobaseSetPlugin {
@@ -78,14 +82,23 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
 
         if (out != null) throw new IOException(); //Invalid state
 
-        String css_name = "foliostyle.css";
-        String js_name = "popins.js";
+        List<String> cssUris = new ArrayList<String>();
+        List<String> jsUris = new ArrayList<String>();
+
 
 
         Path htmlPath = export.getLocalPath(fn.getRelativePath() , AssetType.Html, FolderCreation.CreateParents);
 
-        String cssUri = export.getUri(css_name, AssetType.Css, htmlPath);
-        String jsUri = export.getUri(js_name, AssetType.Javascript, htmlPath);
+
+        cssUris.add(export.getUri("foliostyle.css", AssetType.Css, htmlPath));
+
+        //Add highslide javascript/css
+        String highslideFolder = export.getUri("highslide/", AssetType.Javascript, htmlPath) + "/";
+
+        jsUris.add(URI.create(highslideFolder).resolve("highslide-with-html.js").toString());
+        cssUris.add(URI.create(highslideFolder).resolve("highslide.css").toString());
+
+
 
         out  = new OutputStreamWriter(new FileOutputStream(htmlPath.toFile()), "UTF8");
 
@@ -98,8 +111,10 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         out.write(TokenUtils.lightEntityEncode(fn.getAttributes().get("heading")));
         closeElement("title");
         writeIndent();
-        out.append("<link rel='stylesheet' type='text/css' href='" + cssUri + "' />");
-        out.append("<script type='text/javascript' src='" + jsUri+ "'></script>");
+        for (String uri: cssUris)
+            out.append("<link rel='stylesheet' type='text/css' href='" + uri + "' />\n");
+        for (String uri: jsUris)
+            out.append("<script type='text/javascript' src='" + uri+ "'></script>\n");
 
         closeElement("head");
         openElement("body");

@@ -1,8 +1,6 @@
 package folioxml.export.plugins;
 
-import folioxml.config.ExportLocations;
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
+import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
@@ -12,7 +10,14 @@ import folioxml.slx.SlxRecord;
 import folioxml.xml.NodeList;
 import folioxml.xml.XmlRecord;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 /**
  * Created by nathanael on 6/9/15.
@@ -20,9 +25,16 @@ import java.io.IOException;
 public class RenameFiles implements InfobaseSetPlugin {
 
     RenameImages renamer;
+    ExportLocations loc;
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException {
         renamer = new RenameImages(set, export);
+        loc = export;
+
+       
+        System.out.println("Exporting resources...");
+        unzip(RenameFiles.class.getResourceAsStream("../../../highslide.zip"), loc.getLocalPath("highslide", AssetType.Javascript, FolderCreation.CreateParents).toString());
+
 
     }
 
@@ -70,4 +82,44 @@ public class RenameFiles implements InfobaseSetPlugin {
         System.out.println("Copying/converting referenced files...");
         renamer.CopyConvertFiles();
     }
+
+
+
+
+    /**
+     * Extracts a zip file specified by the zipFilePath to a directory specified by
+     * destDirectory (will be created if does not exists)
+     * @param destDirectory
+     * @throws IOException
+     */
+    public static void unzip(InputStream zipStream, String destDirectory) throws IOException {
+        File destDir = new File(destDirectory);
+        if (!destDir.exists()) {
+            destDir.mkdir();
+        }
+        ZipInputStream zipIn = new ZipInputStream(zipStream);
+        ZipEntry entry = zipIn.getNextEntry();
+        // iterates over entries in the zip file
+        while (entry != null) {
+            String filePath = destDirectory + File.separator + entry.getName();
+            if (!entry.isDirectory()) {
+                //Extract file
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+                byte[] bytesIn = new byte[4096];
+                int read = 0;
+                while ((read = zipIn.read(bytesIn)) != -1) {
+                    bos.write(bytesIn, 0, read);
+                }
+                bos.close();
+            } else {
+                // if the entry is a directory, make the directory
+                File dir = new File(filePath);
+                dir.mkdir();
+            }
+            zipIn.closeEntry();
+            entry = zipIn.getNextEntry();
+        }
+        zipIn.close();
+    }
+
 }
