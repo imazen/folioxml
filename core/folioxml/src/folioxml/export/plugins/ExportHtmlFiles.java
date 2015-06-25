@@ -87,8 +87,10 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         List<String> jsUris = new ArrayList<String>();
 
 
+        String filename = fn.getRelativePath();
+        if (filename.length() == 0 && xr == root) filename = "_xmlroot_info";
 
-        Path htmlPath = export.getLocalPath(fn.getRelativePath() , AssetType.Html, FolderCreation.CreateParents);
+        Path htmlPath = export.getLocalPath(filename , AssetType.Html, FolderCreation.CreateParents);
 
 
         cssUris.add(export.getUri("foliostyle.css", AssetType.Css, htmlPath));
