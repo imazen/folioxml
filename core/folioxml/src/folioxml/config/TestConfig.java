@@ -1,5 +1,6 @@
 package folioxml.config;
 
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Map;
 
@@ -14,12 +15,15 @@ public class TestConfig {
 
     public static Map<String,InfobaseSet> getAllUncached(){
 
-        String classDir = TestConfig.class.getProtectionDomain().getCodeSource().getLocation().getFile();
 
+        String path = "resources/test.yaml";
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        InputStream foo = loader.getResourceAsStream(path);
+
+        String classDir = TestConfig.class.getProtectionDomain().getCodeSource().getLocation().getFile();
         String workingDir = Paths.get(classDir).getParent().getParent().getParent().getParent().toAbsolutePath().toString();
 
-        return YamlInfobaseSet.parseYaml(workingDir,TestConfig.class
-                .getResourceAsStream("conf.yaml"));
+        return YamlInfobaseSet.parseYaml(workingDir,foo);
     }
 
     public static Map<String,InfobaseSet> getAll(){

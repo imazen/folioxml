@@ -31,14 +31,17 @@
 		<testSourceDirectory>testsrc</testSourceDirectory>
 		<resources>
 			<resource>
-				<directory>src</directory>
+				<directory>resources</directory>
 				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.yaml</include>
+
+					<include>*.yaml</include>
+					<include>*.yml</include>
+					<include>*.png</include>
+					<include>*.gif</include>
+					<include>*.js</include>
+					<include>*.css</include>
+					<include>*.zip</include>
 				</includes>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
 			</resource>
 		</resources>
 	</build>

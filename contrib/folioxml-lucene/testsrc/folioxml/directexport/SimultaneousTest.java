@@ -1,6 +1,9 @@
 package folioxml.directexport;
 
+import folioxml.config.InfobaseSet;
 import folioxml.config.TestConfig;
+import folioxml.config.YamlInfobaseSet;
+import folioxml.css.ReplaceUnderline;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.InfobaseSetVisitor;
 import folioxml.export.SlugProvider;
@@ -16,10 +19,23 @@ import folioxml.core.InvalidMarkupException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class SimultaneousTest {
+
+
+    private InfobaseSet loadPrivate(String name){
+
+        InputStream privateYaml =  TestConfig.class.getResourceAsStream("../../private.yaml");
+
+        String classDir = TestConfig.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+        String workingDir = Paths.get(classDir).getParent().getParent().getParent().getParent().toAbsolutePath().toString();
+
+        return YamlInfobaseSet.parseYaml(workingDir, privateYaml).get(name);
+    }
 
     @Test @Ignore
     public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
@@ -51,7 +67,7 @@ public class SimultaneousTest {
         plugins.add(new ExportStructure(new SlugProvider("")));
         plugins.add(new InfobaseSetIndexer());
         //plugins.add(new ExportMappingsFiles());
-        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("testset"),plugins);
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"),plugins);
 
         visitor.complete();
     }
@@ -68,7 +84,7 @@ public class SimultaneousTest {
         plugins.add(new ApplyProcessor(new FixHttpLinks()));
         plugins.add(new ResolveHyperlinks());
         plugins.add(new ExportInventory());
-        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("testset"),plugins);
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"), plugins);
 
         visitor.complete();
 
@@ -85,7 +101,7 @@ public class SimultaneousTest {
                 CleanupSlxStuff.CleanupOptions.RenameLinkToA,
                 CleanupSlxStuff.CleanupOptions.RenameBookmarks,
                 CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
-        MultiRunner xhtml = new MultiRunner(cleanup, new Images(), new Notes(), new Popups(), new SplitSelfClosingTags());
+        MultiRunner xhtml = new MultiRunner(cleanup, new Images(), new Notes(), new Popups(), new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags());
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(new SlugProvider("")));
@@ -96,9 +112,9 @@ public class SimultaneousTest {
 
         plugins.add(new ApplyProcessor(xhtml));
         plugins.add(new ExportCssFile());
-        plugins.add(new ExportXmlFile(true));
-        //plugins.add(new ExportHtmlFiles());
-        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("testset"),plugins);
+        //plugins.add(new ExportXmlFile(true));
+        plugins.add(new ExportHtmlFiles());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"), plugins);
 
         visitor.complete();
 
