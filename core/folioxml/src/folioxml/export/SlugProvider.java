@@ -12,11 +12,9 @@ import java.util.regex.Pattern;
 
 public class SlugProvider implements NodeInfoProvider{
 
-    public SlugProvider(String pathSuffix){
-        this.pathSuffix = pathSuffix;
+    public SlugProvider(){
 
     }
-    String pathSuffix;
     private StaticFileNode silentRoot = new StaticFileNode(null);
 
     @Override
@@ -80,7 +78,6 @@ public class SlugProvider implements NodeInfoProvider{
             sb.append((String) list.removeLast().getBag().get("slug"));
             if (!list.isEmpty()) sb.append('/');
         }
-        sb.append(pathSuffix);
         return sb.toString();
     }
 }
