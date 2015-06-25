@@ -6,6 +6,7 @@ import folioxml.core.Pair;
 import folioxml.core.TokenUtils;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
+import folioxml.export.LogStreamProvider;
 import folioxml.lucene.InfobaseFieldOptsSet;
 import folioxml.lucene.analysis.DynamicAnalyzer;
 import folioxml.lucene.folioQueryParser.QueryParser;
@@ -64,7 +65,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
     ExportLocations export;
 
     @Override
-    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
         infobaseSet = set;
         searcher = null;
         this.export = export;

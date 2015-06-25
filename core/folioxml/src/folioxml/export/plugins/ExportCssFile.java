@@ -6,6 +6,7 @@ import folioxml.core.Pair;
 import folioxml.css.StylesheetBuilder;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
+import folioxml.export.LogStreamProvider;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
 import folioxml.xml.XmlRecord;
@@ -26,7 +27,7 @@ public class ExportCssFile implements InfobaseSetPlugin {
 
     String cssFile;
     @Override
-    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
         cssFile = export.getLocalPath(CSS_FILE_NAME, AssetType.Css, FolderCreation.CreateParents).toString();
 
     }

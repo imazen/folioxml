@@ -14,7 +14,7 @@ import java.io.UnsupportedEncodingException;
 
 
 public interface InfobaseSetPlugin {
-    void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException;
+    void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider log) throws IOException, InvalidMarkupException;
 
     void beginInfobase(InfobaseConfig infobase) throws IOException;
 

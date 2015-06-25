@@ -7,10 +7,7 @@ import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.Pair;
-import folioxml.export.FileNode;
-import folioxml.export.InfobaseSetPlugin;
-import folioxml.export.NodeInfoProvider;
-import folioxml.export.StaticFileNode;
+import folioxml.export.*;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
 import folioxml.xml.Node;
@@ -36,7 +33,7 @@ public class ExportStructure implements InfobaseSetPlugin {
 
 
     @Override
-    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
 
     }
 

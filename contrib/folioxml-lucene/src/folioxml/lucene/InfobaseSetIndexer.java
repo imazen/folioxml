@@ -5,6 +5,7 @@ import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
+import folioxml.export.LogStreamProvider;
 import folioxml.lucene.analysis.AnalyzerPicker;
 import folioxml.lucene.analysis.DynamicAnalyzer;
 import folioxml.slx.ISlxTokenReader;
@@ -39,7 +40,7 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
     IndexWriter w;
 
     @Override
-    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException {
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
 
         File folder = export.getLocalPath("lucene_index", AssetType.LuceneIndex, FolderCreation.None).toFile();
         w = new IndexWriter(FSDirectory.open(folder), new IndexWriterConfig(Version.LUCENE_33, new DynamicAnalyzer(this)).setOpenMode(IndexWriterConfig.OpenMode.CREATE));

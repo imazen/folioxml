@@ -7,6 +7,7 @@ import folioxml.core.InvalidMarkupException;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.InventoryNodes;
+import folioxml.export.LogStreamProvider;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
 import folioxml.xml.NodeList;
@@ -20,11 +21,12 @@ public class ExportInventory implements InfobaseSetPlugin {
     public ExportInventory(){}
 
     InventoryNodes inventory = null;
-
+    LogStreamProvider logs = null;
 
     @Override
-    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
-        inventory = new InventoryNodes();
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
+        inventory = new InventoryNodes(logs);
+        this.logs = logs;
     }
 
     @Override
@@ -67,8 +69,8 @@ public class ExportInventory implements InfobaseSetPlugin {
 
     @Override
     public void endInfobaseSet(InfobaseSet set) throws IOException {
-        inventory.PrintStats();
-        inventory.PrintExternalInfobases(set);
-        inventory.PrintUniques();
+        inventory.PrintStats(logs.getNamedStream("report"));
+        inventory.PrintExternalInfobases(set, logs.getNamedStream("report"));
+        inventory.PrintUniques(logs.getNamedStream("report"));
     }
 }

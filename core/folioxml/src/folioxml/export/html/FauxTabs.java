@@ -1,11 +1,15 @@
 package folioxml.export.html;
 
 import com.sun.tools.corba.se.idl.constExpr.ShiftRight;
+import folioxml.config.ExportLocations;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.Pair;
 import folioxml.core.TokenUtils;
 import folioxml.css.CssUtils;
 import folioxml.css.StylesheetBuilder;
+import folioxml.export.ExportingNodeListProcessor;
+import folioxml.export.FileNode;
+import folioxml.export.LogStreamProvider;
 import folioxml.export.NodeListProcessor;
 import folioxml.text.ITextToken;
 import folioxml.text.TextLinesBuilder;
@@ -23,11 +27,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class FauxTabs implements NodeListProcessor {
+public class FauxTabs implements NodeListProcessor, ExportingNodeListProcessor {
 
     public FauxTabs(int minLineWidth, int maxLineWidth){
         this.minWidthChars = minLineWidth;
         this.maxWidthChars = maxLineWidth;
+    }
+
+    @Override
+    public void setFileNode(FileNode fn) {
+
+    }
+
+    @Override
+    public void setLogProvider(LogStreamProvider provider) {
+        logs = provider;
+    }
+    LogStreamProvider logs;
+
+    @Override
+    public void setExportLocations(ExportLocations el) {
+
     }
 
     //We are going to assume left-aligned text, since Folio Views doesn't seem to support other text alignments.
@@ -385,7 +405,7 @@ document.write("<strong>Avg: " + (sum / id) + "px, " + (sum / id / 96) + "in</st
                     //System.out.print("O:");
                     //System.out.println(lines.get(i));
                     ///System.out.print("N:");
-                    System.out.println(newLines.get(i));
+                    logs.getNamedStream("fauxtabs").append(newLines.get(i)).append("\n");
                 }
 
             }

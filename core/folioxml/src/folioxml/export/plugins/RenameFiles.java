@@ -4,6 +4,7 @@ import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
+import folioxml.export.LogStreamProvider;
 import folioxml.export.html.RenameImages;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
@@ -27,7 +28,7 @@ public class RenameFiles implements InfobaseSetPlugin {
     RenameImages renamer;
     ExportLocations loc;
     @Override
-    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException {
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
         renamer = new RenameImages(set, export);
         loc = export;
 

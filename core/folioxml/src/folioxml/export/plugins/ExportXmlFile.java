@@ -6,6 +6,7 @@ import folioxml.core.TokenUtils;
 import folioxml.css.StylesheetBuilder;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
+import folioxml.export.LogStreamProvider;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
 import folioxml.xml.*;
@@ -30,7 +31,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
     private boolean  skipNormalRecords = true;
 
     @Override
-    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException {
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
         out  = new OutputStreamWriter(new FileOutputStream(export.getLocalPath(set.getId() + ".xml", AssetType.Xml, FolderCreation.CreateParents).toString()), "UTF8");
 
         out.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");

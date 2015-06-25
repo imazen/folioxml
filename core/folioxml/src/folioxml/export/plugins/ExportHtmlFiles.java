@@ -5,6 +5,7 @@ import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
+import folioxml.export.LogStreamProvider;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
 import folioxml.utils.HtmlEntities;
@@ -27,7 +28,7 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
     protected OutputStreamWriter out;
     private ExportLocations export;
     @Override
-    public void beginInfobaseSet(InfobaseSet set, ExportLocations export) throws IOException, InvalidMarkupException {
+    public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
         this.export = export;
     }
 

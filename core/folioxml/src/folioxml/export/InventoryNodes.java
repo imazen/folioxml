@@ -22,7 +22,11 @@ public class InventoryNodes implements NodeListProcessor {
 
     //HashSet<String> bookmarkNames = new HashSet<String>();
 
+    LogStreamProvider logs;
 
+    public InventoryNodes(LogStreamProvider logs){
+        this.logs = logs;
+    }
 
     HashMap<String, Integer> stats = new HashMap<String, Integer>(30);
 
@@ -33,36 +37,38 @@ public class InventoryNodes implements NodeListProcessor {
         incrementBy(statName, 1);
     }
 
-    public void PrintStats(){
+    public void PrintStats(Appendable a) throws IOException {
         for(Map.Entry<String, Integer> e:stats.entrySet()){
-            System.out.println(e.getKey() + ": " + e.getValue().toString());
+            a.append(e.getKey() + ": " + e.getValue().toString() + "\n");
         }
 
 
     }
 
-    public void PrintExternalInfobases(InfobaseSet internalInfobases){
+    public void PrintExternalInfobases(InfobaseSet internalInfobases, Appendable a) throws IOException {
         HashSet<String> dests = uniques.get("destination infobases");
         if (dests == null) return;
 
-        System.out.println("External infobases: ");
+        a.append("External infobases: \n");
         for (String val: dests){
             if (internalInfobases.byName(val) == null){
-                System.out.println(val);
+                a.append(val);
+                a.append("\n");
             }
         }
-        System.out.println();
+        a.append("\n");
     }
 
-    public void PrintUniques(){
+    public void PrintUniques(Appendable a) throws IOException {
         for(Map.Entry<String, HashSet<String>> e:uniques.entrySet()){
-            System.out.println();
+            a.append("\n");
             for (int i =0; i < 60; i++)
-              System.out.print('-');
-            System.out.println();
-            System.out.println("Unique " + e.getKey() + " (" + + e.getValue().size() +"): ");
+                a.append('-');
+
+            a.append("\nUnique " + e.getKey() + " (" + + e.getValue().size() +"): \n");
             for (String val: e.getValue()){
-                System.out.println(val);
+                a.append(val);
+                a.append("\n");
             }
         }
 

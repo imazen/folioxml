@@ -14,39 +14,60 @@ import folioxml.xml.NodeList;
 import folioxml.xml.SlxToXmlTransformer;
 import folioxml.xml.XmlRecord;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
-public class InfobaseSetVisitor {
+public class InfobaseSetVisitor implements LogStreamProvider {
 
     public InfobaseSetVisitor(InfobaseSet set, List<InfobaseSetPlugin> plugins){
         this.set = set;
         this.plugins = plugins;
+
+        if (set.getObject("logs") != null) {
+            Map<String, Object> logs = (Map<String, Object>) set.getObject("logs");
+            for(Map.Entry<String,Object> pair: logs.entrySet()){
+                if (pair.getValue() instanceof  Boolean){
+                    if ((Boolean)pair.getValue() == false) log_stream_merges.put(pair.getKey(), null);
+                }else if (pair.getValue() instanceof  String){
+                    log_stream_merges.put(pair.getKey(),(String)pair.getValue());
+
+                }
+            }
+        }
     }
+
+    Map<String,String> log_stream_merges = new HashMap<String, String>();
 
     List<InfobaseSetPlugin> plugins;
 
     InfobaseSet set;
 
 
+    Path baseLogPath;
+
+    Map<String,Writer> openLogs = new HashMap<String,Writer>();
+
+
+
     public void complete() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
+
+        closeLogs();
 
         ExportLocations export = set.generateExportLocations();
 
-        Path reportPath = export.getLocalPath("report.txt", AssetType.Text, FolderCreation.CreateParents);
+        baseLogPath = export.getLocalPath("log_", AssetType.Text, FolderCreation.CreateParents);
         Path logPath =export.getLocalPath("log.txt", AssetType.Text, FolderCreation.CreateParents);
 
         OutputRedirector redir = new OutputRedirector(logPath.toString());
         redir.open();
         //Plugin hooks
         for(InfobaseSetPlugin p: plugins)
-            p.beginInfobaseSet(set,export);
+            p.beginInfobaseSet(set,export, this);
 
 
         ISlxTokenReader slxReader = null;
@@ -112,10 +133,10 @@ public class InfobaseSetVisitor {
                     }
                 }
 
+                getNamedStream("rootnode")
+                        .append("\nRoot node\n")
+                        .append(root.toXmlString(true));
 
-                System.out.println();
-                System.out.println("Root node");
-                System.out.println(root.toXmlString(true));
 
                 //endInfobase
                 for(InfobaseSetPlugin p: plugins)
@@ -128,22 +149,57 @@ public class InfobaseSetVisitor {
 
             }
 
-        }finally{
-            if (slxReader != null) slxReader.close();
-            redir.close();
-        }
-
-        try{
-            redir = new OutputRedirector(reportPath.toString());
-            redir.open();
             System.out.printf("Read %s records and %s tokens from %s infobases.\n", recordCount, tokenCount, set.getInfobases().size());
             //Plugin hooks
             for(InfobaseSetPlugin p: plugins)
                 p.endInfobaseSet(set);
 
         }finally{
+            if (slxReader != null) slxReader.close();
+
             redir.close();
+            closeLogs();
         }
 
+    }
+
+    @Override
+    public Appendable getNamedStream(String name) throws IOException {
+        if (log_stream_merges.containsKey(name)){
+            name = log_stream_merges.get(name);
+            if (name == null) return new NilAppendable();
+        }
+        if (!openLogs.containsKey(name)){
+            BufferedWriter bw = new BufferedWriter(new FileWriter(baseLogPath + name + ".txt", true));
+            openLogs.put(name, bw);
+
+        }
+        return openLogs.get(name);
+    }
+
+    private class NilAppendable implements Appendable{
+
+        @Override
+        public Appendable append(CharSequence csq) throws IOException {
+            return this;
+        }
+
+        @Override
+        public Appendable append(CharSequence csq, int start, int end) throws IOException {
+            return this;
+        }
+
+        @Override
+        public Appendable append(char c) throws IOException {
+            return this;
+        }
+    }
+
+
+    void closeLogs() throws IOException {
+        for(Map.Entry<String,Writer> e: openLogs.entrySet()){
+            e.getValue().close();
+        }
+        openLogs.clear();
     }
 }
