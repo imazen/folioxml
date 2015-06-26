@@ -37,15 +37,17 @@ public class StylesheetBuilder {
 
 		sb.append(applySelector + "th {font-weight:auto;text-align:auto;}\n"); //Reset to act like td - what is folio behavior?
 
-		//Add faux-tabulation rules
-		sb.append(applySelector + "p.faux_tabulation {white-space: pre-wrap; white-space-collapse: preserve; font-family: \"Courier New\", monospace; }\n");
+		//Add faux-tabulation rules. Remove width restriction since faux-tabs can make it bigger.
+		sb.append(applySelector + "p.faux_tabulation {white-space: pre-wrap; white-space-collapse: preserve; font-family: \"Courier New\", monospace; width:auto !important; }\n");
 	}
 	
-	public String getCss(String applySelector) throws InvalidMarkupException{
+	public String getCss(String applySelector, boolean selectorIsRecordDiv) throws InvalidMarkupException{
 		StringBuilder sb = new StringBuilder();
 
         if (applySelector == null) applySelector = "";
         if (applySelector.length() > 0 && !applySelector.endsWith(" ")) applySelector += " ";
+
+		if (applySelector.isEmpty()) selectorIsRecordDiv = false;
 
 		getDefaultCss(applySelector,sb);
 
@@ -65,14 +67,18 @@ public class StylesheetBuilder {
 					if (type.equalsIgnoreCase("link")) selector = "a";
 					if (selector.length() == 0) selector = "span";
 
-					selector = applySelector + selector + "." + cls;
-
+					if (type.equalsIgnoreCase("level") && selectorIsRecordDiv){
+						selector = applySelector.trim() + "." + cls; //the selector for level styles applies to the same div; not a child!
+					}else {
+						selector = applySelector + selector + "." + cls;
+					}
 					//Factor out non-link underlines into a single rule.
 					if (!type.equalsIgnoreCase("link") && style.indexOf(text_underline, 0) >= 0){
 						replace_underline.append(selector);
 						replace_underline.append(", ");
 						style = style.replace(text_underline, "");
 					}
+
 
 					sb.append(selector + " {\n  ");
 					sb.append(style.replace(";", ";\n  "));
@@ -90,7 +96,7 @@ public class StylesheetBuilder {
 	}
 	
 	public String getCssAndStyleTags() throws InvalidMarkupException{
-		return "<style type=\"text/css\">\n" + getCss(null) + "</style>";
+		return "<style type=\"text/css\">\n" + getCss(null, false) + "</style>";
 	}
 }
 

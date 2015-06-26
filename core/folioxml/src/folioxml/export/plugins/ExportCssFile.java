@@ -79,7 +79,7 @@ public class ExportCssFile implements InfobaseSetPlugin {
         OutputStreamWriter out  = new OutputStreamWriter(new FileOutputStream(cssFile), "UTF8");
         try{
             for(Pair<InfobaseConfig, SlxRecord> p : allInfobases){
-               out.write(new StylesheetBuilder(p.getSecond()).getCss(".infobase-" + p.getFirst().getId()));
+               out.write(new StylesheetBuilder(p.getSecond()).getCss(".infobase-" + p.getFirst().getId(),true));
             }
 
         }finally {
