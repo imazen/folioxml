@@ -17,7 +17,7 @@ import java.util.*;
 public class HtmlTidy implements NodeListProcessor, ExportingNodeListProcessor {
 
 
-    private static Set<String> validAttributes = new HashSet<String>(Arrays.asList("class", "id", "alt", "style", "href", "src", "name", "onclick", "cellspacing", "title", "colspan"));
+    private static Set<String> validAttributes = new HashSet<String>(Arrays.asList("class", "id", "alt", "style", "href", "src", "name", "onclick", "cellspacing", "title", "colspan", "rowspan"));
 
     private static Set<String> invalidAttributes = new HashSet<String>();
 
@@ -31,13 +31,19 @@ public class HtmlTidy implements NodeListProcessor, ExportingNodeListProcessor {
                 provider.getNamedStream("tidy_invalid_elements").append(n.toXmlString(true)).append("\n");
             }
 
+
             List<Map.Entry<String,String>> attrs = new ArrayList<Map.Entry<String,String>>(n.getAttributes().entrySet());
+            //First check for invalid attributes, and print them.
+            for (Map.Entry<String,String> pair: attrs){
+                if (!validAttributes.contains(pair.getKey()) && !invalidAttributes.contains(pair.getKey())) {
+                    provider.getNamedStream("tidy_invalid_attributes").append("\n").append(pair.getKey()).append("\n").append(n.toXmlString(true)).append("\n");
+                    invalidAttributes.add(pair.getKey());
+
+                }
+            }
+            //Now, fix them
             for (Map.Entry<String,String> pair: attrs){
                 if (!validAttributes.contains(pair.getKey())){
-                    if (!invalidAttributes.contains(pair.getKey())){
-                        provider.getNamedStream("tidy_invalid_attributes").append("\n").append(pair.getKey()).append("\n").append(n.toXmlString(true)).append("\n");
-                        invalidAttributes.add(pair.getKey());
-                    }
                     n.removeAttr(pair.getKey()).set("data-" + pair.getKey(),pair.getValue());
                 }
             }
