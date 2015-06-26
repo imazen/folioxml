@@ -119,12 +119,12 @@ public class YamlInfobaseConfig implements InfobaseConfig {
         return o == null ? null : o.toString();
     }
     @Override
-    public boolean getBool(String key) {
+    public Boolean getBool(String key) {
         return (Boolean)data.get(key);
     }
 
     @Override
-    public long getInteger(String key) {
+    public Long getInteger(String key) {
         return (Long)data.get(key);
     }
 }
