@@ -67,17 +67,20 @@ public class ExportRunner {
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(createProvider()));
 
-        plugins.add(new ApplyProcessor(new FixHttpLinks())); //FixHttpLinks must be the first thing to touch links - it cannot come after ResolveHyperlinks or RenameFiles
+        plugins.add(new ApplyProcessor(new MultiRunner(new FixHttpLinks(), new PullElements(this.set)))); //FixHttpLinks must be the first thing to touch links - it cannot come after ResolveHyperlinks or RenameFiles
+
 
         //TODO: Do we export assets?
         plugins.add(new RenameFiles());
+
+        //TODO: Do we export inventory?
+        plugins.add(new ExportInventory());
 
 
         //TODO: Do we resolve query links? Do we log unresolved links
         plugins.add(new ResolveHyperlinks());
 
-        //TODO: Do we export inventory?
-        plugins.add(new ExportInventory());
+
 
 
         CleanupSlxStuff cleanup = new CleanupSlxStuff(EnumSet.of(
@@ -90,6 +93,8 @@ public class ExportRunner {
         //TODO: faux tabs y/n, widths? other tuning?
 
         //TODO: drop notes or popups instead?
+
+
 
 
         MultiRunner xhtml = new MultiRunner(new Notes(), new Popups(), cleanup,new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags(), new HtmlTidy());

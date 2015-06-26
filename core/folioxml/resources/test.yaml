@@ -23,3 +23,8 @@ folio_help:
   use_highslide: true
   add_nav_links: true #html only
   indent_xml: false
+
+
+  pull:
+    program_links: true
+    menu_links: true

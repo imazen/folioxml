@@ -63,6 +63,7 @@ Our XML implementation offers regex-based search and replace that only affects t
 * User links
 * Query templates
 * Hypergraphics (image maps)
+* Named popups (yet)
 
 
 ## Conversion with intermediate lucene index
