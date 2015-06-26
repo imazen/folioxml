@@ -99,6 +99,7 @@ public class SimultaneousTest {
 
         plugins.add(new ApplyProcessor(xhtml));
         plugins.add(new ExportCssFile());
+        plugins.add(new ApplyProcessor(new HtmlTidy()));
         plugins.add(new ExportXmlFile());
         plugins.add(new ExportHtmlFiles(true,true));
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"), plugins);
