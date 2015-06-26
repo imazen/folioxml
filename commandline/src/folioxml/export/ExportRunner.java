@@ -1,0 +1,104 @@
+package folioxml.export;
+
+import folioxml.config.*;
+import folioxml.core.InvalidMarkupException;
+import folioxml.export.html.ReplaceUnderline;
+import folioxml.export.html.*;
+import folioxml.export.plugins.*;
+import folioxml.lucene.InfobaseSetIndexer;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
+
+public class ExportRunner {
+
+    InfobaseSet set;
+    public ExportRunner(InfobaseSet set) {
+        this.set = set;
+
+
+    }
+
+    private NodeInfoProvider createProvider() throws InvalidMarkupException {
+        String providerName = set.getString("structure_class");
+        if (providerName == null) providerName = "folioxml.export.SlugInfoProvider";
+
+        Object oparams = set.getObject("structure_class_params");
+
+        Object[] params = oparams == null ? new Object[]{} : (Object[])oparams;
+        Class[] paramClasses = new Class[params.length];
+        for(int i =0; i < params.length; i++)
+            paramClasses[i] = params[i].getClass();
+        try {
+            Class<?> clazz = Class.forName(providerName);
+            Constructor<?> ctor = clazz.getConstructor();
+            Object object = ctor.newInstance(paramClasses);
+
+            return (NodeInfoProvider) object;
+        }catch(ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException ex){
+            throw new InvalidMarkupException("Failed to create the specified structure_class (" + providerName + "). \n" + ex.toString());
+        }
+    }
+
+    //NodeInfoProvider
+    //How to deal with query links
+    //Which levels to
+
+    public void Index() throws IOException, InvalidMarkupException {
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new ExportStructure(createProvider()));
+        plugins.add(new InfobaseSetIndexer());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(set, plugins);
+        visitor.complete();
+    }
+
+    public void Export() throws IOException, InvalidMarkupException {
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new ExportStructure(createProvider()));
+
+        //TODO: Do we export assets?
+        plugins.add(new RenameFiles());
+        plugins.add(new ApplyProcessor(new FixHttpLinks())); //FixHttpLinks must be the first thing to touch links - it cannot come after ResolveHyperlinks
+
+        //TODO: Do we resolve query links? Do we log unresolved links
+        plugins.add(new ResolveHyperlinks());
+
+        //TODO: Do we export inventory?
+        plugins.add(new ExportInventory());
+
+
+        CleanupSlxStuff cleanup = new CleanupSlxStuff(EnumSet.of(
+                CleanupSlxStuff.CleanupOptions.PullProgramLinks,
+                CleanupSlxStuff.CleanupOptions.PullMenuLinks,
+                CleanupSlxStuff.CleanupOptions.DropTypeAttr,
+                CleanupSlxStuff.CleanupOptions.RenameBookmarks,
+                CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
+
+        //TODO: faux tabs y/n, widths? other tuning?
+
+        //TODO: drop notes or popups instead?
+
+
+        MultiRunner xhtml = new MultiRunner(new Notes(), new Popups(), cleanup,new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags());
+
+        plugins.add(new ApplyProcessor(xhtml));
+
+
+        plugins.add(new ExportCssFile());
+        plugins.add(new ExportXmlFile());
+        plugins.add(new ExportHtmlFiles());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(set, plugins);
+
+        visitor.complete();
+    }
+
+
+
+}
