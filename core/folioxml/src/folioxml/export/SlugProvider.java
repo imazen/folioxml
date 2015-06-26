@@ -53,39 +53,38 @@ public class SlugProvider implements NodeInfoProvider{
 
     public String getSlug(XmlRecord r, FileNode f) throws InvalidMarkupException {
 
-        String heading = r.get("heading");
-        if (heading == null) heading = "UNTITLED";
+        String heading = getHeading(r, f);
 
-        String slug = heading.trim().toLowerCase(Locale.ENGLISH);
-
-        if ("Issue".equalsIgnoreCase(r.getLevelType())){
-            //then apply regex to months
-            slug = slug.replaceFirst("\\A\\d\\d?/\\d\\d\\s+", "").trim(); //Drop the d/m prefix
-            slug = slug.replaceAll("(?i)\\A.*(January|February|March|April|May|June|July|August|September|October|November|December).*\\Z", "$1"); //If present, just use the month.
-        }
-        // strip out all characters except letters, digits, dashes, underscores, tildes (~) and dollar signs,
-        slug = slug.replaceAll("[^a-zA-Z0-9-_~$]", " ").trim();
-        slug = slug.replaceAll("[ \t\r\n]+", "-").toLowerCase(Locale.ENGLISH);
+        String slug =  slugify(heading, 100);
 
         if (r.isRootRecord() && (slug == null || slug.isEmpty())) {
             Object name = f.getBag().get("infobase-id");
             if (name == null) name = "index";
             slug = (String)name;
         }
-
-
-        //Then truncate if longer than 100 chars
-        if (slug.length() > 100) slug = slug.substring(0,100);
-
         FileNode parentScope = f.getParent() == null ? silentRoot : f.getParent();
         Integer suffix = incrementSlug(slug, parentScope);
         if (suffix > 1) return slug + "-" + suffix;
         else return slug;
     }
 
+    protected String getHeading(XmlRecord r, FileNode f) throws InvalidMarkupException {
+        String heading = r.get("heading");
+        if (heading == null) heading = "UNTITLED";
+
+        return heading;
+    }
+
+    protected String slugify(String text, int maxLength){
+        String slug = text.toLowerCase(Locale.ENGLISH).replaceAll("[^a-zA-Z0-9-_~$]", " ").trim();
+        slug = slug.replaceAll("[ \t\r\n]+", "-").toLowerCase(Locale.ENGLISH);
+
+        if (slug.length() > maxLength) slug = slug.substring(0,maxLength);
+        return slug;
+    }
 
 
-    private Integer incrementSlug(String slug, FileNode scope){
+    protected Integer incrementSlug(String slug, FileNode scope){
         //Access sibling slugs to ensure uniqueness.
         Object oslugs = scope.getBag().get("childSlugs");
         if (oslugs == null) {

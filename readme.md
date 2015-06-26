@@ -94,6 +94,17 @@ When exporting to flat file, you should use the following options:
 
 Folio Views and Folio Builder usually provide export functionality, although if the infobase is ‘restricted’, you may need to get permission from the publisher.
 
+## Yaml configuration reference
+
+Within a yaml file, each root key represents an infobase set; a configuration file can have many different configurations. It is important that both the IDs and infobase set keys are valid XML identifiers, as they will be used in CSS and XML/HTML.
+
+We will describe the contents of one infobase set.
+
+* skip_normal_records: true/false  #Exporting only headers can make it easier to analyze the structure
+* indent_xml true/false #Indentation can introduce undesired spacing, and should only be used for human consumption
+
+
+
 ## License
 
 Copyright 2009-2014 Imazen LLC

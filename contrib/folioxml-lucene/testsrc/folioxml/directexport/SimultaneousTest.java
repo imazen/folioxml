@@ -4,6 +4,7 @@ import folioxml.config.InfobaseSet;
 import folioxml.config.TestConfig;
 import folioxml.config.YamlInfobaseSet;
 import folioxml.css.ReplaceUnderline;
+import folioxml.export.DateCollapsingSlugProvider;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.InfobaseSetVisitor;
 import folioxml.export.SlugProvider;
@@ -98,7 +99,7 @@ public class SimultaneousTest {
 
         plugins.add(new ApplyProcessor(xhtml));
         plugins.add(new ExportCssFile());
-        //plugins.add(new ExportXmlFile(true));
+        plugins.add(new ExportXmlFile());
         plugins.add(new ExportHtmlFiles(true,true));
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"), plugins);
 
@@ -111,7 +112,7 @@ public class SimultaneousTest {
     public void IndexSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
-        plugins.add(new ExportStructure(new SlugProvider()));
+        plugins.add(new ExportStructure(new DateCollapsingSlugProvider()));
         plugins.add(new InfobaseSetIndexer());
         //plugins.add(new ExportMappingsFiles());
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"),plugins);
@@ -167,7 +168,7 @@ public class SimultaneousTest {
         MultiRunner xhtml = new MultiRunner( new Images(), new Notes(), new Popups(), cleanup,new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags());
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
-        plugins.add(new ExportStructure(new SlugProvider()));
+        plugins.add(new ExportStructure(new DateCollapsingSlugProvider()));
         plugins.add(new RenameFiles());
         plugins.add(new ApplyProcessor(new FixHttpLinks()));
         plugins.add(new ResolveHyperlinks());
@@ -175,7 +176,7 @@ public class SimultaneousTest {
 
         plugins.add(new ApplyProcessor(xhtml));
         plugins.add(new ExportCssFile());
-        //plugins.add(new ExportXmlFile(true));
+        plugins.add(new ExportXmlFile(false));
         plugins.add(new ExportHtmlFiles(true,true));
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"), plugins);
 

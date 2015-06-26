@@ -18,17 +18,18 @@ import java.util.Deque;
 
 public class ExportXmlFile implements InfobaseSetPlugin {
 
-    public ExportXmlFile(boolean indentXml){
+    public ExportXmlFile(){}
+    public ExportXmlFile(Boolean indentXml){
         this.indentXml = indentXml;
     }
-    private boolean indentXml = true;
+    private Boolean indentXml = null;
 
     private Deque<FileNode> openFileNodes = null;
     protected OutputStreamWriter out;
     private int indentLevel = 0;
     private String indentString = "  ";
 
-    private boolean  skipNormalRecords = true;
+    private Boolean  skipNormalRecords = true;
 
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
@@ -38,6 +39,12 @@ public class ExportXmlFile implements InfobaseSetPlugin {
         openElement("infobases");
 
         skipNormalRecords = set.getBool("skip_normal_records");
+        if (skipNormalRecords == null) skipNormalRecords = false;
+
+        if (indentXml == null)
+            indentXml = set.getBool("indent_xml");
+
+        if (indentXml == null) indentXml = false;
 
     }
 
