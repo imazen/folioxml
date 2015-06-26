@@ -19,6 +19,8 @@ public class StylesheetBuilder {
 	public  static final String DEFAULT_FONT_SIZE = "12pt";
 	
 	private void getDefaultCss(String applySelector, StringBuilder sb){
+		sb.append("a.folio_pagination_link {display:block; margin:1em;}\n");
+
 		sb.append(applySelector + "td p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins...
 		sb.append(applySelector + "th p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins...
 		
@@ -31,7 +33,6 @@ public class StylesheetBuilder {
 		// margin:30px;
 		sb.append(applySelector.length() == 0 ? "body" :  applySelector + " {font-family: \"Times New Roman\"; font-size:" + DEFAULT_FONT_SIZE + "; line-height:1.0em; white-space-collapse: preserve; white-space:pre-wrap;}\n");
 
-		sb.append(applySelector + "a.pagination_link {display:block; margin:1em;}\n");
 
 
 		sb.append(applySelector + "th {font-weight:auto;text-align:auto;}\n"); //Reset to act like td - what is folio behavior?

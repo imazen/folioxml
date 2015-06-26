@@ -41,7 +41,7 @@ public class SimultaneousTest {
     public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
-        plugins.add(new ExportStructure(new SlugProvider()));
+        plugins.add(new ExportStructure(new SlugProvider("Book|Section")));
         plugins.add(new InfobaseSetIndexer());
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"),plugins);
         visitor.complete();
@@ -90,7 +90,7 @@ public class SimultaneousTest {
         MultiRunner xhtml = new MultiRunner( new Images(), new Notes(), new Popups(), cleanup,new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags());
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
-        plugins.add(new ExportStructure(new SlugProvider()));
+        plugins.add(new ExportStructure(new SlugProvider("Book|Section")));
         plugins.add(new RenameFiles());
         plugins.add(new ApplyProcessor(new FixHttpLinks()));
         plugins.add(new ResolveHyperlinks());

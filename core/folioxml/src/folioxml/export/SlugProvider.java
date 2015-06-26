@@ -1,6 +1,9 @@
 package folioxml.export;
 
+import folioxml.config.InfobaseConfig;
+import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
+import folioxml.core.TokenUtils;
 import folioxml.xml.XmlRecord;
 
 import java.util.Deque;
@@ -15,15 +18,35 @@ public class SlugProvider implements NodeInfoProvider{
     public SlugProvider(){
 
     }
+    public SlugProvider(String levelRegex){
+        this.levelRegex = levelRegex;
+    }
+    String levelRegex;
     private StaticFileNode silentRoot = new StaticFileNode(null);
 
     @Override
+    public boolean separateInfobases(InfobaseConfig ic, InfobaseSet set) {
+        return (set.getInfobases().size() > 1);
+    }
+
+    @Override
     public boolean startNewFile(XmlRecord r) throws InvalidMarkupException {
-        return r.isLevelRecord();
+        if (levelRegex == null)
+            return r.isLevelRecord();
+        else
+            return r.isLevelRecord() && TokenUtils.fastMatches(levelRegex, r.getLevelType());
     }
 
     public void PopulateNodeInfo(XmlRecord r, FileNode f) throws InvalidMarkupException {
-        f.getBag().put("slug", getSlug(r,f));
+        //Infobase ID comes in handy when generating the slug
+        XmlRecord root = r.getRoot();
+        if (root != null && root.get("infobaseId") != null){
+            f.getBag().put("infobase-id", root.get("infobaseId"));
+        }
+
+        f.getBag().put("slug", getSlug(r, f));
+        f.getBag().put("folio-id", r.get("folioId"));
+        f.getBag().put("folio-level", r.getLevelType());
         f.getAttributes().put("heading", r.get("heading"));
 
     }
@@ -41,19 +64,33 @@ public class SlugProvider implements NodeInfoProvider{
             slug = slug.replaceAll("(?i)\\A.*(January|February|March|April|May|June|July|August|September|October|November|December).*\\Z", "$1"); //If present, just use the month.
         }
         // strip out all characters except letters, digits, dashes, underscores, tildes (~) and dollar signs,
-        slug = slug.replaceAll("[^a-zA-Z0-9-_~$]", " ");
+        slug = slug.replaceAll("[^a-zA-Z0-9-_~$]", " ").trim();
         slug = slug.replaceAll("[ \t\r\n]+", "-").toLowerCase(Locale.ENGLISH);
+
+        if (r.isRootRecord() && (slug == null || slug.isEmpty())) {
+            Object name = f.getBag().get("infobase-id");
+            if (name == null) name = "index";
+            slug = (String)name;
+        }
+
 
         //Then truncate if longer than 100 chars
         if (slug.length() > 100) slug = slug.substring(0,100);
 
         FileNode parentScope = f.getParent() == null ? silentRoot : f.getParent();
+        Integer suffix = incrementSlug(slug, parentScope);
+        if (suffix > 1) return slug + "-" + suffix;
+        else return slug;
+    }
 
+
+
+    private Integer incrementSlug(String slug, FileNode scope){
         //Access sibling slugs to ensure uniqueness.
-        Object oslugs = parentScope.getBag().get("childSlugs");
+        Object oslugs = scope.getBag().get("childSlugs");
         if (oslugs == null) {
             oslugs = new HashMap<String, Integer>();
-            parentScope.getBag().put("childSlugs", oslugs);
+            scope.getBag().put("childSlugs", oslugs);
         }
         Map<String, Integer> siblingSlugs = (Map<String, Integer>)oslugs;
 
@@ -63,18 +100,13 @@ public class SlugProvider implements NodeInfoProvider{
         //Increment
         siblingSlugs.put(slug, siblingSlugs.get(slug) + 1);
 
-        Integer suffix = siblingSlugs.get(slug);
-        if (suffix > 1) return slug + "-" + suffix;
-        else return slug;
+        return siblingSlugs.get(slug);
     }
-
 
 
     @Override
     public String getRelativePathFor(FileNode fn) {
-        if (fn.getParent() == null){
-            return "_xmldef";
-        }
+
         StringBuilder sb = new StringBuilder();
         Deque<StaticFileNode> list = ((StaticFileNode)fn).getAncestors(true);
         StaticFileNode n = null;

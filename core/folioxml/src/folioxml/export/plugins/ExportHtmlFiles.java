@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -83,17 +84,18 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
             }
             lastFile = file;
         }
-        out.write(xr.toXmlString(false));
+        //Let's not write the root record, mkay?
+        if (!xr.isRootRecord()) out.write(xr.toXmlString(false));
     }
 
     @Override
     public void endInfobase(InfobaseConfig infobase) throws IOException, InvalidMarkupException {
-        closeFile();
+
     }
 
     @Override
     public void endInfobaseSet(InfobaseSet set) throws IOException, InvalidMarkupException {
-
+        closeFile();
     }
 
     private void openFile(FileNode fn, XmlRecord xr) throws IOException {
@@ -106,7 +108,8 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
 
 
         String filename = fn.getRelativePath();
-        Path htmlPath = export.getLocalPath(filename , AssetType.Html, FolderCreation.CreateParents);
+        Path htmlPath = export.getLocalPath(filename, AssetType.Html, FolderCreation.CreateParents);
+        if (htmlPath.toFile().exists()) throw new FileAlreadyExistsException(htmlPath.toString());
 
 
         cssUris.add(export.getUri("foliostyle.css", AssetType.Css, htmlPath));
@@ -119,6 +122,7 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
             cssUris.add(URI.create(highslideFolder).resolve("highslide.css").toString());
         }
 
+
         out  = new OutputStreamWriter(new FileOutputStream(htmlPath.toFile()), "UTF8");
 
         out.append("<!DOCTYPE html>\n");
@@ -129,6 +133,15 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         openElement("title");
         out.write(TokenUtils.lightEntityEncode(fn.getAttributes().get("heading")));
         closeElement("title");
+        if (fn.getBag().get("folio-id") != null){
+            writeIndent();
+            out.append("<meta data-first-folio-id=\"" + fn.getBag().get("folio-id").toString() + "\" />\n");
+        }
+        if (fn.getBag().get("folio-level") != null){
+            writeIndent();
+            out.append("<meta data-folio-level=\"" + fn.getBag().get("folio-level").toString() + "\" />\n");
+        }
+
         writeIndent();
         for (String uri: cssUris)
             out.append("<link rel='stylesheet' type='text/css' href='" + uri + "' />\n");
@@ -182,7 +195,7 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
     private void writeLink(String uri, String text) throws IOException, InvalidMarkupException {
         Node a = new Node("<a>" + TokenUtils.lightEntityEncode(text) + "</a>");
         a.setTagName("a");
-        a.addClass("pagination_link");
+        a.addClass("folio_pagination_link");
         a.set("href", uri);
 
 

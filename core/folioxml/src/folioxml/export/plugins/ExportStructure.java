@@ -31,15 +31,18 @@ public class ExportStructure implements InfobaseSetPlugin {
         this.p = p;
     }
 
-
+    InfobaseSet set;
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
-
+        this.set = set;
     }
 
+    InfobaseConfig currentInfobase;
+    boolean useRootAsParentNode = false;
     @Override
     public void beginInfobase(InfobaseConfig infobase) throws IOException {
-
+        currentInfobase = infobase;
+        useRootAsParentNode = p.separateInfobases(infobase, set);
     }
 
     @Override
@@ -70,15 +73,19 @@ public class ExportStructure implements InfobaseSetPlugin {
 
     @Override
     public FileNode assignFileNode(XmlRecord xr, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
+        if (xr.isRootRecord()){
+            xr.set("infobaseId", currentInfobase.getId());
+        }
+        if (!xr.isRootRecord() && current != null)
+            if (!p.startNewFile(xr)) return  current;
 
 
-        if (!p.startNewFile(xr)) return  current;
 
         StaticFileNode parent = null;
         //Locate the node's parents
         if (current != null){
             XmlRecord commonAncestor = ((XmlRecord)current.getBag().get("record")).getCommonAncestor(xr,true);
-            if (commonAncestor != null && commonAncestor.isRootRecord()) commonAncestor = null;
+            if (commonAncestor != null && commonAncestor.isRootRecord() && !useRootAsParentNode) commonAncestor = null;
             if (commonAncestor != null){
                 StaticFileNode candidateParent = current;
                 while (candidateParent != null){
