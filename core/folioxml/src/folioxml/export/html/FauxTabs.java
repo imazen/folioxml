@@ -396,7 +396,10 @@ document.write("<strong>Avg: " + (sum / id) + "px, " + (sum / id / 96) + "in</st
             }else if (tabs == TextLinesBuilder.TabUsage.Tabulation){
                 FakeTabs(p,exclusions);
                 p.addClass("faux_tabulation");
+            }else if (tabs == TextLinesBuilder.TabUsage.ListAlignment){
+                p.addClass("tabs_list_alignment");
             }
+
 
             if (tabs != TextLinesBuilder.TabUsage.None){
                 //Do before/after per line

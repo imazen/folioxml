@@ -15,11 +15,11 @@ import java.util.regex.Pattern;
  */
 public class TextLinesBuilder {
 
-    private Pattern tabsAtTheStart = Pattern.compile("\\A\\s*?\\t+");
+    private Pattern tabsAtTheSides = Pattern.compile("(\\A\\s*?\\t+|\\t+\\s*\\Z)");
 
-    private Pattern tabsInTheMiddle = Pattern.compile("\\A\\s*[^\\t\\r\\n]+\\t+");
+    private Pattern tabsInTheMiddle = Pattern.compile("\\A\\s*[^\\t\\r\\n]+\\t+[^\\t \\r\\n]");
 
-    private Pattern numberedList = Pattern.compile("\\A\\s*?(•|[0-9iv]+[\\.\\)]?)\\t+[^\\t\\n]*\\Z");
+    private Pattern listAlignment = Pattern.compile("\\A\\s*?(•|[0-9iv]+[\\.\\)]?)\\t+[^\\t\\n]*\\Z");
 
 
     public TextLinesBuilder(){}
@@ -38,13 +38,13 @@ public class TextLinesBuilder {
         TabUsage result = TabUsage.None;
         for(StringBuilder l:lines){
 
-            Matcher m = numberedList.matcher(l);
-
-            if (m.find()) return TabUsage.Indentation; //Numbered list indentation;
+            Matcher m = listAlignment.matcher(l);
+            if (m.find()) return TabUsage.ListAlignment; //Numbered list indentation;
 
             m = tabsInTheMiddle.matcher(l);
             if (m.find()) return TabUsage.Tabulation; //Tabulation is a quick exit, no escalation from there
-            m = tabsAtTheStart.matcher(l);
+
+            m = tabsAtTheSides.matcher(l);
             if (m.find()){
                 result = TabUsage.Indentation; //Escalate to indentation.
             }else if (l.indexOf("\t") > -1) {
@@ -61,6 +61,7 @@ public class TextLinesBuilder {
 
     public enum TabUsage{
         Indentation,
+        ListAlignment,
         Tabulation,
         None
     }
