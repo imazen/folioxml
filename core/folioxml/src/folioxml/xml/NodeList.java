@@ -648,6 +648,13 @@ public class NodeList {
 		searchNodes(nl,new And(filters),false,false);
 		return nl;
 	}
+
+	public NodeList filterRecursive(IFilter... filters) throws InvalidMarkupException{
+		NodeList nl = new NodeList(countMatchingNodes(new And(filters)));
+		searchNodes(nl,new And(filters),false,true);
+		return nl;
+	}
+
 	/**
 	 * Fails assertion if regex doesn't match the contents of each translator link
 	 * @param regex
