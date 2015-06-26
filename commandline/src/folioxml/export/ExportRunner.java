@@ -32,14 +32,18 @@ public class ExportRunner {
 
         Object oparams = set.getObject("structure_class_params");
 
-        Object[] params = oparams == null ? new Object[]{} : (Object[])oparams;
-        Class[] paramClasses = new Class[params.length];
-        for(int i =0; i < params.length; i++)
-            paramClasses[i] = params[i].getClass();
+        if (oparams instanceof java.util.ArrayList){
+
+        }
+
+        ArrayList params = oparams == null ? new ArrayList() : (ArrayList)oparams;
+        Class[] paramClasses = new Class[params.size()];
+        for(int i =0; i < params.size(); i++)
+            paramClasses[i] = params.get(i).getClass();
         try {
             Class<?> clazz = Class.forName(providerName);
-            Constructor<?> ctor = clazz.getConstructor();
-            Object object = ctor.newInstance(paramClasses);
+            Constructor<?> ctor = clazz.getConstructor(paramClasses);
+            Object object = ctor.newInstance(params.toArray(new Object[params.size()]));
 
             return (NodeInfoProvider) object;
         }catch(ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException ex){
@@ -63,9 +67,11 @@ public class ExportRunner {
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(createProvider()));
 
+        plugins.add(new ApplyProcessor(new FixHttpLinks())); //FixHttpLinks must be the first thing to touch links - it cannot come after ResolveHyperlinks or RenameFiles
+
         //TODO: Do we export assets?
         plugins.add(new RenameFiles());
-        plugins.add(new ApplyProcessor(new FixHttpLinks())); //FixHttpLinks must be the first thing to touch links - it cannot come after ResolveHyperlinks
+
 
         //TODO: Do we resolve query links? Do we log unresolved links
         plugins.add(new ResolveHyperlinks());
@@ -86,10 +92,9 @@ public class ExportRunner {
         //TODO: drop notes or popups instead?
 
 
-        MultiRunner xhtml = new MultiRunner(new Notes(), new Popups(), cleanup,new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags());
+        MultiRunner xhtml = new MultiRunner(new Notes(), new Popups(), cleanup,new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags(), new HtmlTidy());
 
         plugins.add(new ApplyProcessor(xhtml));
-
 
         plugins.add(new ExportCssFile());
         plugins.add(new ExportXmlFile());
