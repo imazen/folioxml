@@ -1,4 +1,4 @@
-package folioxml.css;
+package folioxml.export.html;
 
 import folioxml.core.InvalidMarkupException;
 import folioxml.export.NodeListProcessor;
