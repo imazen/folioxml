@@ -21,6 +21,7 @@ public class ReplaceUnderline implements NodeListProcessor {
             if (style.indexOf(text_underline, 0) >= 0){
                 n.addClass("replace_underline");
                 style = style.replace(text_underline, "");
+                n.set("style", style);
             }
         }
         return nodes;
