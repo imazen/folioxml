@@ -1,6 +1,5 @@
 package folioxml.export.html;
 
-import com.sun.tools.corba.se.idl.constExpr.ShiftRight;
 import folioxml.config.ExportLocations;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.Pair;
