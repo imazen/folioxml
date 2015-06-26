@@ -8,6 +8,12 @@ import folioxml.xml.XmlRecord;
  */
 public class DateCollapsingSlugProvider extends SlugProvider {
 
+    public DateCollapsingSlugProvider(){}
+
+    public DateCollapsingSlugProvider(String levelRegex){
+        this.levelRegex = levelRegex;
+    }
+
     @Override
     protected String getHeading(XmlRecord r, FileNode f) throws InvalidMarkupException {
         String heading = r.get("heading");
