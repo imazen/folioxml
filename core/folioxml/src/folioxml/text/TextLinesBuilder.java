@@ -17,7 +17,7 @@ public class TextLinesBuilder {
 
     private Pattern tabsAtTheSides = Pattern.compile("(\\A\\s*?\\t+|\\t+\\s*\\Z)");
 
-    private Pattern tabsInTheMiddle = Pattern.compile("\\A\\s*[^\\t\\r\\n]+\\t+[^\\t \\r\\n]");
+    private Pattern tabsInTheMiddle = Pattern.compile("\\A\\s*[^\\t\\r\\n]+\\t+\\s*[^\\t \\r\\n]");
 
     private Pattern listAlignment = Pattern.compile("\\A\\s*?(•|[0-9iv]+[\\.\\)]?)\\t+[^\\t\\n]*\\Z");
 
@@ -48,7 +48,7 @@ public class TextLinesBuilder {
             if (m.find()){
                 result = TabUsage.Indentation; //Escalate to indentation.
             }else if (l.indexOf("\t") > -1) {
-                throw new InvalidMarkupException("Tab analysis missed a code path.");
+                throw new InvalidMarkupException("Tab analysis missed a code path for line '" + l.toString() + "'");
 
             }
         }
