@@ -4,6 +4,7 @@ import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenBase;
 import folioxml.core.TokenUtils;
+import folioxml.export.ExportingNodeListProcessor;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.LogStreamProvider;
@@ -27,19 +28,28 @@ import java.util.List;
 
 public class ExportHtmlFiles implements InfobaseSetPlugin {
 
+    public ExportHtmlFiles(){}
+
     public ExportHtmlFiles(boolean addNavLinks, boolean useHighslide){
         this.addNavLinks = addNavLinks;
         this.useHighslide = useHighslide;
     }
 
-    boolean useHighslide;
-    boolean addNavLinks;
+    Boolean useHighslide = null;
+    Boolean addNavLinks = null;
 
     protected OutputStreamWriter out;
     private ExportLocations export;
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
         this.export = export;
+
+        if (useHighslide == null) useHighslide = set.getBool("use_highslide");
+        if (useHighslide == null) useHighslide = true;
+
+        if (addNavLinks == null) addNavLinks = set.getBool("add_nav_links");
+        if (addNavLinks == null) addNavLinks = true;
+
     }
 
     @Override
