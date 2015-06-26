@@ -19,7 +19,7 @@ public class TextLinesBuilder {
 
     private Pattern tabsInTheMiddle = Pattern.compile("\\A\\s*[^\\t\\r\\n]+\\t+\\s*[^\\t \\r\\n]");
 
-    private Pattern listAlignment = Pattern.compile("\\A\\s*?(•|[0-9iv]+[\\.\\)]?)\\t+[^\\t\\n]*\\Z");
+    private Pattern listAlignment = Pattern.compile("\\A\\s*?(•|[A-Z]|[ivx]{1,5}[\\.\\)]|[0-9]{1,2}[\\.\\)]?)\\t+[^\\t\\n]*\\Z");
 
 
     public TextLinesBuilder(){}
