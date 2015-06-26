@@ -129,6 +129,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
             n.set("resolved", result.getSecond());
             if (result.getFirst() != null){
                 n.set("href", result.getFirst());
+                n.setTagName("a");
             }
         }
 
@@ -142,6 +143,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
             n.set("resolved", result.getSecond());
             if (result.getFirst() != null){
                 n.set("href", result.getFirst());
+                n.setTagName("a");
             }
         }
 
