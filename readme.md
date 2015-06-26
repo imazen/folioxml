@@ -104,7 +104,10 @@ We will describe the contents of one infobase set.
 * skip_normal_records: true/false  #Exporting only headers can make it easier to analyze the structure
 * indent_xml true/false #Indentation can introduce undesired spacing, and should only be used for human consumption
 
+## Running the command line app
 
+* mvn clean compile assembly:single -U -B -fae
+* java -jar commandline/target/folioxml-commandline-jar-with-dependencies.jar -config core/folioxml/resources/test.yaml -export folio_help
 
 ## License
 
