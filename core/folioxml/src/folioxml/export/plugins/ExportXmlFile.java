@@ -83,7 +83,8 @@ public class ExportXmlFile implements InfobaseSetPlugin {
 
         if (!infobaseTagOpened){
             String author = new NodeList(xr).search(new NodeFilter("infobase-meta","type","author")).getTextContents().trim();
-            String title = new NodeList(xr).search(new NodeFilter("infobase-meta","type","title")).first().get("content").trim();
+            NodeList titleElements = new NodeList(xr).search(new NodeFilter("infobase-meta","type","title"));
+            String title = titleElements.count() > 0 ? titleElements.first().get("content").trim() : "";
 
             Node n = new Node("<infobase></infobase>");
             n.set("author", author);
