@@ -28,7 +28,7 @@ public class ExportRunner {
 
     private NodeInfoProvider createProvider() throws InvalidMarkupException {
         String providerName = set.getString("structure_class");
-        if (providerName == null) providerName = "folioxml.export.SlugInfoProvider";
+        if (providerName == null) providerName = "folioxml.export.SlugProvider";
 
         Object oparams = set.getObject("structure_class_params");
 
