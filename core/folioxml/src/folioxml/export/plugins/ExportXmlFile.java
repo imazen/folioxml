@@ -30,6 +30,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
     private String indentString = "  ";
 
     private Boolean  skipNormalRecords = true;
+    private Boolean nestFileElements = true;
 
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
@@ -41,6 +42,10 @@ public class ExportXmlFile implements InfobaseSetPlugin {
         skipNormalRecords = set.getBool("skip_normal_records");
         if (skipNormalRecords == null) skipNormalRecords = false;
 
+
+        nestFileElements = set.getBool("nest_file_elements");
+        if (nestFileElements == null) nestFileElements = true;
+
         if (indentXml == null)
             indentXml = set.getBool("indent_xml");
 
@@ -49,7 +54,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
     }
 
     boolean infobaseTagOpened = false;
-    InfobaseConfig current;
+    InfobaseConfig current = null;
     @Override
     public void beginInfobase(InfobaseConfig infobase) throws IOException {
         current= infobase;
@@ -82,7 +87,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
             throw new InvalidMarkupException("The first record of every infobase should be the root record");
 
         if (!infobaseTagOpened){
-            String author = new NodeList(xr).search(new NodeFilter("infobase-meta","type","author")).getTextContents().trim();
+            String author = new NodeList(xr).search(new NodeFilter("infobase-meta", "type", "author")).getTextContents().trim();
             NodeList titleElements = new NodeList(xr).search(new NodeFilter("infobase-meta","type","title"));
             String title = titleElements.count() > 0 ? titleElements.first().get("content").trim() : "";
 
@@ -99,14 +104,26 @@ public class ExportXmlFile implements InfobaseSetPlugin {
 
         else{
 
-            FileNode common = openFileNodes.isEmpty() ? null : getCommonAncestor(file, openFileNodes.peek(), true);
-            closeAllUntil(common);
-            if (common != file){
-                openChildren();
-                openFile(file); //We can't descend more than one node at a time; every file node must have 1 or more records.
+            boolean skip = skipNormalRecords && !xr.isLevelRecord() && xr.get("data-level") == null;
+            if (nestFileElements) {
+
+
+                FileNode common = openFileNodes.isEmpty() ? null : getCommonAncestor(file, openFileNodes.peek(), true);
+                closeAllUntil(common);
+                if (common != file) {
+                    openChildren();
+                    openFile(file); //We can't descend more than one node at a time; every file node must have 1 or more records.
+                }
+                if (skip) return;
+                openBody();
+
+            }else{
+                closeAllUntil(null);
+                if (skip) return;
+                openFile(file);
             }
-            openBody();
-            if (skipNormalRecords && !xr.isLevelRecord()) return;
+
+
             if (indentXml)
                 out.write(new XmlFormatter(indentLevel, indentString).format(xr));
             else
@@ -227,7 +244,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
     public void endInfobase(InfobaseConfig infobase) throws IOException {
         if (infobaseTagOpened) {
             closeAllUntil(null);
-
+            closeElement("infobase");
             infobaseTagOpened = false;
         }
     }
