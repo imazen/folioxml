@@ -4,10 +4,10 @@ import folioxml.config.InfobaseSet;
 import folioxml.config.TestConfig;
 import folioxml.config.YamlInfobaseSet;
 import folioxml.export.html.ReplaceUnderline;
-import folioxml.export.DateCollapsingSlugProvider;
+import folioxml.export.structure.DateCollapsingSlugProvider;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.InfobaseSetVisitor;
-import folioxml.export.SlugProvider;
+import folioxml.export.structure.SlugProvider;
 import folioxml.export.html.*;
 
 import folioxml.export.plugins.*;

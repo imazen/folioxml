@@ -1,6 +1,7 @@
-package folioxml.export;
+package folioxml.export.structure;
 
 import folioxml.core.InvalidMarkupException;
+import folioxml.export.FileNode;
 import folioxml.xml.XmlRecord;
 
 /**

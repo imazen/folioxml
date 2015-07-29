@@ -28,7 +28,7 @@ public class ExportRunner {
 
     private NodeInfoProvider createProvider() throws InvalidMarkupException {
         String providerName = set.getString("structure_class");
-        if (providerName == null) providerName = "folioxml.export.SlugProvider";
+        if (providerName == null) providerName = "folioxml.export.structure.SlugProvider";
 
         Object oparams = set.getObject("structure_class_params");
 
@@ -102,8 +102,12 @@ public class ExportRunner {
         plugins.add(new ApplyProcessor(xhtml));
 
         plugins.add(new ExportCssFile());
-        plugins.add(new ExportXmlFile());
-        plugins.add(new ExportHtmlFiles());
+        if (!Boolean.FALSE.equals(set.getBool("export_xml"))) {
+            plugins.add(new ExportXmlFile());
+        }
+        if (!Boolean.FALSE.equals(set.getBool("export_html"))) {
+            plugins.add(new ExportHtmlFiles());
+        }
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(set, plugins);
 
         visitor.complete();

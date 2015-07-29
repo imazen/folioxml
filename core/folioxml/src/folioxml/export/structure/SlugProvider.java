@@ -1,9 +1,12 @@
-package folioxml.export;
+package folioxml.export.structure;
 
 import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.TokenUtils;
+import folioxml.export.FileNode;
+import folioxml.export.NodeInfoProvider;
+import folioxml.export.StaticFileNode;
 import folioxml.xml.XmlRecord;
 
 import java.util.Deque;
@@ -13,29 +16,22 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 
-public class SlugProvider implements NodeInfoProvider{
+public class SlugProvider extends BaseFileSplitter {
 
-    public SlugProvider(){
+    public SlugProvider(String levelRegex, String splitOnFieldName) {
+        super(levelRegex, splitOnFieldName);
+    }
 
+    public SlugProvider(String levelRegex) {
+        super(levelRegex);
     }
-    public SlugProvider(String levelRegex){
-        this.levelRegex = levelRegex;
+
+    public SlugProvider() {
     }
-    String levelRegex;
+
+
+
     private StaticFileNode silentRoot = new StaticFileNode(null);
-
-    @Override
-    public boolean separateInfobases(InfobaseConfig ic, InfobaseSet set) {
-        return (set.getInfobases().size() > 1);
-    }
-
-    @Override
-    public boolean startNewFile(XmlRecord r) throws InvalidMarkupException {
-        if (levelRegex == null)
-            return r.isLevelRecord();
-        else
-            return r.isLevelRecord() && TokenUtils.fastMatches(levelRegex, r.getLevelType());
-    }
 
     public void PopulateNodeInfo(XmlRecord r, FileNode f) throws InvalidMarkupException {
         //Infobase ID comes in handy when generating the slug
