@@ -48,7 +48,7 @@ public class XmlStringWrapperTest {
 		
 		String newText = n.toXmlString(false);
 
-		System.out.append(newText + "\n");
+		//System.out.append(newText + "\n");
 		String b = "<node><n>abcdef</n>ghij<n>kl</n>mn<n></n>testqr</node>";
 		//System.out.append(b + "\n");
 		assert(newText.equals(b)): "Unexepected result " + newText + " instead of " + b;
@@ -63,7 +63,7 @@ public class XmlStringWrapperTest {
 		
 		String newText = n.toXmlString(false);
 
-		System.out.append(newText + "\n");
+		//System.out.append(newText + "\n");
 		//System.out.append(b + "\n");
 		//assert(newText.equals(b)): "Unexepected result " + newText + " instead of " + b;
 	}
@@ -120,7 +120,7 @@ public class XmlStringWrapperTest {
 	public void test(String a, String b, String regex, String replacement, boolean smartMerging) throws IOException, InvalidMarkupException{
 		Node n = new Node(a);
 		//TODO: test entities.
-		System.out.append("\n Replacing " + regex + " with " + replacement + " inside:\n" + a + "\n");
+		//System.out.append("\n Replacing " + regex + " with " + replacement + " inside:\n" + a + "\n");
 		XmlToStringWrapper xsw = new XmlToStringWrapper(n,false);
 		xsw.replaceAll(regex,replacement,smartMerging);
 		assertMatches(n,b);
@@ -128,8 +128,8 @@ public class XmlStringWrapperTest {
 	
 	public void assertMatches(Node n, String expectedResult) throws InvalidMarkupException{
 		String newText = n.toXmlString(false);
-		System.out.append("Expected: " + expectedResult + "\n");
-		System.out.append("  Result: " + newText + "\n");	
+		//System.out.append("Expected: " + expectedResult + "\n");
+		//System.out.append("  Result: " + newText + "\n");
 		assert(newText.equals(expectedResult)): "Unexepected result " + newText + " instead of " + expectedResult;
 	}
 	
