@@ -141,7 +141,9 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         writeIndent();
         out.append("<meta charset=\"utf-8\" />\n");
         openElement("title");
-        out.write(TokenUtils.lightEntityEncode(fn.getAttributes().get("heading")));
+        String title = fn.getAttributes().get("heading");
+        if (title == null) title = "";
+        out.write(TokenUtils.lightEntityEncode(title));
         closeElement("title");
         if (fn.getBag().get("folio-id") != null){
             writeIndent();
