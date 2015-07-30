@@ -1,26 +1,17 @@
 package folioxml.export.plugins;
 
 
-import com.sun.org.apache.xalan.internal.lib.NodeInfo;
 import folioxml.config.ExportLocations;
 import folioxml.config.InfobaseConfig;
 import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
-import folioxml.core.Pair;
 import folioxml.export.*;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
 import folioxml.xml.Node;
-import folioxml.xml.NodeFilter;
-import folioxml.xml.NodeList;
 import folioxml.xml.XmlRecord;
-import sun.swing.SwingUtilities2;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.regex.Pattern;
 
 
 public class ExportStructure implements InfobaseSetPlugin {
