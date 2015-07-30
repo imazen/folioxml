@@ -132,8 +132,10 @@ public class ExportStructure implements InfobaseSetPlugin {
         xr.set("uri", path + fragment);
 
         //Store the path bits so we can re-create a relative path
-        file.getAttributes().put("relative_path", path);
-        file.getAttributes().put("uri_fragment", "#a" + xr.get("id"));
+        if (!file.getAttributes().containsKey("relative_path"))
+            file.getAttributes().put("relative_path", path);
+        if (!file.getAttributes().containsKey("uri_fragment"))
+            file.getAttributes().put("uri_fragment", "#a" + xr.get("id"));
 
     }
 
