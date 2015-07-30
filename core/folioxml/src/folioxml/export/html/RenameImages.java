@@ -209,11 +209,11 @@ public class RenameImages {
         if (!m.find()) {
             m = object_file.matcher(path);
             b.dataLink = false;
-        }
 
-        if (!m.find()){
-            //Not a data link or object/ole? skip.
-            return fail(path, "Path is not a Data link or OB/OLE file.");
+            if (!m.find()){
+                //Not a data link or object/ole? skip.
+                return fail(path, "Path is not a Data link or OB/OLE file.");
+            }
         }
 
 
