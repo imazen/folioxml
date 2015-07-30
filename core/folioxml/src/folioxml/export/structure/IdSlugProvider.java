@@ -120,7 +120,7 @@ public class IdSlugProvider extends BaseFileSplitter {
             for (int i =0; i < levels.length; i++){
                 if (levels[i].equalsIgnoreCase(level)){
                     f.getBag().put("folio-level-index", i + 1);
-                    f.getAttributes().put("folio-level-index", Integer.toString(i + 1));
+                    f.getAttributes().put("level-index", Integer.toString(i + 1));
                     break;
                 }
             }
