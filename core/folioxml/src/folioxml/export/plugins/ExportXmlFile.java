@@ -104,7 +104,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
 
         else{
 
-            boolean skip = skipNormalRecords && !xr.isLevelRecord() && xr.get("data-level") == null;
+            boolean skip = skipNormalRecords && !xr.isLevelRecord();
             if (nestFileElements) {
 
 
@@ -118,7 +118,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
                 openBody();
 
             }else{
-                closeAllUntil(null);
+                closeAllUntil(file);
                 if (skip) return;
                 openFile(file);
             }
@@ -168,6 +168,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
     }
 
     private void openFile(FileNode n) throws IOException, InvalidMarkupException {
+        if (!openFileNodes.isEmpty() && openFileNodes.peek() == n) return; //Don't open the same node twice
         openFileNodes.push(n);
         Node xn = new Node("<file></file>");
         xn.getAttributes().putAll(n.getAttributes());
