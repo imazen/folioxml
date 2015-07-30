@@ -30,3 +30,4 @@ deploy:
   on:
     repo: imazen/folioxml
     all_branches: true
+    tags: true
