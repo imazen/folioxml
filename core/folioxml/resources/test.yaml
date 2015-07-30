@@ -15,7 +15,7 @@ folio_help:
     html:
       path: "files/folio-help/export/{id}-{stamp}/{input}.html"
 
-  structure_class: folioxml.export.SlugProvider
+  structure_class: folioxml.export.structure.SlugProvider
   structure_class_params:
     - "Book|Section"
 
