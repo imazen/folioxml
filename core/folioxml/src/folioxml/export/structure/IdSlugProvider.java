@@ -135,7 +135,9 @@ public class IdSlugProvider extends BaseFileSplitter {
         f.getBag().put("global-index", sequentialIndex);
         sequentialIndex++;
         f.getBag().put("folio-id", r.get("folioId"));
-        f.getAttributes().put("heading", r.get("heading"));
+        if (r.get("heading") != null && r.get("heading").length() > 0) {
+            f.getAttributes().put("heading", r.get("heading"));
+        }
 
         String splitText = getSplitFieldText(r);
         if (splitText != null && splitText.length() > 0){
@@ -151,7 +153,10 @@ public class IdSlugProvider extends BaseFileSplitter {
     private void populateHeadings(FileNode from, FileNode to){
         Object headingIndex = from.getBag().get("folio-level-index");
         if (headingIndex != null) {
-            to.getAttributes().put("heading" + headingIndex,from.getAttributes().get("heading"));
+            String heading = from.getAttributes().get("heading");
+            if (heading != null && heading.length() > 0) {
+                to.getAttributes().put("heading" + headingIndex, heading);
+            }
         }
         if (from.getParent() != null)
             populateHeadings(from.getParent(), to);
