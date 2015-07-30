@@ -2,8 +2,8 @@ folio_help:
   infobases:
     - id: foliohelp
       path: files/folio-help/FolioHlp.FFF
-    - id: getting_started
-      path: files/folio-help/Getstrt4.FFF
+#    - id: getting_started
+#      path: files/folio-help/Getstrt4.FFF
 
   export_locations:
     default:
