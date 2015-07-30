@@ -105,7 +105,9 @@ public class ExportStructure implements InfobaseSetPlugin {
 
         StaticFileNode next = new StaticFileNode(parent);
         next.getBag().put("record", xr);
-        next.getAttributes().put("level", xr.get("level"));
+        if (xr.getLevelType() != null) {
+            next.getAttributes().put("level", xr.getLevelType());
+        }
         p.PopulateNodeInfo(xr, next);
         next.setRelativePath(p.getRelativePathFor(next));
         current = next;
