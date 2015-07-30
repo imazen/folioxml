@@ -56,7 +56,10 @@ public class ExportStructure implements InfobaseSetPlugin {
         if (heading != null){
             heading = heading.replaceAll("[ \t\r\n]+", " ").trim();
         }
-        clean_slx.set("heading", heading);
+        if (heading != null && heading.length() > 0) {
+            clean_slx.set("heading", heading);
+        }
+
     }
 
     int recordIndex =0;
