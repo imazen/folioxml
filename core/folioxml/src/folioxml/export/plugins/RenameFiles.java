@@ -34,7 +34,7 @@ public class RenameFiles implements InfobaseSetPlugin {
 
        
         System.out.println("Exporting resources...");
-        InputStream zipStream = RenameFiles.class.getResourceAsStream("../../../highslide.zip");
+        InputStream zipStream = RenameFiles.class.getResourceAsStream("/highslide.zip");
         if (zipStream == null) zipStream = RenameFiles.class.getResourceAsStream("..\\..\\..\\highslide.zip");
         if (zipStream == null) throw new IOException("Failed to locate resource highslide.zip");
         unzip(zipStream, loc.getLocalPath("highslide", AssetType.Javascript, FolderCreation.CreateParents).toString());

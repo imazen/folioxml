@@ -30,7 +30,7 @@ public class SimultaneousTest {
 
     private InfobaseSet loadPrivate(String name){
 
-        InputStream privateYaml =  TestConfig.class.getResourceAsStream("../../private.yaml");
+        InputStream privateYaml =  TestConfig.class.getResourceAsStream("/private.yaml");
 
         String classDir = TestConfig.class.getProtectionDomain().getCodeSource().getLocation().getFile();
         String workingDir = Paths.get(classDir).getParent().getParent().getParent().getParent().toAbsolutePath().toString();
