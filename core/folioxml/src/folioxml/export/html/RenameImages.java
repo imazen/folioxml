@@ -10,10 +10,7 @@ import folioxml.xml.NodeList;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
@@ -30,7 +27,16 @@ public class RenameImages {
         this.infobase_set = infobase_set;
         this.export = export;
         signatures = AllFileSignatures();
+
+        nextAssetId = infobase_set.getInteger("asset_start_index");
+        if (nextAssetId == null) nextAssetId = 0;
+
+        asset_use_index_in_url = infobase_set.getBool("asset_use_index_in_url");
+        if (asset_use_index_in_url == null) asset_use_index_in_url = false;
+
     }
+
+    Boolean asset_use_index_in_url;
 
     public void process(NodeList nodes, FileNode document) throws InvalidMarkupException, IOException {
 
@@ -84,19 +90,21 @@ public class RenameImages {
                 BundledAsset b = getAsset(src);
 
                 if (b.success){
-                    String resultUri = export.getUri(b.targetPath, AssetType.Image, document_base);
+                    String resultUri = export.getUri(asset_use_index_in_url ? Long.toString(b.assetId) : b.targetPath, AssetType.Image, document_base);
                     n.set(attr, resultUri);
                     n.set("resolved", "true");
                     if (isImage){
                         n.setTagName("img");
                         n.removeAttr("type");
                         n.removeAttr("handler");
+                        b.alt = n.get("name");
                         n.set("alt", n.get("name")); //The alt tag can use the name
                         n.removeAttr("name");
                     }else if (isImageLink){
                         n.setTagName("a");
                         n.removeAttr("type");
                         n.removeAttr("handler");
+                        b.alt = n.get("objectName");
                         n.set("alt", n.get("objectName")); //The alt tag can use the name
                         n.removeAttr("objectName");
                     }else{
@@ -119,6 +127,7 @@ public class RenameImages {
 
     private InfobaseSet infobase_set;
 
+    public Integer nextAssetId;
 
     public class BundledAsset{
 
@@ -129,11 +138,11 @@ public class RenameImages {
         public Path targetDiskLocation;
         public String targetFileExtension;
         public String targetPath;
+        public String alt;
 
+        public int assetId;
         public InfobaseConfig infobase;
         public boolean dataLink;
-
-        public URL targetUrl;
 
         public boolean success;
         public String error_message;
@@ -186,6 +195,37 @@ public class RenameImages {
 
             }
         }
+    }
+
+    public void ExportAssetInventory() throws IOException, InvalidMarkupException {
+        Path xmlPath = export.getLocalPath("AssetInventory.xml", AssetType.Xml,FolderCreation.CreateParents);
+        OutputStreamWriter out  = new OutputStreamWriter(new FileOutputStream(xmlPath.toString()), "UTF8");
+        out.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+
+        Node assetsNode = new Node("<assets />");
+
+
+        for(Map.Entry<String,BundledAsset> pair: assets.entrySet()){
+            BundledAsset target = pair.getValue();
+            if (!target.success) continue;
+
+            Node n = new Node("<asset />");
+
+            n.set("asset_id", Long.toString(target.assetId));
+            if (target.alt != null) n.set("alt", target.alt);
+            n.set("dataLink", Boolean.toString(target.dataLink));
+
+            n.set("originalPath", target.originalPath.toString());
+            n.set("orginalDiskLocation", target.originalDiskLocation.toString());
+            if (target.originalFileExtension != null) n.set("originalFileType", target.originalFileExtension.toString());
+            n.set("targetPath", target.targetPath.toString());
+            n.set("targetDiskLocation", target.targetDiskLocation.toString());
+            if (target.targetFileExtension != null) n.set("targetFileType", target.targetFileExtension.toString());
+
+            assetsNode.addChild(n);
+        }
+        out.append(assetsNode.toXmlString(true));
+        out.close();
     }
     public void ConvertToPng(File input, File output) throws IOException{
         //Read the file to a BufferedImage
@@ -264,6 +304,8 @@ public class RenameImages {
             b = assets.get(path);
         } else {
             b = parse(path);
+            b.assetId = nextAssetId;
+            nextAssetId++;
             assets.put(path, b);
         }
         return b;

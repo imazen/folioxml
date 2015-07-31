@@ -3,7 +3,7 @@ master: [![status](http://img.shields.io/travis/imazen/folioxml/master.svg)](htt
 
 develop: [![status](http://img.shields.io/travis/imazen/folioxml/develop.svg)](https://travis-ci.org/imazen/folioxml/branches)
 [![Build status](https://ci.appveyor.com/api/projects/status/dor7s9akmby228cb/branch/develop?svg=true)](https://ci.appveyor.com/project/imazen/folioxml/branch/develop)
- 
+
 # What is this?
 
 This is a full streaming lexer, parser, and transpiler for Folio Flat File databases. Outputs include SLX, XML, HTML, and Lucene. Stream-based (not DOM-based) - can process gigabyes quickly with very low RAM use.
@@ -109,6 +109,8 @@ We will describe the contents of one infobase set.
 * export_xml: false #Disables generation of single XML file
 * export_html: false #Disables generation of browsable html files
 * nest_file_elements: false #Disables nested syntax for <file> elements in xml, uses flat structure.
+* asset_start_index: 0 #The start value for asset IDs
+* asset_use_index_in_url: false #Only set this to true if you also set export_locations: images: url to a template that can respond based on numeric ID instead of filename.
 
 
 ## Running the command line app

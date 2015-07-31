@@ -20,13 +20,12 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-/**
- * Created by nathanael on 6/9/15.
- */
+
 public class RenameFiles implements InfobaseSetPlugin {
 
     RenameImages renamer;
     ExportLocations loc;
+    Boolean useHighslide;
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
         renamer = new RenameImages(set, export);
@@ -34,11 +33,16 @@ public class RenameFiles implements InfobaseSetPlugin {
 
        
         System.out.println("Exporting resources...");
-        InputStream zipStream = RenameFiles.class.getResourceAsStream("/highslide.zip");
-        if (zipStream == null) zipStream = RenameFiles.class.getResourceAsStream("..\\..\\..\\highslide.zip");
-        if (zipStream == null) throw new IOException("Failed to locate resource highslide.zip");
-        unzip(zipStream, loc.getLocalPath("highslide", AssetType.Javascript, FolderCreation.CreateParents).toString());
 
+        if (useHighslide == null) useHighslide = set.getBool("use_highslide");
+        if (useHighslide == null) useHighslide = true;
+
+        if (useHighslide) {
+            InputStream zipStream = RenameFiles.class.getResourceAsStream("/highslide.zip");
+            if (zipStream == null) zipStream = RenameFiles.class.getResourceAsStream("..\\..\\..\\highslide.zip");
+            if (zipStream == null) throw new IOException("Failed to locate resource highslide.zip");
+            unzip(zipStream, loc.getLocalPath("highslide", AssetType.Javascript, FolderCreation.CreateParents).toString());
+        }
 
     }
 
@@ -82,7 +86,9 @@ public class RenameFiles implements InfobaseSetPlugin {
     }
 
     @Override
-    public void endInfobaseSet(InfobaseSet set) throws IOException {
+    public void endInfobaseSet(InfobaseSet set) throws IOException, InvalidMarkupException {
+        System.out.println("Exporting asset manifest...");
+        renamer.ExportAssetInventory();
         System.out.println("Copying/converting referenced files...");
         renamer.CopyConvertFiles();
     }
