@@ -225,9 +225,12 @@ public class ExportXmlFile implements InfobaseSetPlugin {
         out.append(">\n");
         indentLevel++;
     }
-    private void openElement(Node element) throws IOException {
+    private void openElement(Node element) throws IOException, InvalidMarkupException {
         StringBuilder sb = new StringBuilder();
         writeIndent();
+        if (element.getAttributes().values().contains(null)){
+            throw new IOException("Null attribute value");
+        }
         element.writeTokenTo(sb);
         out.append(sb);
         out.append("\n");
