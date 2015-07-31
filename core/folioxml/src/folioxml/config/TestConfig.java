@@ -1,6 +1,9 @@
 package folioxml.config;
 
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
@@ -18,8 +21,14 @@ public class TestConfig {
 
         InputStream foo = TestConfig.class.getResourceAsStream("/test.yaml");
 
-        String classDir = TestConfig.class.getProtectionDomain().getCodeSource().getLocation().getFile();
-        String workingDir = Paths.get(classDir).getParent().getParent().getParent().getParent().toAbsolutePath().toString();
+        Path classDir = null;
+        try {
+            URI classDirURI = TestConfig.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+            classDir = Paths.get(classDirURI);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        String workingDir = classDir.getParent().getParent().getParent().getParent().toAbsolutePath().toString();
 
         return YamlInfobaseSet.parseYaml(workingDir,foo);
     }
