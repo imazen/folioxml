@@ -1,6 +1,9 @@
-master: [![status](http://img.shields.io/travis/imazen/folioxml/master.svg)](https://travis-ci.org/imazen/folioxml/branches) most recent commit: [![status](http://img.shields.io/travis/imazen/folioxml.svg)](https://travis-ci.org/imazen/folioxml/branches) 
+master: [![status](http://img.shields.io/travis/imazen/folioxml/master.svg)](https://travis-ci.org/imazen/folioxml/branches)
+ [![Build status](https://ci.appveyor.com/api/projects/status/dor7s9akmby228cb/branch/master?svg=true)](https://ci.appveyor.com/project/imazen/folioxml/branch/master)
 
-
+develop: [![status](http://img.shields.io/travis/imazen/folioxml/develop.svg)](https://travis-ci.org/imazen/folioxml/branches)
+[![Build status](https://ci.appveyor.com/api/projects/status/dor7s9akmby228cb/branch/develop?svg=true)](https://ci.appveyor.com/project/imazen/folioxml/branch/develop)
+ 
 # What is this?
 
 This is a full streaming lexer, parser, and transpiler for Folio Flat File databases. Outputs include SLX, XML, HTML, and Lucene. Stream-based (not DOM-based) - can process gigabyes quickly with very low RAM use.
@@ -103,6 +106,10 @@ We will describe the contents of one infobase set.
 
 * skip_normal_records: true/false  #Exporting only headers can make it easier to analyze the structure
 * indent_xml true/false #Indentation can introduce undesired spacing, and should only be used for human consumption
+* export_xml: false #Disables generation of single XML file
+* export_html: false #Disables generation of browsable html files
+* nest_file_elements: false #Disables nested syntax for <file> elements in xml, uses flat structure.
+
 
 ## Running the command line app
 
