@@ -65,11 +65,11 @@ public class SearchTest {
     public void smallTest() throws IOException{
         runBenchmark(100,1000);
     }
-    @Test
+    @Ignore @Test
     public void mediumlTest() throws IOException{
         runBenchmark(-1,10);
     }
-    @Test
+    @Ignore  @Test
     public void fullTestTest() throws IOException{
         runBenchmark(-1,1000);
     }
