@@ -2,7 +2,6 @@ package folioxml.config;
 
 import org.yaml.snakeyaml.Yaml;
 
-import javax.naming.ConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,8 +10,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static java.nio.file.Paths.*;
 
 
 public class YamlInfobaseSet implements InfobaseSet{
@@ -140,8 +137,8 @@ public class YamlInfobaseSet implements InfobaseSet{
     }
 
     @Override
-    public Long getInteger(String key) {
-        return (Long)data.get(key);
+    public Integer getInteger(String key) {
+        return (Integer)data.get(key);
     }
 
     public YamlInfobaseSet(String name, Map<String,Object> map, String workingDir){

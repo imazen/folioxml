@@ -10,7 +10,7 @@ public interface InfobaseConfigBase {
     public String getStringAsPath(String key, FolderCreation pathOptions);
     public String getString(String key);
     public Boolean getBool(String key);
-    public Long getInteger(String key);
+    public Integer getInteger(String key);
 
     public  Object getObject(String key);
 }

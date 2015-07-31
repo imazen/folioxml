@@ -1,7 +1,6 @@
 package folioxml.config;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -124,7 +123,7 @@ public class YamlInfobaseConfig implements InfobaseConfig {
     }
 
     @Override
-    public Long getInteger(String key) {
-        return (Long)data.get(key);
+    public Integer getInteger(String key) {
+        return (Integer)data.get(key);
     }
 }
