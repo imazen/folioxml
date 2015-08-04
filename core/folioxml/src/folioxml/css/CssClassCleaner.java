@@ -146,7 +146,7 @@ public class CssClassCleaner {
 			if (foundConflict){
 				for (Pair<String,String> pair: mappings.values()){
 					if (pair.getFirst().equalsIgnoreCase(sanitizedName)){
-						System.out.println("Found conflict in CSS name... " + name + " conflicted with existing entry " + pair.getSecond());
+						System.out.println("Renaming \"" + name + "\" to \"" + newName + "\" to avoid conflicting with a similar Folio Style " + pair.getSecond());
 						break;
 					}
 				}
@@ -236,7 +236,6 @@ public class CssClassCleaner {
 	/**
 	 objects, bookmarks, and popups are not processed. They are hashed.
 	 * @param t
-	 * @param attrName
 	 * @return
 	 * @throws InvalidMarkupException
 	 */

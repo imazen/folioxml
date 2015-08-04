@@ -641,7 +641,7 @@ tr	Common, align ("left" | "center" | "right" | "justify" | "char"), char (Chara
 
             if (startIndex + 1 >= opts.size()){
                 //No arguments for tab stop?
-                System.out.println("Empty tab stop!");
+                //System.out.println("Empty tab stop!");
                 return index;
             }
             //TS has a minimum of 3 arguments required
