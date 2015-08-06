@@ -47,7 +47,7 @@ public class IdSlugProvider extends BaseFileSplitter {
     @Override
     public String getRelativePathFor(FileNode fn) {
         return getRelativePathFor(fn, idKind);
-
+        //TODO - verify 1-1 mapping between all relative paths and all file node values.
     }
 
     public String getRelativePathFor(FileNode fn, int kind) {
@@ -134,15 +134,22 @@ public class IdSlugProvider extends BaseFileSplitter {
         f.getBag().put("local-index", incrementChildCount(parentScope));
         f.getBag().put("global-index", sequentialIndex);
         sequentialIndex++;
-        f.getBag().put("folio-id", r.get("folioId"));
+        f.getBag().put("folio-id", r.get("folioId")); //TODO: verify uniqueness
         if (r.get("heading") != null && r.get("heading").length() > 0) {
             f.getAttributes().put("heading", r.get("heading"));
         }
 
         String splitText = getSplitFieldText(r);
         if (splitText != null && splitText.length() > 0){
-            f.getBag().put("split-field-text", splitText);
-            f.getAttributes().put(splitOnFieldName.toLowerCase() + "-text",splitText);
+            //ONLY ADD IF unique across infobase
+
+            Integer totalCount = incrementValueCount(splitText, "splitTexts", silentRoot);
+            if (totalCount > 1){
+                System.out.append("Skipping use of split-text-field for ID - value '" + splitText + "' has been used before and is not unique.\n");
+            }else {
+                f.getBag().put("split-field-text", splitText);
+                f.getAttributes().put(splitOnFieldName.toLowerCase() + "-text", splitText);
+            }
         }
 
 
@@ -196,21 +203,27 @@ public class IdSlugProvider extends BaseFileSplitter {
 
 
     protected Integer incrementSlug(String slug, FileNode scope){
-        //Access sibling slugs to ensure uniqueness.
-        Object oslugs = scope.getBag().get("childSlugs");
+        return incrementValueCount(slug, "childSlugs", scope);
+    }
+
+    protected Integer incrementValueCount(String value, String  dictName, FileNode scope){
+        //Access sibling values to ensure uniqueness.
+        Object oslugs = scope.getBag().get(dictName);
         if (oslugs == null) {
             oslugs = new HashMap<String, Integer>();
-            scope.getBag().put("childSlugs", oslugs);
+            scope.getBag().put(dictName, oslugs);
         }
-        Map<String, Integer> siblingSlugs = (Map<String, Integer>)oslugs;
+        Map<String, Integer> allValues = (Map<String, Integer>)oslugs;
 
-        if (siblingSlugs.get(slug) == null){
-            siblingSlugs.put(slug, 0);
+        String normalizedValue = value.trim().toLowerCase();
+
+        if (allValues.get(normalizedValue) == null){
+            allValues.put(normalizedValue, 0);
         }
         //Increment
-        siblingSlugs.put(slug, siblingSlugs.get(slug) + 1);
+        allValues.put(normalizedValue, allValues.get(normalizedValue) + 1);
 
-        return siblingSlugs.get(slug);
+        return allValues.get(normalizedValue);
     }
 
 
