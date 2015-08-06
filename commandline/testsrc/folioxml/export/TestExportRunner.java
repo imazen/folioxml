@@ -63,4 +63,10 @@ public class TestExportRunner {
     public void ExportSet2() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
         new ExportRunner(loadPrivate("testset2")).Export();
     }
+
+    @Test @Ignore
+    public void IndexExportSet2() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+        new ExportRunner(loadPrivate("testset2")).Index();
+        new ExportRunner(loadPrivate("testset2")).Export();
+    }
 }
