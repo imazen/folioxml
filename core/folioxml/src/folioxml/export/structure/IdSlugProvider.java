@@ -171,27 +171,23 @@ public class IdSlugProvider extends BaseFileSplitter {
 
     private String getSlug(XmlRecord r, FileNode f) throws InvalidMarkupException {
 
-        String heading = getHeading(r, f);
+        String heading =  r.get("heading");
 
-        String slug =  slugify(heading, 100);
+        String slug =  heading == null ? null : slugify(heading, 100);
 
         if (r.isRootRecord() && (slug == null || slug.isEmpty())) {
             Object name = f.getBag().get("infobase-id");
             if (name == null) name = "index";
             slug = (String)name;
         }
+        if (slug == null) slug = "untitled";
         FileNode parentScope = f.getParent() == null ? silentRoot : f.getParent();
         Integer suffix = incrementSlug(slug, parentScope);
         if (suffix > 1) return slug + "-" + suffix;
         else return slug;
     }
 
-    protected String getHeading(XmlRecord r, FileNode f) throws InvalidMarkupException {
-        String heading = r.get("heading");
-        if (heading == null) heading = "UNTITLED";
 
-        return heading;
-    }
 
     protected String slugify(String text, int maxLength){
         String slug = text.toLowerCase(Locale.ENGLISH).replaceAll("[^a-zA-Z0-9-_~$]", " ").trim();
