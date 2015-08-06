@@ -189,7 +189,7 @@ public class RenameImages {
                         Files.copy(target.originalDiskLocation,  target.targetDiskLocation, StandardCopyOption.COPY_ATTRIBUTES);
                     }
                 }catch(IOException e){
-                    System.err.println("Failed to copy/compress to " + pair.getValue());
+                    System.err.println("Failed to copy/compress to " + pair.getValue().targetDiskLocation);
                     e.printStackTrace(System.err);
                 }
 
