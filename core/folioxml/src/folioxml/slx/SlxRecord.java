@@ -212,7 +212,7 @@ public class SlxRecord extends SlxToken implements ISlxTokenWriter{
                     if (firstParagraph) all.append(" ");
                 }
 
-				if (t.matches("p") && t.isClosing() && all.toString().length() > 0) firstParagraph = false;
+				if (t.matches("p") && t.isClosing() && all.toString().trim().length() > 0) firstParagraph = false;
 			}
 			
 		}
