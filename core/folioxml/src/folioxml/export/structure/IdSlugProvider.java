@@ -27,7 +27,7 @@ public class IdSlugProvider extends BaseFileSplitter {
         super(levelRegex, splitOnFieldName);
         this.idKind = idKind == null ? 0 : idKind;
         this.start_index = start_index == null ? 1 : start_index;
-        this.root_index = root_index== null ? 1 :  root_index;
+        this.root_index = root_index == null ? 1 :  root_index;
         this.sequentialIndex = root_index;
     }
     int idKind;
@@ -137,6 +137,9 @@ public class IdSlugProvider extends BaseFileSplitter {
         f.getBag().put("folio-id", r.get("folioId")); //TODO: verify uniqueness
         if (r.get("heading") != null && r.get("heading").length() > 0) {
             f.getAttributes().put("heading", r.get("heading"));
+        }
+        if (r.get("headingOnly") != null && r.get("headingOnly").length() > 0) {
+            f.getAttributes().put("headingOnly", r.get("headingOnly"));
         }
 
         String splitText = getSplitFieldText(r);

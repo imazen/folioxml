@@ -186,11 +186,13 @@ public class SlxRecord extends SlxToken implements ISlxTokenWriter{
 		if (this.get("heading") != null) return; //Only calculate once
 		if ("root".equalsIgnoreCase(this.get("level"))) {
 			this.set("heading", "root"); //TODO: select infobase title.
+            this.set("headingOnly", "true");
 			return;
 		}
 		StringWriter title = new StringWriter();
 		StringWriter all = new StringWriter();
 		SlxContextStack stack = new SlxContextStack(false,false);
+        boolean headingOnly = true;
 		stack.process(this);
 		boolean firstParagraph = true;
 		for (SlxToken t : this.tokens) {
@@ -203,6 +205,7 @@ public class SlxRecord extends SlxToken implements ISlxTokenWriter{
 					    title.append(s);
 					}
 					if (firstParagraph) all.append(s); //The failover is the entire first paragraph (that contains text or whitespace)
+                    else headingOnly = false;
 				}
 
                 if (t.matches("p|br|td|th|note") && !t.isOpening()) {
@@ -213,14 +216,23 @@ public class SlxRecord extends SlxToken implements ISlxTokenWriter{
                 }
 
 				if (t.matches("p") && t.isClosing() && all.toString().trim().length() > 0) firstParagraph = false;
-			}
+			}else{
+                headingOnly = false;
+            }
 			
 		}
 		if (stack.size() > 0) throw new InvalidMarkupException("Stack is not empty after processing record");
 		
 		
 		this.set("heading", title.toString());
-		if (this.getLevelType() != null && this.get("heading").length() < 1) set("heading", all.toString()); //Only fall back on level records
+
+		if (this.getLevelType() != null && this.get("heading").length() < 1) {
+            set("heading", all.toString()); //Only fall back on level records
+        }else{
+            headingOnly = false;
+        }
+
+        this.set("headingOnly", Boolean.toString(headingOnly));
 
     }
 
