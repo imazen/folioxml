@@ -67,7 +67,7 @@ public class ExportRunner {
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(createProvider()));
 
-        plugins.add(new ApplyProcessor(new MultiRunner(new FixHttpLinks(), new PullElements(this.set)))); //FixHttpLinks must be the first thing to touch links - it cannot come after ResolveHyperlinks or RenameFiles
+        plugins.add(new ApplyProcessor(new MultiRunner(new FixHttpLinks(), new LinkMapper(this.set), new PullElements(this.set)))); //FixHttpLinks must be the first thing to touch links - it cannot come after ResolveHyperlinks or RenameFiles
 
 
         //TODO: Do we export assets?
