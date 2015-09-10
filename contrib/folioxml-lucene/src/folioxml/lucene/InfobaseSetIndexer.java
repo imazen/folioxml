@@ -14,8 +14,7 @@ import folioxml.slx.SlxRecord;
 import folioxml.slx.SlxToken;
 import folioxml.xml.XmlRecord;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
+import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
@@ -99,18 +98,18 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
                 }
                 if (t.isTag() && t.matches("bookmark")){
                     //Add bookmarks as-is
-                    doc.add(new Field("destinations", t.get("name"), Field.Store.NO, Field.Index.NOT_ANALYZED));
+                    doc.add(new StringField("destinations", t.get("name"), Field.Store.YES));
                 }
             }
 
-            doc.add(new Field(conf.getDefaultField(),contentSb.toString(), Field.Store.YES,Field.Index.ANALYZED, Field.TermVector.NO));
+            doc.add(new TextField(conf.getDefaultField(),contentSb.toString(), Field.Store.YES));
 
             String folioSectionHeading = TokenUtils.entityDecodeString(r.getFullHeading(",",false,20)).trim();
-            doc.add(new Field("folioSectionHeading",folioSectionHeading,Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.NO));
+            doc.add(new TextField("folioSectionHeading",folioSectionHeading,Field.Store.YES));
 
 
-            doc.add(new Field("title",r.getFullHeading(" - ",true,2),Field.Store.YES, Field.Index.NO));
-            doc.add(new Field("heading",r.get("heading"),Field.Store.YES, Field.Index.NO));
+            doc.add(new StoredField("title",r.getFullHeading(" - ",true,2)));
+            doc.add(new StoredField("heading",r.get("heading")));
 
             coll.flush();
         }

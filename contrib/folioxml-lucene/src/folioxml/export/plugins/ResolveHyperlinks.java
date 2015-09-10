@@ -42,10 +42,10 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
 
 
     private DynamicAnalyzer loadAnalyzerFromLucene(InfobaseConfig ic) throws IOException, InvalidMarkupException {
-        BooleanQuery q = new BooleanQuery();
+        BooleanQuery.Builder q = new BooleanQuery.Builder();
         q.add(new TermQuery(new Term("infobase", ic.getId())), BooleanClause.Occur.MUST);
         q.add(new TermQuery(new Term("level", "root")), BooleanClause.Occur.MUST);
-        ScoreDoc[] hits = searcher.search(q,1).scoreDocs;
+        ScoreDoc[] hits = searcher.search(q.build(),1).scoreDocs;
         if (hits.length > 0){
             //info.workingQueryLinks++;
             String rootXml = searcher.doc(hits[0].doc).get("xml");
@@ -241,10 +241,10 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
             return new Pair<String, String>(null, "destination infobase is external to configuration set");
         }
 
-        BooleanQuery q = new BooleanQuery();
-        q.add(new TermQuery(new Term("infobase", targetConfig.getId())), BooleanClause.Occur.MUST);
-        q.add(new TermQuery(new Term("destinations", jumpDestination)), BooleanClause.Occur.MUST);
-        ScoreDoc[] hits = searcher.search(q,1).scoreDocs;
+        BooleanQuery.Builder qb = new BooleanQuery.Builder();
+        qb.add(new TermQuery(new Term("infobase", targetConfig.getId())), BooleanClause.Occur.MUST);
+        qb.add(new TermQuery(new Term("destinations", jumpDestination)), BooleanClause.Occur.MUST);
+        ScoreDoc[] hits = searcher.search(qb.build(),1).scoreDocs;
         if (hits.length > 0){
             String bookmarkHash = hashDestination(currentInfobase, jumpDestination);
             //info.workingQueryLinks++;
