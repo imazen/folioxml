@@ -38,11 +38,22 @@ public class PullElements implements NodeListProcessor, ExportingNodeListProcess
         if (pullProgramLinks == null) pullProgramLinks = false;
         if (pullMenuLinks == null) pullMenuLinks = true;
 
-
+        dropNotes = (Boolean)pull.get("drop_notes");
+        if (dropPopups == null) dropPopups = true;
+        dropPopups = (Boolean)pull.get("drop_popups");
+        if (dropNotes == null) dropNotes = false;
+        dropOle = (Boolean)pull.get("ole_objects");
+        if (dropOle == null) dropOle = false;
+        dropMetafile = (Boolean)pull.get("metafile_objects");
+        if (dropMetafile == null) dropMetafile = false;
     }
 
     private Boolean pullProgramLinks = null;
     private Boolean pullMenuLinks = null;
+    private Boolean dropNotes = null;
+    private Boolean dropPopups = null;
+    private Boolean dropOle = null;
+    private Boolean dropMetafile = null;
     private List<String> infobasesToDrop = new ArrayList<String>();
 
     @Override
@@ -52,12 +63,29 @@ public class PullElements implements NodeListProcessor, ExportingNodeListProcess
             String infobase = n.get("infobase");
             if (infobase == null) continue;
             if (infobasesToDrop.contains(infobase)){
-                logAndPullNode(n,"External infobase reference");
+                logAndPullNode("pulled_elements",n,"External infobase reference");
             }
         }
 
-        if (pullMenuLinks) logAndPullNodes(nodes.search(new NodeFilter("link", "menu", null)), "Menu link");
-        if (pullProgramLinks) logAndPullNodes(nodes.search(new NodeFilter("link", "program", null)), "Program link");
+        if (pullMenuLinks) logAndPullNodes("pulled_elements",nodes.search(new NodeFilter("link", "menu", null)), "Menu link");
+        if (pullProgramLinks) logAndPullNodes("pulled_elements",nodes.search(new NodeFilter("link", "program", null)), "Program link");
+        if (dropOle) logAndDropNodes("dropped_elements", nodes.search(new NodeFilter("object", "type", "ole")), "OLE Object");
+        if (dropMetafile) logAndDropNodes("dropped_elements", nodes.search(new NodeFilter("object", "handler", "Metafile")), "Metafile Object");
+        if (dropNotes) logAndDropNodes("dropped_elements",nodes.search(new NodeFilter("note")), "Notes");
+        if (dropPopups) {
+            objects = nodes.search(new NodeFilter("a|link", "type", "popup"));
+            for (Node t : objects.list()) {
+                Node popup = objects.search(new NodeFilter("popup")).first();
+                if (popup == null){
+                    provider.getNamedStream("warnings").append("Malformed popup links").append(" in record ").append(t.rootNode().get("folioId")).append("\n").append(t.toXmlString((true))).append("\n");
+                }
+                if (popup != null) logNode("dropped_elements", popup, "Popup contents");
+                logNode("pulled_elements", t, "Popup link");
+                if (popup != null) popup.remove();
+                t.pull();
+            }
+            logAndPullNodes("pulled_elements",nodes.search(new NodeFilter("link", "popupTitle", null)), "Named popup link");
+        }
 
         return nodes;
     }
@@ -80,16 +108,25 @@ public class PullElements implements NodeListProcessor, ExportingNodeListProcess
     }
 
 
-    private void logAndPullNodes(NodeList list, String intro) throws InvalidMarkupException, IOException {
+    private void logAndPullNodes(String stream, NodeList list, String intro) throws InvalidMarkupException, IOException {
         for (Node n:list.list()){
-            logAndPullNode(n,intro);
+            logAndPullNode(stream,n,intro);
         }
     }
-    private void logAndPullNode(Node n,String intro) throws InvalidMarkupException, IOException {
+    private void logAndDropNodes(String stream, NodeList list, String intro) throws InvalidMarkupException, IOException {
+        for (Node n:list.list()){
+            logNode(stream, n, intro);
+            n.remove();
+        }
+    }
 
-        provider.getNamedStream("pulled_elements").append(intro).append(" in record ").append(n.rootNode().get("folioId")).append("\n").append(n.toXmlString((true))).append("\n");
-
+    private void logAndPullNode(String stream, Node n, String intro) throws InvalidMarkupException, IOException {
+        logNode(stream, n, intro);
         n.pull();
+    }
+
+    private void logNode(String stream, Node n, String intro) throws InvalidMarkupException, IOException {
+        provider.getNamedStream(stream).append(intro).append(" in record ").append(n.rootNode().get("folioId")).append("\n").append(n.toXmlString((true))).append("\n");
     }
 
 
