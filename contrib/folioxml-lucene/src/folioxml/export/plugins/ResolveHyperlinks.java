@@ -118,8 +118,10 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         NodeList nodes = new NodeList(xr);
 
         //All jump destinations must be an anchor tag, or we can't link to them.
-        for (Node n:nodes.search(new NodeFilter("bookmark")).list())
+        for (Node n:nodes.search(new NodeFilter("bookmark")).list()) {
             n.set("id", hashDestination(currentInfobase, n.get("name")));
+            //TODO: setTagName a??
+        }
 
 
 
@@ -138,14 +140,17 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
 
 
 
-        //Convert local jump links, delete cross-infobase links
+        //Convert  jump links
         NodeList jumpLinks = nodes.search(new NodeFilter("link","jumpDestination",null));
         for (Node n:jumpLinks.list()){
-            Pair<String,String> result = TryGetDestinationUri(n.get("infobase"), n.get("jumpDestination"),file);
+            Pair<String,String> result = TryGetDestinationUri(n.get("infobase"), n.get("jumpDestination"), file);
             n.set("resolved", result.getSecond());
             if (result.getFirst() != null){
                 n.set("href", result.getFirst());
                 n.setTagName("a");
+            }else{
+                provider.getNamedStream("broken_jump_links").append("Broken jump link").append(" in record ").append(n.rootNode().get("folioId")).append("\n").append(n.toXmlString((true))).append("\n");
+                n.pull();
             }
         }
 
