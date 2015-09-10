@@ -1,7 +1,7 @@
 package folioxml.lucene.analysis;
 
 
-import org.apache.lucene.analysis.CharTokenizer;
+import org.apache.lucene.analysis.util.CharTokenizer;
 import org.apache.lucene.util.Version;
 
 import java.io.Reader;
@@ -10,8 +10,8 @@ import java.io.Reader;
 
 public class ListTokenizer extends CharTokenizer {
   /** Construct a new LetterTokenizer. */
-  public ListTokenizer(Reader in, char[] delims) {
-    super(Version.LUCENE_33, in);
+  public ListTokenizer(char[] delims) {
+    super();
     this.delimiters = delims;
             
   }

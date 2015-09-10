@@ -20,11 +20,11 @@
 			<artifactId>lucene-core</artifactId>
 			<version>${lucene.core.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-highlighter</artifactId>
-			<version>${lucene.highlighter.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>${lucene.core.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>folioxml</groupId>
 			<artifactId>folioxml-core</artifactId>

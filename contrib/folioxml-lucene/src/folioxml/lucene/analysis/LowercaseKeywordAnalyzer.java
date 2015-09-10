@@ -1,6 +1,7 @@
 package folioxml.lucene.analysis;
 
 
+import com.sun.javafx.fxml.expression.Expression;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
@@ -12,20 +13,19 @@ import java.io.Reader;
  * Lowercase normalized: "Tokenizes" the entire stream as a single token. This is useful
  * for data like zip codes, ids, and some product names.
  */
-public final class LowercaseKeywordAnalyzer extends Analyzer {
-  public TokenStream tokenStream(String fieldName,
-                                 final Reader reader) {
-    return new LowercaseKeywordTokenizer(reader);
-  }
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenFilter;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.core.KeywordTokenizer;
+import org.apache.lucene.analysis.core.LowerCaseFilter;
+
+import java.io.Reader;
+
+public final class LowercaseKeywordAnalyzer extends Analyzer
+{
     @Override
-  public TokenStream reusableTokenStream(String fieldName,
-                                         final Reader reader) throws IOException {
-    Tokenizer tokenizer = (Tokenizer) getPreviousTokenStream();
-    if (tokenizer == null) {
-      tokenizer = new LowercaseKeywordTokenizer(reader);
-      setPreviousTokenStream(tokenizer);
-    } else
-      	tokenizer.reset(reader);
-    return tokenizer;
-  }
+    protected TokenStreamComponents createComponents(String s) {
+        Tokenizer t = new KeywordTokenizer();
+        return new TokenStreamComponents(t, new LowerCaseFilter(t));
+    }
 }

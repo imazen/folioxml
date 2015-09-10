@@ -1,6 +1,5 @@
 package folioxml.lucene.analysis.folio;
 
-import org.apache.lucene.analysis.CharTokenizer;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -13,8 +12,8 @@ import java.io.Reader;
 
 public abstract class LookAroundCharTokenizer extends Tokenizer {
 	
-	  public LookAroundCharTokenizer(Reader input) {
-	    super(input);
+	  public LookAroundCharTokenizer() {
+	    super();
 	  }
 	  
 	  /**
@@ -31,16 +30,7 @@ public abstract class LookAroundCharTokenizer extends Tokenizer {
 	   * Called on each token character to normalize it before it is added to the
 	   * token. The default implementation does nothing. Subclasses may use this to,
 	   * e.g., lowercase tokens.
-	   * <p>
-	   * As of Lucene 3.1 the char based API ({@link #isTokenChar(char)} and
-	   * {@link #normalize(char)}) has been depreciated in favor of a Unicode 4.0
-	   * compatible int based API to support codepoints instead of UTF-16 code
-	   * units. Subclasses of {@link CharTokenizer} must not override the char based
-	   * methods if a {@link Version} >= 3.1 is passed to the constructor.
-	   * <p>
-	   * <p>
-	   * NOTE: This method will be marked <i>abstract</i> in Lucene 4.0.
-	   * </p>
+
 	   */
 	  protected abstract int normalize(int c);
 
@@ -92,19 +82,16 @@ public abstract class LookAroundCharTokenizer extends Tokenizer {
 	    return true;
 	    
 	  }
-	  
-	  
-	  
-	  
 	  @Override
-	  public final void end() {
+	  public  void end() throws IOException {
 	    // set final offset
 	    offsetAtt.setOffset(finalOffset, finalOffset);
+        super.end();
 	  }
 
 	  @Override
-	  public void reset(Reader input) throws IOException {
-	    super.reset(input);
+	  public void reset() throws IOException {
+	    super.reset();
 	    offset = 0;
 	    finalOffset = 0;
 	    cPrev = -1;

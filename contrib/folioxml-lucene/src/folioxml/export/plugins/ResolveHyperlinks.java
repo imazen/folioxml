@@ -19,8 +19,9 @@ import folioxml.xml.XmlRecord;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.FSDirectory;
 
@@ -70,11 +71,10 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         searcher = null;
         this.export = export;
 
-        File index = export.getLocalPath("lucene_index", AssetType.LuceneIndex, FolderCreation.None).toFile();
+        Path index = export.getLocalPath("lucene_index", AssetType.LuceneIndex, FolderCreation.None);
 
-
-        if (index.isDirectory()) {
-            searcher = new IndexSearcher(FSDirectory.open(index));
+        if (java.nio.file.Files.isDirectory(index)) {
+            searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(index)));
             //Load and parse all infobase root nodes
             //query infoabse="x" && level="root", then load and parse slx to load the query resolver.
             loadAnalyzers();
@@ -165,7 +165,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
 
     @Override
     public void endInfobaseSet(InfobaseSet set) throws IOException {
-        if (searcher != null) searcher.close();
+        if (searcher != null) searcher.getIndexReader().close();
     /*
         System.out.println("Invalid query links (for syntax reasons): " + queryInfo.invalidQueryLinks);
         System.out.println("No result query links: " + queryInfo.noresultQueryLinks);
@@ -225,13 +225,13 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
             e.printStackTrace();
            // info.invalidQueryLinks++;
             return new Pair<String, String>(null, "exception occurred: " + e.toString());
-        } catch (ParseException e) {
+        } /*catch (ParseException e) {
             System.out.println("Failed on: " + query);
             // TODO Auto-generated catch block
             e.printStackTrace();
             //info.invalidQueryLinks++;
             return new Pair<String, String>(null, "exception occurred: " + e.toString());
-        }
+        }*/
 
     }
 

@@ -10,6 +10,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
@@ -17,6 +18,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 /**
  *
@@ -28,7 +31,7 @@ public class Indexer {
               throw new Exception("Usage: java " + Indexer.class.getName()
                       + " <index dir> <data dir>");
           }
-          File indexDir = new File(args[0]);
+          Path indexDir = Paths.get(args[0]);
           File dataDir = new File(args[1]);
 
           long start = new Date().getTime();
@@ -39,18 +42,17 @@ public class Indexer {
                   (end - start) + " Milliseconds");
       }
       //open an index and start file directory traversial
-      public static int index(File indexDir, File dataDir)throws IOException{
+      public static int index(Path indexDir, File dataDir)throws IOException{
           if(!dataDir.exists() || !dataDir.isDirectory()){
               throw new IOException(dataDir +
                       " does not exist or is not a directory");
           }
-          IndexWriter writer = new IndexWriter(FSDirectory.open(indexDir),new StandardAnalyzer(Version.LUCENE_33),true, IndexWriter.MaxFieldLength.UNLIMITED);
+          IndexWriter writer = new IndexWriter(FSDirectory.open(indexDir), new IndexWriterConfig(new StandardAnalyzer()));
 
           indexDirectory(writer, dataDir);
 
           int numIndexed = writer.numDocs();
 
-          writer.optimize();
           writer.close();
           return numIndexed;
 

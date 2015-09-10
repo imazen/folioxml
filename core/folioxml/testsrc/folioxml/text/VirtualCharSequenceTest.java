@@ -1,6 +1,6 @@
 package folioxml.text;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 import folioxml.core.InvalidMarkupException;
 import folioxml.xml.NodeList;
@@ -37,7 +37,7 @@ public class VirtualCharSequenceTest {
 				}
 			}
 		}else{
-			int[] a1 = ArrayUtils.subarray(array, 0, array.length);
+			int[] a1 =  ArrayUtils.subarray(array, 0, array.length);
 			int[] a2 = ArrayUtils.subarray(array, 0, array.length);
 			a1[startFrom] = 0;
 			a2[startFrom] = -1;

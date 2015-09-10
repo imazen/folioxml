@@ -10,7 +10,6 @@ import folioxml.slx.SlxToken;
 import folioxml.xml.Node;
 import folioxml.xml.XmlRecord;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.util.Version;
 
@@ -44,9 +43,9 @@ public class InfobaseFieldOptsSet implements IndexFieldOptsProvider, AnalyzerPic
         return  new IndexFieldOpts((sOpts == null) ? new String[]{} : sOpts.split(","));
     }
 
-    IndexFieldOpts defaultOpts = new IndexFieldOpts(new StandardAnalyzer(Version.LUCENE_33));
+    IndexFieldOpts defaultOpts = new IndexFieldOpts(new StandardAnalyzer());
 
-    Analyzer textContentsAnalyzer =  new StandardAnalyzer(Version.LUCENE_33);
+    Analyzer textContentsAnalyzer =  new StandardAnalyzer();
 
     public TreeMap<String,IndexFieldOpts> fields = new TreeMap<String,IndexFieldOpts>(String.CASE_INSENSITIVE_ORDER);
 

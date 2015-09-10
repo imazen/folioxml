@@ -2,7 +2,6 @@ package folioxml.lucene.folioQueryParser;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 import org.junit.Ignore;
@@ -18,24 +17,24 @@ public class QueryParserTest {
 
 
 	@Test @Ignore
-	public void TestQueryList() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException, ParseException{
-		TestQueryList(new StandardAnalyzer(Version.LUCENE_33), "queries-fixed.txt");
+	public void TestQueryList() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+		TestQueryList(new StandardAnalyzer(), "queries-fixed.txt");
 	}
 	
 	@Test @Ignore
-	public void TestQueryListFolio() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException, ParseException{
+	public void TestQueryListFolio() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
 		TestQueryList(new FolioEnuAnalyzer(), "queries-fixed.txt");
 	}
 	
 	@Test @Ignore
-	public void TestQueryListFolioPhrase() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException, ParseException{
+	public void TestQueryListFolioPhrase() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
 		TestQueryList(new FolioEnuPhraseAnalyzer(), "queries-fixed.txt");
 	}
 
     @Test
-    public void TestQueryContents() throws ParseException, IOException, InvalidMarkupException {
+    public void TestQueryContents() throws IOException, InvalidMarkupException {
 
-        QueryParser qp = new QueryParser(new StandardAnalyzer(Version.LUCENE_33), "contents");
+        QueryParser qp = new QueryParser(new StandardAnalyzer(), "contents");
         qp.parse("[Contents 'hello']");
         qp.parse("[Contents a,b,c]");
         qp.parse("[Contents 'hello (abc)']");
@@ -44,7 +43,7 @@ public class QueryParserTest {
         qp.parse("[Contents 'Query Template Editor Reference','Overview of the Query Template Editor (QTE)']");
     }
 	
-	public void TestQueryList(Analyzer textAnalyzer, String sourceFile) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException, ParseException{
+	public void TestQueryList(Analyzer textAnalyzer, String sourceFile) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
 		
 
 		QueryParser qp = new QueryParser(textAnalyzer, "contents");

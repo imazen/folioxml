@@ -27,18 +27,10 @@ import java.io.Reader;
 /** An Analyzer that splits tokens by commas, and lowercase normalizes*/
 
 public final class ListAnalyzer extends Analyzer {
-  public TokenStream tokenStream(String fieldName, Reader reader) {
-    return new ListTokenizer(reader, new char[]{','});
-  }
 
     @Override
-  public TokenStream reusableTokenStream(String fieldName, Reader reader) throws IOException {
-    Tokenizer tokenizer = (Tokenizer) getPreviousTokenStream();
-    if (tokenizer == null) {
-      tokenizer = new ListTokenizer(reader, new char[]{','});
-      setPreviousTokenStream(tokenizer);
-    } else
-      tokenizer.reset(reader);
-    return tokenizer;
-  }
+    protected TokenStreamComponents createComponents(String s) {
+        Tokenizer t = new ListTokenizer(new char[]{','});
+        return new TokenStreamComponents(t,t);
+    }
 }

@@ -17,8 +17,8 @@ public class FolioEnuTokenizer extends LookAroundCharTokenizer {
 	/ Must come between two numeric characters.
 */
 	
-	public FolioEnuTokenizer(Reader input) {
-		super(input);
+	public FolioEnuTokenizer() {
+		super();
 	}
 
 	@Override

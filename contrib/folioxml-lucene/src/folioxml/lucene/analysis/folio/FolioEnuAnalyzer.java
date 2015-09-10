@@ -14,19 +14,11 @@ import java.io.Reader;
  *
  */
 public final class FolioEnuAnalyzer extends Analyzer {
-  public final TokenStream tokenStream(String fieldName,
-                                 final Reader reader) {
-    return new FolioEnuTokenizer(reader);
-  }
+
+
     @Override
-  public final TokenStream reusableTokenStream(String fieldName,
-                                         final Reader reader) throws IOException {
-    Tokenizer tokenizer = (Tokenizer) getPreviousTokenStream();
-    if (tokenizer == null) {
-      tokenizer = new FolioEnuTokenizer(reader);
-      setPreviousTokenStream(tokenizer);
-    } else
-      	tokenizer.reset(reader);
-    return tokenizer;
-  }
+    protected TokenStreamComponents createComponents(String s) {
+        Tokenizer t = new FolioEnuTokenizer();
+        return new TokenStreamComponents(t, t);
+    }
 }

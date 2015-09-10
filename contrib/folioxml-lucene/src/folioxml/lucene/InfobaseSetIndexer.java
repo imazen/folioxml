@@ -23,6 +23,7 @@ import org.apache.lucene.util.Version;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +43,8 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
 
-        File folder = export.getLocalPath("lucene_index", AssetType.LuceneIndex, FolderCreation.None).toFile();
-        w = new IndexWriter(FSDirectory.open(folder), new IndexWriterConfig(Version.LUCENE_33, new DynamicAnalyzer(this)).setOpenMode(IndexWriterConfig.OpenMode.CREATE));
+        Path folder = export.getLocalPath("lucene_index", AssetType.LuceneIndex, FolderCreation.None);
+        w = new IndexWriter(FSDirectory.open(folder), new IndexWriterConfig(new DynamicAnalyzer(this)).setOpenMode(IndexWriterConfig.OpenMode.CREATE));
 
     }
 
@@ -160,7 +161,7 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
     @Override
     public void endInfobaseSet(InfobaseSet set) throws IOException {
         try{
-            w.optimize();
+            w.commit();
         }finally{
             w.close();
         }

@@ -1,6 +1,6 @@
 package folioxml.xml;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import folioxml.core.InvalidMarkupException;
 import folioxml.slx.SlxRecord;
 import org.yaml.snakeyaml.util.ArrayStack;
@@ -14,7 +14,7 @@ public class XmlRecord extends Node {
 		super(xml);
 	}
 	protected XmlRecord(SlxRecord r, boolean copyChildren){
-		if (copyChildren) throw new NotImplementedException();
+		if (copyChildren) throw new NotImplementedException("Xml record children copy not implemented");
 		r.copyTo(this, true);
 		
 		//Then deal with parent reference

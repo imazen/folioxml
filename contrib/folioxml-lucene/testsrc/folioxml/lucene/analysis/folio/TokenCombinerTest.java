@@ -16,7 +16,7 @@ public class TokenCombinerTest {
 	@Test
 	public void TestWithStandardAnalyzer() throws IOException{
 		String text = "token1 token2 token3";
-		TestCombiner(new StandardAnalyzer(Version.LUCENE_33).tokenStream("field", new StringReader(text)),text.replace(' ', '-'));
+		TestCombiner(new StandardAnalyzer().tokenStream("field", new StringReader(text)),text.replace(' ', '-'));
 	}
 	
 	@Test
@@ -34,6 +34,7 @@ public class TokenCombinerTest {
 	
 	public void TestCombiner(TokenStream s, String expected) throws IOException{
 		TokenCombiner tc = new TokenCombiner(s, '-');
+        tc.reset();
 		int i =0;
 		while (tc.incrementToken()){ 
 			String term = tc.getAttribute(CharTermAttribute.class).toString();
@@ -41,14 +42,17 @@ public class TokenCombinerTest {
 			assert(i ==0);
 			i++;
 		}
+        tc.end();
+        tc.close();
 	}
 	
 	@Test
 	public void TestSA() throws IOException{
 		String text = "agg bgg cgg";
-		TokenStream s = new StandardAnalyzer(Version.LUCENE_33).tokenStream("field", new StringReader(text));
+		TokenStream s = new StandardAnalyzer().tokenStream("field", new StringReader(text));
+        s.reset();
 		int i =0;
-		while (true){ 
+		while (true){
 			boolean eos = !s.incrementToken(); //We have to process tokens even if they return end of file.
 			String term = s.getAttribute(CharTermAttribute.class).toString();
 			if (i == 0) Assert.assertEquals("agg", term);
@@ -58,6 +62,8 @@ public class TokenCombinerTest {
 			i++;
 			if (eos) break;
 		}
+        s.end();
+        s.close();
 	}
 	
 	
@@ -65,6 +71,7 @@ public class TokenCombinerTest {
 	public void TestFolioEnu() throws IOException{
 		String text = "agg bgg cgg";
 		TokenStream s = new FolioEnuAnalyzer().tokenStream("field", new StringReader(text));
+        s.reset();
 		int i =0;
 		while (s.incrementToken()){ 
 			String term = s.getAttribute(CharTermAttribute.class).toString();
@@ -74,5 +81,7 @@ public class TokenCombinerTest {
 			if (i == 3) Assert.assertEquals("", term);
 			i++;
 		}
+        s.end();
+        s.close();
 	}
 }

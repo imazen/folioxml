@@ -4,7 +4,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.*;
 import folioxml.core.InvalidMarkupException;
@@ -26,13 +25,13 @@ public class QueryParser {
 		this.defaultField = defaultField;
 	}
 	
-	public Query parse(String s) throws IOException, InvalidMarkupException, ParseException{
+	public Query parse(String s) throws IOException, InvalidMarkupException{
 		return parse(new QueryTokenReader(s));
 	}
-	public Query parse(QueryTokenReader r) throws IOException, InvalidMarkupException, ParseException{
+	public Query parse(QueryTokenReader r) throws IOException, InvalidMarkupException{
 		return parse(r.readAll());
 	}
-	public Query parse(List<QueryToken> tokens) throws InvalidMarkupException, ParseException, IOException{
+	public Query parse(List<QueryToken> tokens) throws InvalidMarkupException, IOException{
 		QueryToken t = new QueryToken(TokenType.None,"");
 		t.children = tokens;
 		t.ParseChildrenIntoTree();
@@ -41,7 +40,7 @@ public class QueryParser {
 	Analyzer analyzer;
 	String defaultField = "contents";
 
-	protected Query Convert(QueryToken t) throws InvalidMarkupException, ParseException, IOException{
+	protected Query Convert(QueryToken t) throws InvalidMarkupException, IOException{
 		if (t.type == TokenType.None || t.type == TokenType.OpenGroup){
 			if (t.children == null || t.children.size() == 0) return null;
 			if (t.children.size() == 1) return Convert(t.children.get(0));
