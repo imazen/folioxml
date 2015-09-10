@@ -182,6 +182,7 @@ public class QueryParser {
 	
 		
 		TokenStream s = analyzer.tokenStream(fieldName, new StringReader(text));
+        s.reset();
 		try{
 			if (phraseQuery){
 				PhraseQuery q = new PhraseQuery();
@@ -202,6 +203,7 @@ public class QueryParser {
 			}
 		}finally{
 			s.end();
+            s.close();
 		}
 		
 	}
