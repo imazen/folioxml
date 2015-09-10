@@ -64,12 +64,14 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
     }
 
     ExportLocations export;
+    LogStreamProvider provider;
 
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
         infobaseSet = set;
         searcher = null;
         this.export = export;
+        this.provider = logs;
 
         Path index = export.getLocalPath("lucene_index", AssetType.LuceneIndex, FolderCreation.None);
 
@@ -258,7 +260,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
 
         }else {
             //TODO; broken jump link!
-            return new Pair<String, String>(null, "no corresponding jump destination");
+            return new Pair<String, String>(null, "no corresponding jump destination found for infobase " + targetConfig.getId() + " and bookmark '" + jumpDestination + "'.");
         }
     }
 
