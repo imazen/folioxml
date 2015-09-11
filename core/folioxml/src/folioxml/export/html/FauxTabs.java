@@ -1,6 +1,7 @@
 package folioxml.export.html;
 
 import folioxml.config.ExportLocations;
+import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
 import folioxml.core.Pair;
 import folioxml.core.TokenUtils;
@@ -27,6 +28,19 @@ import java.util.regex.Pattern;
 
 
 public class FauxTabs implements NodeListProcessor, ExportingNodeListProcessor {
+
+    public FauxTabs(InfobaseSet config) {
+
+        if (!Boolean.TRUE.equals(config.getBool("faux_tabs"))){
+            enabled = false;
+        }
+        Integer min = config.getInteger("faux_tabs_window_min");
+        Integer max = config.getInteger("faux_tabs_window_max");
+
+
+        this.minWidthChars = min == null ? 80 : min;
+        this.maxWidthChars = max == null ? 120 : max;
+    }
 
     public FauxTabs(int minLineWidth, int maxLineWidth){
         this.minWidthChars = minLineWidth;
@@ -78,7 +92,7 @@ public class FauxTabs implements NodeListProcessor, ExportingNodeListProcessor {
         public String leader;
     }
 
-
+    private boolean enabled = true;
     private int minWidthChars;
     private int maxWidthChars;
 
@@ -379,6 +393,7 @@ document.write("<strong>Avg: " + (sum / id) + "px, " + (sum / id / 96) + "in</st
 
     @Override
     public NodeList process(NodeList nodes) throws InvalidMarkupException, IOException {
+        if (!enabled) return nodes;
 
         //We need to exclude any popups from being adjusted.
         IFilter exclusions = new NodeFilter("popup|table|td|th|note|div|record");
