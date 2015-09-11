@@ -18,12 +18,9 @@ import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -68,12 +65,12 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
         doc = new Document();
         //Add level, groups, infobase
         if (r.getLevelType() == null) {
-            doc.add(addNonAnalyzedField("level", "Normal"));
+            doc.add(addNonTokenizedField("level", "Normal"));
         } else {
-            doc.add(addNonAnalyzedField("level", r.getLevelType()));
+            doc.add(addNonTokenizedField("level", r.getLevelType()));
         }
         doc.add(addAnalyzedField("groups", r.get("groups")));
-        doc.add(addNonAnalyzedField("infobase", currentInfobase.getId()));
+        doc.add(addNonTokenizedField("infobase", currentInfobase.getId()));
 
         if (!isRoot){
             //Iterate all tokens and stream to applicable fields so a query can be evaluated later
@@ -83,9 +80,11 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
             SlxContextStack stack = new SlxContextStack(false,false);
             List<String> destinations = new ArrayList<String>();
             stack.process(r);
+            String spacing = TokenUtils.entityDecodeString(" &#x00A0; ");
             for (SlxToken t : r.getTokens()) {
                 stack.process(t);// call this on each token.
 
+                //Hidden to indexing, not to view. This is totally separate from what ExportHiddenText does.
                 boolean hidden = coll.collect(t, stack,r);
 
                 if (!hidden && t.isTextOrEntity()) { //Changed dec 17 to include whitespace... was causing indexing errors.. fields separated by whitespace were being joined.
@@ -94,7 +93,7 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
                     contentSb.append(s);
                 }
                 if (t.matches("p|br|td|th|note") && !t.isOpening()) {
-                    contentSb.append(TokenUtils.entityDecodeString(" &#x00A0; "));
+                    contentSb.append(spacing);
                 }
                 if (t.isTag() && t.matches("bookmark")){
                     //Add bookmarks as-is
@@ -125,7 +124,7 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
         //Add URI
-        if (xr.get("uri") != null) doc.add(new Field("uri",xr.get("uri"),Field.Store.YES, Field.Index.NOT_ANALYZED));
+        if (xr.get("uri") != null) doc.add(new StoredField("uri",xr.get("uri")));
         //Add
 
         String relative_path = file.getAttributes().get("relative_path");
@@ -135,13 +134,13 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
             throw new InvalidMarkupException("Both relative_path and uri_fragment must be defined on the FileNode for indexing");
         }
 
-        doc.add(new Field("relative_path", relative_path,Field.Store.YES, Field.Index.NOT_ANALYZED));
-        doc.add(new Field("uri_fragment", uri_fragment,Field.Store.YES, Field.Index.NOT_ANALYZED));
+        doc.add(new StoredField("relative_path", relative_path));
+        doc.add(new StoredField("uri_fragment", uri_fragment));
 
         if (xr.isRootRecord()){
             //Configure field indexing based on the .DEF file.
             conf = new InfobaseFieldOptsSet(xr);
-            doc.add(new Field("xml",xr.toXmlString(false),Field.Store.YES, Field.Index.NO));
+            doc.add(new StoredField("xml",xr.toXmlString(false)));
         }
 
         w.addDocument(doc);
@@ -168,19 +167,14 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
 
 
 
-    private Field addNonAnalyzedField(String name, String value) {
-        return new Field(name, value.toLowerCase(Locale.ENGLISH).trim(), Field.Store.YES,
-                Field.Index.NOT_ANALYZED_NO_NORMS);
-    }
-    private Field addNonAnalyzedNoStoreField(String name, String value) {
-        return new Field(name, value.toLowerCase(Locale.ENGLISH).trim(),
-                Field.Store.NO, Field.Index.NOT_ANALYZED);
+    private Field addNonTokenizedField(String name, String value) {
+        return new StringField(name, value.toLowerCase(Locale.ENGLISH).trim(), Field.Store.YES);
     }
 
 
     private Field addAnalyzedField(String name, String value) {
         if  (value == null) value = ""; //Some records have no groups... causing null
-        return new Field(name, value, Field.Store.YES, Field.Index.ANALYZED);
+        return new TextField(name, value, Field.Store.YES);
     }
 
     @Override

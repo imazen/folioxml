@@ -4,7 +4,7 @@ import folioxml.core.InvalidMarkupException;
 import folioxml.slx.SlxRecord;
 import folioxml.slx.SlxRecordReader;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;

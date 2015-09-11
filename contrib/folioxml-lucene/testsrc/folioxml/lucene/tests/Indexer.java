@@ -9,6 +9,8 @@ package folioxml.lucene.tests;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
@@ -103,14 +105,11 @@ public class Indexer {
           Document doc = new Document();
 
 
-          doc.add(new Field("contents",readTextFile(f.getPath())
-                    ,Field.Store.YES,
-                    Field.Index.ANALYZED));
+          doc.add(new TextField("contents",readTextFile(f.getPath())
+                    ,Field.Store.YES));
 
 
-          doc.add(new Field("filename", f.getCanonicalPath()
-                    ,Field.Store.YES
-                    ,Field.Index.NOT_ANALYZED));
+          doc.add(new StoredField("filename", f.getCanonicalPath()));
 
           writer.addDocument(doc);
 

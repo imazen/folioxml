@@ -45,12 +45,12 @@ public class QueryParser {
 			if (t.children == null || t.children.size() == 0) return null;
 			if (t.children.size() == 1) return Convert(t.children.get(0));
 			//Otherwise, make a boolean query.
-			BooleanQuery q = new BooleanQuery();
+			BooleanQuery.Builder q = new BooleanQuery.Builder();
 			for (int i =0; i < t.children.size(); i++){
 				Query c = Convert(t.children.get(i));
 				if (c != null) q.add(c, Occur.MUST);
 			}
-			if (q.clauses().size() > 0) return q; 
+			if (q.build().clauses().size() > 0) return q.build();
 			else return null;
 		}
 		if (t.type == TokenType.OpenField){ 
@@ -89,10 +89,10 @@ public class QueryParser {
 				}else if (TokenUtils.fastMatches("level",type)){
 					//Levelqueries are really an AND query, they don't change the field name.
 					if (q == null) return null;
-					BooleanQuery bq = new BooleanQuery();
+					BooleanQuery.Builder bq = new BooleanQuery.Builder();
 					bq.add(q, Occur.MUST);
 					bq.add(new TermQuery(new Term("level", header.trim())), Occur.MUST);
-					return bq;
+					return bq.build();
 				} else if (TokenUtils.fastMatches("contents",type)){
 
                     //We need to drop apostrophes around headings
@@ -100,10 +100,10 @@ public class QueryParser {
                     TermQuery tocQuery = new TermQuery(new Term("folioSectionHeading", header.replace("'","").trim().toLowerCase(Locale.ENGLISH)));
 
                     if (q == null) return tocQuery;
-                    BooleanQuery bq = new BooleanQuery();
+                    BooleanQuery.Builder bq = new BooleanQuery.Builder();
                     bq.add(q, Occur.MUST);
                     bq.add(tocQuery, Occur.MUST);
-                    return bq;
+                    return bq.build();
                 }
 				
 			}else if (TokenUtils.fastMatches("group",type)){
@@ -134,17 +134,17 @@ public class QueryParser {
 		if (t.type == TokenType.Not){
 			Query c = Convert(t.children.get(0));
 			if (c == null) return null;
-			BooleanQuery q = new BooleanQuery();
+			BooleanQuery.Builder q = new BooleanQuery.Builder();
 			q.add(c,  Occur.MUST_NOT);
-			return q;
+			return q.build();
 		}
 		if (t.type == TokenType.Or){
-			BooleanQuery q = new BooleanQuery();
+			BooleanQuery.Builder q = new BooleanQuery.Builder();
 			for (int i =0; i < t.children.size(); i++){
 				Query c = Convert(t.children.get(i));
 				if (c != null) q.add(c, Occur.SHOULD);
 			}
-			if (q.clauses().size() > 0) return q; 
+			if (q.build().clauses().size() > 0) return q.build();
 			else return null;
 		}
 		if (t.type == TokenType.Xor){
@@ -155,17 +155,17 @@ public class QueryParser {
 			if (c1 == null && c2 == null) return null;
 			
 			
-			BooleanQuery qa = new BooleanQuery();
+			BooleanQuery.Builder qa = new BooleanQuery.Builder();
 			qa.add(c1, Occur.MUST);
 			qa.add(c2, Occur.MUST_NOT);
-			BooleanQuery qb = new BooleanQuery();
+			BooleanQuery.Builder qb = new BooleanQuery.Builder();
 			qb.add(c2, Occur.MUST);
 			qb.add(c1, Occur.MUST_NOT);
 			
-			BooleanQuery q = new BooleanQuery();
-			q.add(qa, Occur.SHOULD);
-			q.add(qb, Occur.SHOULD);
-			return q;
+			BooleanQuery.Builder q = new BooleanQuery.Builder();
+			q.add(qa.build(), Occur.SHOULD);
+			q.add(qb.build(), Occur.SHOULD);
+			return q.build();
 		}
 		return null;
 	}
@@ -185,21 +185,21 @@ public class QueryParser {
         s.reset();
 		try{
 			if (phraseQuery){
-				PhraseQuery q = new PhraseQuery();
+				PhraseQuery.Builder q = new PhraseQuery.Builder();
 				
 				while (s.incrementToken()){ 
 					String term = s.getAttribute(CharTermAttribute.class).toString();
 					if (term != null && term.length() > 0) q.add(new Term(fieldName,term));
 				}
-				return q;
+				return q.build();
 			}else{
-				BooleanQuery q = new BooleanQuery();
+				BooleanQuery.Builder q = new BooleanQuery.Builder();
 				
 				while (s.incrementToken()){ 
 					String term = s.getAttribute(CharTermAttribute.class).toString();
 					if (term != null && term.length() > 0) q.add(new TermQuery(new Term(fieldName,term)),Occur.MUST);
 				}
-				return q;
+				return q.build();
 			}
 		}finally{
 			s.end();

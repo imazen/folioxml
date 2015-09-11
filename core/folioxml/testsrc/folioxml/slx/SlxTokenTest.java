@@ -1,7 +1,7 @@
 package folioxml.slx;
 
 import folioxml.core.TokenBase;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import folioxml.core.InvalidMarkupException;
 

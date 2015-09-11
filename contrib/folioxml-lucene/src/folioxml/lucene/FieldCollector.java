@@ -7,6 +7,7 @@ import folioxml.core.TokenUtils;
 import folioxml.slx.SlxContextStack;
 import folioxml.slx.SlxRecord;
 import folioxml.slx.SlxToken;
+import org.apache.lucene.document.TextField;
 
 import java.util.List;
 import java.util.TreeMap;
@@ -38,7 +39,7 @@ public class FieldCollector {
 		 if (fields.containsKey(field)){
 			 StringBuilder sb = fields.get(field);
 			 if (sb != null && sb.length() > 0){
-				 d.add(new Field(field, sb.toString(), Field.Store.YES, Field.Index.ANALYZED));
+				 d.add(new TextField(field, sb.toString(), Field.Store.YES));
 				 sb.setLength(0);
 			 }
 		 }

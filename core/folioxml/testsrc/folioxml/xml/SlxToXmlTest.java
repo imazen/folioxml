@@ -3,8 +3,8 @@ package folioxml.xml;
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import folioxml.core.InvalidMarkupException;
@@ -20,7 +20,7 @@ public class SlxToXmlTest {
        SlxToken s = new SlxToken("</selfclosing with=\"attribute\">");
        new Node(s,true);//Deep copy attrs
        //Verify that the Node constructor doesn't remove the attributes from the SlxToken.
-       Assert.assertEquals("attribute",s.get("with"));
+       Assert.assertEquals("attribute", s.get("with"));
     }
 
 	@Test
