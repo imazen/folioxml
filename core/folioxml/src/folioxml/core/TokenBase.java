@@ -367,7 +367,7 @@ public class TokenBase<T extends TokenBase> {
                     sb.append(entry.getKey());
                     sb.append("=\"");
                     //Jan 21, 2009 - fixed attribute encoding bug.
-                    sb.append(TokenUtils.attributeEncode(entry.getValue()));
+                    if (entry.getValue() != null) sb.append(TokenUtils.attributeEncode(entry.getValue()));
                     sb.append('"');
                 }
             }

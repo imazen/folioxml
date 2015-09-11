@@ -229,7 +229,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
         StringBuilder sb = new StringBuilder();
         writeIndent();
         if (element.getAttributes().values().contains(null)){
-            throw new IOException("Null attribute value");
+          //  throw new IOException("Null attribute value in " + element.toXmlString(true));
         }
         element.writeTokenTo(sb);
         out.append(sb);
