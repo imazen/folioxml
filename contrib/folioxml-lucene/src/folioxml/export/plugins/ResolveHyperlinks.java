@@ -45,21 +45,21 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         BooleanQuery.Builder q = new BooleanQuery.Builder();
         q.add(new TermQuery(new Term("infobase", ic.getId())), BooleanClause.Occur.MUST);
         q.add(new TermQuery(new Term("level", "root")), BooleanClause.Occur.MUST);
-        ScoreDoc[] hits = searcher.search(q.build(),1).scoreDocs;
-        if (hits.length > 0){
+        ScoreDoc[] hits = searcher.search(q.build(), 1).scoreDocs;
+        if (hits.length > 0) {
             //info.workingQueryLinks++;
             String rootXml = searcher.doc(hits[0].doc).get("xml");
             XmlRecord root = new XmlRecord(rootXml);
             return new DynamicAnalyzer(new InfobaseFieldOptsSet(root));
-        }else{
+        } else {
             //Infobase in set not indexed
             throw new IOException("Infobase " + ic.getId() + " is present in set, but root record is missing from lucene index.");
         }
     }
 
     private void loadAnalyzers() throws IOException, InvalidMarkupException {
-        for(InfobaseConfig i: infobaseSet.getInfobases()){
-            analyzersPerInfobase.put(i.getId(),loadAnalyzerFromLucene(i));
+        for (InfobaseConfig i : infobaseSet.getInfobases()) {
+            analyzersPerInfobase.put(i.getId(), loadAnalyzerFromLucene(i));
         }
     }
 
@@ -75,11 +75,10 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         this.export = export;
         this.provider = logs;
 
-        resolve_jump_links= set.getBool("resolve_jump_links");
+        resolve_jump_links = set.getBool("resolve_jump_links");
         if (resolve_jump_links == null) resolve_jump_links = true;
-        resolve_query_links= set.getBool("resolve_query_links");
+        resolve_query_links = set.getBool("resolve_query_links");
         if (resolve_query_links == null) resolve_query_links = true;
-
 
 
         Path index = export.getLocalPath("lucene_index", AssetType.LuceneIndex, FolderCreation.None);
@@ -89,12 +88,13 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
             //Load and parse all infobase root nodes
             //query infoabse="x" && level="root", then load and parse slx to load the query resolver.
             loadAnalyzers();
-        }else{
+        } else {
             System.err.println("Failed to locate lucene index; links will not be resolved");
         }
     }
 
     InfobaseConfig currentInfobase = null;
+
     @Override
     public void beginInfobase(InfobaseConfig infobase) throws IOException {
         currentInfobase = infobase;
@@ -111,7 +111,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
     }
 
     @Override
-    public void onRecordTransformed( XmlRecord r, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
+    public void onRecordTransformed(XmlRecord r, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
 
 
     }
@@ -138,24 +138,31 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
 
         //Convert local and remote jump and query links
 
-        if (resolve_query_links) {
-            NodeList queryLinks = nodes.search(new NodeFilter("link", "query", null));
-            for (Node n : queryLinks.list()) {
+
+        NodeList queryLinks = nodes.search(new NodeFilter("link", "query", null));
+        for (Node n : queryLinks.list()) {
+
+            if (resolve_query_links) {
                 Pair<String, String> result = TryGetResultUri(n.get("infobase"), TokenUtils.entityDecodeString(n.get("query")), file);
                 n.set("resolved", result.getSecond());
                 if (result.getFirst() != null) {
                     n.set("href", result.getFirst());
                     n.setTagName("a");
-                }
-            }
+                } else {
+                    provider.getNamedStream("broken_query_links").append("Broken query link").append(" in record ").append(n.rootNode().get("folioId")).append("\n").append(n.toXmlString((true))).append("\n");
 
+                }
+            } else {
+                provider.getNamedStream("unresolved_query_links").append("Query link").append(" in record ").append(n.rootNode().get("folioId")).append("\n").append(n.toXmlString((true))).append("\n");
+            }
         }
 
 
-        if (resolve_jump_links) {
-            //Convert  jump links
-            NodeList jumpLinks = nodes.search(new NodeFilter("link", "jumpDestination", null));
-            for (Node n : jumpLinks.list()) {
+        //Convert  jump links
+        NodeList jumpLinks = nodes.search(new NodeFilter("link", "jumpDestination", null));
+        for (Node n: jumpLinks.list())
+        {
+            if (resolve_jump_links) {
                 Pair<String, String> result = TryGetDestinationUri(n.get("infobase"), n.get("jumpDestination"), file);
                 n.set("resolved", result.getSecond());
                 if (result.getFirst() != null) {
@@ -165,10 +172,13 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
                     provider.getNamedStream("broken_jump_links").append("Broken jump link").append(" in record ").append(n.rootNode().get("folioId")).append("\n").append(n.toXmlString((true))).append("\n");
                     n.pull();
                 }
+            } else {
+                provider.getNamedStream("unresolved_jump_links").append("Jump link").append(" in record ").append(n.rootNode().get("folioId")).append("\n").append(n.toXmlString((true))).append("\n");
             }
         }
-
     }
+
+
 
     private  String hashDestination(InfobaseConfig infobase, String name)  {
         //Normalize destination infobase ID.
