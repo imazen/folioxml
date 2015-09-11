@@ -72,6 +72,7 @@ It is important that both the IDs and infobase set keys are valid XML identifier
       nest_file_elements: true # affects XML only - Disables nested syntax for <file> elements in xml, uses flat structure. Nesting uses same hierarchy as folio. (default=true)
       indent_xml: true #Indentation can introduce undesired visual artificacts/spacing, and should only be used for human consumption. (default=true)
 
+      export_inventory: true # Lowers performance - tracks unique elements in memory, generates a textual report at the end. (default=true)
 
       export_hidden_text: true # Halves performance. Writes out a log of text that would be hidden by the generated CSS (either via display:none or zero-contrast coloring). (default=true)
 

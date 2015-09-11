@@ -89,8 +89,9 @@ public class ExportRunner {
         plugins.add(new ResolveHyperlinks());
 
         //Export inventory report
-        plugins.add(new ExportInventory());
-
+        if (!Boolean.FALSE.equals(set.getBool("export_inventory"))) {
+            plugins.add(new ExportInventory());
+        }
 
         //HTML transform Notes and Popups for highslide use if we're using it
         if (!Boolean.FALSE.equals(set.getBool("use_highslide"))) {
