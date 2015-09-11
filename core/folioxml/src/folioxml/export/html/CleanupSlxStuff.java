@@ -48,8 +48,10 @@ public class CleanupSlxStuff implements NodeListProcessor {
 		
 		//Remove program links
 		if (opts.contains(CleanupOptions.PullProgramLinks)) nodes.search(new NodeFilter("link|a","program",null)).pull();
-		
-		//Remove headings
+        if (opts.contains(CleanupOptions.PullMenuLinks)) nodes.search(new NodeFilter("link|a","menu",null)).pull();
+
+
+        //Remove headings
 		nodes.search(new NodeFilter("span","type","recordHeading")).pull();
 		
 		//Remove groups
