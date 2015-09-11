@@ -1,5 +1,5 @@
 language: java
-jdk: oraclejdk7
+jdk: oraclejdk8
 script: mvn clean verify assembly:single -U -B -fae
 cache: apt
 before_script:
