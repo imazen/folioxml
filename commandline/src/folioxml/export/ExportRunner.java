@@ -55,6 +55,18 @@ public class ExportRunner {
     //How to deal with query links
     //Which levels to
 
+    private Boolean IsIndexRequired(){
+        Boolean resolve_jump_links= set.getBool("resolve_jump_links");
+        if (resolve_jump_links == null) resolve_jump_links = true;
+        Boolean resolve_query_links= set.getBool("resolve_query_links");
+        if (resolve_query_links == null) resolve_query_links = true;
+        return resolve_jump_links || resolve_query_links;
+    }
+
+    public void Run() throws IOException, InvalidMarkupException {
+        if (IsIndexRequired()) Index();
+        Export();
+    }
     public void Index() throws IOException, InvalidMarkupException {
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(createProvider()));
@@ -67,48 +79,53 @@ public class ExportRunner {
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(createProvider()));
 
+        //Fix links and pull elements first
         plugins.add(new ApplyProcessor(new MultiRunner(new FixHttpLinks(), new LinkMapper(this.set), new PullElements(this.set)))); //FixHttpLinks must be the first thing to touch links - it cannot come after ResolveHyperlinks or RenameFiles
 
-
-        //TODO: Do we export assets?
+        //Exports assets
         plugins.add(new RenameFiles());
 
-
-
-        //TODO: Do we resolve query links? Do we log unresolved links
+        //Resolve hyperlinks via Lucene if configured
         plugins.add(new ResolveHyperlinks());
 
-
-        //TODO: Do we export inventory?
+        //Export inventory report
         plugins.add(new ExportInventory());
 
 
-        CleanupSlxStuff cleanup = new CleanupSlxStuff(EnumSet.of(
-                CleanupSlxStuff.CleanupOptions.PullProgramLinks,
-                CleanupSlxStuff.CleanupOptions.PullMenuLinks,
+        //HTML transform Notes and Popups for highslide use if we're using it
+        if (!Boolean.FALSE.equals(set.getBool("use_highslide"))) {
+            plugins.add(new ApplyProcessor(new MultiRunner(new Notes(), new Popups())));
+        }
+
+
+        plugins.add(new ApplyProcessor(new FauxTabs(this.set)));
+
+        //Universal cleanup, underline refactoring
+        plugins.add(new ApplyProcessor(new MultiRunner(new CleanupSlxStuff(EnumSet.of(
                 CleanupSlxStuff.CleanupOptions.DropTypeAttr,
                 CleanupSlxStuff.CleanupOptions.RenameBookmarks,
-                CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
+                CleanupSlxStuff.CleanupOptions.RenameRecordToDiv)),
+                new ReplaceUnderline(),
+                new SplitSelfClosingTags(),
+                new HtmlTidy())));
 
-        //TODO: faux tabs y/n, widths? other tuning?
 
-
-
-        MultiRunner xhtml = new MultiRunner(new Notes(), new Popups(), cleanup,new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags(), new HtmlTidy());
-
-        plugins.add(new ApplyProcessor(xhtml));
-
+        //Always export a CSS file
         plugins.add(new ExportCssFile());
 
-        plugins.add(new ExportHiddenText());
+
+        if (!Boolean.FALSE.equals(set.getBool("export_hidden_text"))) {
+            plugins.add(new ExportHiddenText());
+        }
         if (!Boolean.FALSE.equals(set.getBool("export_xml"))) {
             plugins.add(new ExportXmlFile());
         }
         if (!Boolean.FALSE.equals(set.getBool("export_html"))) {
             plugins.add(new ExportHtmlFiles());
         }
-        InfobaseSetVisitor visitor = new InfobaseSetVisitor(set, plugins);
 
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(set, plugins);
+        //Run with all plugins
         visitor.complete();
     }
 
