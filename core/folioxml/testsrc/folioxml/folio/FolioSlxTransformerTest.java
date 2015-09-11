@@ -1,5 +1,7 @@
 package folioxml.folio;
 
+import folioxml.xml.SlxToXmlTransformer;
+import folioxml.xml.XmlRecord;
 import org.junit.Test;
 import folioxml.core.IIncludeResolutionService;
 import folioxml.core.InvalidMarkupException;
@@ -11,6 +13,8 @@ import folioxml.translation.SlxTranslatingReader;
 import java.io.IOException;
 import java.io.StringReader;
 
+import static org.junit.Assert.assertEquals;
+
 public class FolioSlxTransformerTest{
 
 
@@ -18,14 +22,29 @@ public class FolioSlxTransformerTest{
 
     }
 
-    public static void main(String[] args) throws Exception {
-        new FolioSlxTransformerTest().TestSegment();
-    }
+    @Test
+    public void TestOverlappingField() throws InvalidMarkupException, IOException {
+        String fff = "<RD>\n" +
+                "<FD:\"field 1\"><FD:\"field 2\">field 1 and field 2 </FD:\"field 1\"> field 2</FD:\"field 2\">\n" +
+                "<FD:\"field 1\"> field 1 <FD:\"field 2\"> field 1 and field 2</FD:\"field 1\"> field 2</FD:\"field 2\">";
 
+        FolioTokenReader ftr = new FolioTokenReader(new StringReader(fff), new StringIncludeResolver());
+        SlxRecordReader srr = new SlxRecordReader(new SlxTranslatingReader(ftr));
 
+        SlxRecord root = srr.read();
+        SlxRecord r = srr.read();
 
-    public void Test100()throws InvalidMarkupException, IOException{
-       // for (int i = 0; i < 100; i++) TestSegment();
+        assertEquals("<record class=\"NormalLevel\">\n" +
+                "<p><span class=\"field_1\" type=\"field 1\"><span class=\"field_2\" type=\"field 2\">field 1 and field 2 </span type=\"field 1\"> field 2</span type=\"field 2\">\n" +
+                "<span class=\"field_1\" type=\"field 1\"> field 1 <span class=\"field_2\" type=\"field 2\"> field 1 and field 2</span type=\"field 1\"> field 2</span type=\"field 2\"></p></record>", r.toSlxMarkup(false));
+
+        SlxToXmlTransformer gts = new SlxToXmlTransformer();
+        XmlRecord xml = gts.convert(r);
+
+        assertEquals("<record class=\"NormalLevel\">\n" +
+                "<p><span class=\"field_1\" type=\"field 1\"><span class=\"field_2\" type=\"field 2\">field 1 and field 2 </span></span><span class=\"field_2\" type=\"field 2\"> field 2</span>\n" +
+                "<span class=\"field_1\" type=\"field 1\"> field 1 <span class=\"field_2\" type=\"field 2\"> field 1 and field 2</span></span><span class=\"field_2\" type=\"field 2\"> field 2</span></p></record>", xml.toXmlString(false));
+
     }
 
     @Test
