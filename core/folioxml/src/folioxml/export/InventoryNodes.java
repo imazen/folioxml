@@ -193,8 +193,6 @@ public class InventoryNodes implements NodeListProcessor {
         if (data == null) data = n.toXmlString(true);
 
         logUnique(data, counter);
-        System.out.println(intro);
-        System.out.println(n.toXmlString(true));
         increment(counter);
         n.pull();
     }
