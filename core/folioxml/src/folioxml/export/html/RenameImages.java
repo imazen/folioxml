@@ -107,7 +107,14 @@ public class RenameImages {
                         b.alt = n.get("objectName");
                         n.set("alt", n.get("objectName")); //The alt tag can use the name
                         n.removeAttr("objectName");
-                    }else{
+                    }else if (isObjectLink){
+                        n.setTagName("a");
+                        b.alt = n.get("dataLink");
+                        n.set("alt", b.alt);
+                        if (n.get("mime") != null) n.set("data-mime", n.get("mime"));
+                        if (n.get("dataLink") != null) n.set("data-linkname", n.get("dataLink"));
+                        n.removeAttr("mime");
+                        n.removeAttr("dataLink");
 
                     }
                 }else{
