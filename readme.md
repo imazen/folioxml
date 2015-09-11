@@ -38,7 +38,7 @@ Contact Imazen for custom development, conversion, and support services. support
 
 ## Dependencies
 
-* JDK 1.8
+* JDK 1.8 and Maven
 * junit-4.12
 * commons-cli-1.3.1
 * commons-lang-3.4
@@ -161,6 +161,18 @@ The above configuration, if named conf.yaml, could be invoked like this:
 
 * mvn clean compile assembly:single -U -B -fae
 * java -jar commandline/target/folioxml-commandline-jar-with-dependencies.jar -config core/folioxml/resources/test.yaml -export folio_help
+
+
+## Cleanup
+
+Search resulting text for "data-linkname" to locate data links.
+Browse log_broken_query_links.txt or log_unresolved_query_links.txt if query link resolution is disabled.
+Browse log_broken_jump_links.txt or log_unresolved_jump_links.txt if jump link resolution is disabled.
+Browse log.txt for error messages. Errors in dealing with assets can be due to corrupted images.
+Browse log_report.txt to see uniques and invalid URLs.
+Browse log_tidy_invalid_elements.txt to see what elements didn't look like HTML when they came out.
+Read log_pulled_elements.txt and log_dropped_elements.txt to see what you had removed.
+Read log_mapped_links.txt to see how your URL mapping rules were applied.
 
 ## License
 
