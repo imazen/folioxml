@@ -76,10 +76,12 @@ public class ExportHiddenText implements InfobaseSetPlugin {
             boolean hidden = false;
             //Get the effective CSS values
             String display = eDisplay.getEffectiveValue(t, tags);
-            String fc = eForeground.getEffectiveValue(t,tags);
-            String bg = eBackground.getEffectiveValue(t,tags);
 
-            if (fc != null && fc.equalsIgnoreCase(bg)){
+            //Get the effective colors and default to black on white
+            String fc = eForeground.getEffectiveValue(t,tags); if (fc == null) fc = "#000000";
+            String bg = eBackground.getEffectiveValue(t,tags); if (bg == null) bg = "#ffffff";
+
+            if (fc.equalsIgnoreCase(bg)){
                 recordUsesColorInvisibility = true;
                 hidden = true;
             }
@@ -98,6 +100,8 @@ public class ExportHiddenText implements InfobaseSetPlugin {
         //Write hidden text to file
         if (hiddenText.length() > 0) {
             logs.getNamedStream("hidden_text").append(recordUsesColorInvisibility ? "Text hidden by coloring" : "Hidden text").append(" in record ").append(clean_slx.get("folioId")).append("\n").append(hiddenText).append("\n");
+
+            logs.getNamedStream("hidden_text_in_context").append(recordUsesColorInvisibility ? "Text hidden by coloring" : "Hidden text").append(" in record ").append(clean_slx.get("folioId")).append("\n").append(hiddenText).append("\nFull record in SLX form:\n").append(clean_slx.toSlxMarkup(true));
         }
     }
 
