@@ -140,7 +140,10 @@ public class InventoryNodes implements NodeListProcessor {
 
         NodeList images = nodes.filterByTagName("img|object|link|a", true);
         for (Node n:images.list()){
-            if (n.get("resolved") == null && n.get("href") != null && validUrl(n.get("href"))){
+            if ("true".equalsIgnoreCase(n.get("resolved"))) {
+                continue; //It's resolved.
+            }
+            if (n.get("href") != null && validUrl(n.get("href"))){
                 continue; //It's a valid URI
             }
             if (n.get("id") != null && n.get("href") == null && "a".equalsIgnoreCase(n.getTagName())){
@@ -233,12 +236,14 @@ public class InventoryNodes implements NodeListProcessor {
 
         incrementBy("URL links", urlLinks.count());
         for (Node n:urlLinks.list()){
-            logUnique(n.get("href"),"URL links");
+            if (validUrl(n.get("href"))) {
+                logUnique(n.get("href"), "URL links");
+            }
         }
 
         for (Node n:urlLinks.list()){
             String url = n.get("href");
-            if (!validUrl(url)){
+            if (!"true".equalsIgnoreCase(n.get("resolved")) && !validUrl(url)){
                 logUnique(url,"invalid URL links");
             }
         }

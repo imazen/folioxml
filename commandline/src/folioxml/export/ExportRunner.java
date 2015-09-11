@@ -73,14 +73,14 @@ public class ExportRunner {
         //TODO: Do we export assets?
         plugins.add(new RenameFiles());
 
-        //TODO: Do we export inventory?
-        plugins.add(new ExportInventory());
 
 
         //TODO: Do we resolve query links? Do we log unresolved links
         plugins.add(new ResolveHyperlinks());
 
 
+        //TODO: Do we export inventory?
+        plugins.add(new ExportInventory());
 
 
         CleanupSlxStuff cleanup = new CleanupSlxStuff(EnumSet.of(
@@ -91,9 +91,6 @@ public class ExportRunner {
                 CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
 
         //TODO: faux tabs y/n, widths? other tuning?
-
-        //TODO: drop notes or popups instead?
-
 
 
 
