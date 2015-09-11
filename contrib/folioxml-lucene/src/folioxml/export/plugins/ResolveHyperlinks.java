@@ -65,6 +65,8 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
 
     ExportLocations export;
     LogStreamProvider provider;
+    Boolean resolve_jump_links;
+    Boolean resolve_query_links;
 
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
@@ -72,6 +74,13 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         searcher = null;
         this.export = export;
         this.provider = logs;
+
+        resolve_jump_links= set.getBool("resolve_jump_links");
+        if (resolve_jump_links == null) resolve_jump_links = true;
+        resolve_query_links= set.getBool("resolve_query_links");
+        if (resolve_query_links == null) resolve_query_links = true;
+
+
 
         Path index = export.getLocalPath("lucene_index", AssetType.LuceneIndex, FolderCreation.None);
 
@@ -117,40 +126,45 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
         if (searcher == null) return; //Do nothing if we can't access lucene.
         NodeList nodes = new NodeList(xr);
 
-        //All jump destinations must be an anchor tag, or we can't link to them.
-        for (Node n:nodes.search(new NodeFilter("bookmark")).list()) {
-            n.set("id", hashDestination(currentInfobase, n.get("name")));
-            //TODO: setTagName a??
-        }
 
-
-
-        //Convert local and remote jump and query links
-
-        NodeList queryLinks = nodes.search(new NodeFilter("link","query",null));
-        for (Node n:queryLinks.list()){
-            Pair<String,String>  result = TryGetResultUri(n.get("infobase"),  TokenUtils.entityDecodeString(n.get("query")),file);
-            n.set("resolved", result.getSecond());
-            if (result.getFirst() != null){
-                n.set("href", result.getFirst());
+        if (resolve_jump_links) {
+            //All jump destinations must be an anchor tag, or we can't link to them.
+            for (Node n : nodes.search(new NodeFilter("bookmark")).list()) {
+                n.set("id", hashDestination(currentInfobase, n.get("name")));
                 n.setTagName("a");
             }
         }
 
 
+        //Convert local and remote jump and query links
+
+        if (resolve_query_links) {
+            NodeList queryLinks = nodes.search(new NodeFilter("link", "query", null));
+            for (Node n : queryLinks.list()) {
+                Pair<String, String> result = TryGetResultUri(n.get("infobase"), TokenUtils.entityDecodeString(n.get("query")), file);
+                n.set("resolved", result.getSecond());
+                if (result.getFirst() != null) {
+                    n.set("href", result.getFirst());
+                    n.setTagName("a");
+                }
+            }
+
+        }
 
 
-        //Convert  jump links
-        NodeList jumpLinks = nodes.search(new NodeFilter("link","jumpDestination",null));
-        for (Node n:jumpLinks.list()){
-            Pair<String,String> result = TryGetDestinationUri(n.get("infobase"), n.get("jumpDestination"), file);
-            n.set("resolved", result.getSecond());
-            if (result.getFirst() != null){
-                n.set("href", result.getFirst());
-                n.setTagName("a");
-            }else{
-                provider.getNamedStream("broken_jump_links").append("Broken jump link").append(" in record ").append(n.rootNode().get("folioId")).append("\n").append(n.toXmlString((true))).append("\n");
-                n.pull();
+        if (resolve_jump_links) {
+            //Convert  jump links
+            NodeList jumpLinks = nodes.search(new NodeFilter("link", "jumpDestination", null));
+            for (Node n : jumpLinks.list()) {
+                Pair<String, String> result = TryGetDestinationUri(n.get("infobase"), n.get("jumpDestination"), file);
+                n.set("resolved", result.getSecond());
+                if (result.getFirst() != null) {
+                    n.set("href", result.getFirst());
+                    n.setTagName("a");
+                } else {
+                    provider.getNamedStream("broken_jump_links").append("Broken jump link").append(" in record ").append(n.rootNode().get("folioId")).append("\n").append(n.toXmlString((true))).append("\n");
+                    n.pull();
+                }
             }
         }
 
