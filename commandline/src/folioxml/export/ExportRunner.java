@@ -99,6 +99,8 @@ public class ExportRunner {
         plugins.add(new ApplyProcessor(xhtml));
 
         plugins.add(new ExportCssFile());
+
+        plugins.add(new ExportHiddenText());
         if (!Boolean.FALSE.equals(set.getBool("export_xml"))) {
             plugins.add(new ExportXmlFile());
         }
