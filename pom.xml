@@ -72,7 +72,7 @@
 				<version>${commons.cli.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>corg.apache.commons</groupId>
+				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
 				<version>${commons.lang.version}</version>
 			</dependency>
