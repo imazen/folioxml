@@ -11,15 +11,22 @@ import folioxml.slx.SlxRecord;
 import folioxml.xml.XmlRecord;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 
 public class ExportSlxFile implements InfobaseSetPlugin {
 
-    protected OutputStreamWriter out;
+    protected BufferedWriter out;
 
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
-        this.out  = new OutputStreamWriter(new FileOutputStream(export.getLocalPath("export.slx", AssetType.Slx, FolderCreation.CreateParents).toFile()), "UTF8");
+
+
+        this.out  =  Files.newBufferedWriter(export.getLocalPath("export.slx", AssetType.Slx, FolderCreation.CreateParents), Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+
     }
 
     @Override

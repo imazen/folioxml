@@ -12,7 +12,11 @@ import folioxml.slx.SlxRecord;
 import folioxml.xml.XmlRecord;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +85,10 @@ public class ExportCssFile implements InfobaseSetPlugin {
 
     private void flushCss() throws IOException, InvalidMarkupException {
         if (css_flushed) return;
-        OutputStreamWriter out  = new OutputStreamWriter(new FileOutputStream(cssFile), "UTF8");
+
+
+        Writer out  = Files.newBufferedWriter(Paths.get(cssFile), Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+
         try{
             for(Pair<InfobaseConfig, SlxRecord> p : allInfobases){
                 out.write(new StylesheetBuilder(p.getSecond()).getCss(".infobase-" + p.getFirst().getId(),true));

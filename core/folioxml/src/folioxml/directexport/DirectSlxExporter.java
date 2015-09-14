@@ -6,25 +6,29 @@ import folioxml.slx.SlxRecord;
 import folioxml.slx.SlxRecordReader;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class DirectSlxExporter {
 	
 	protected SlxRecordReader reader;
-	protected OutputStreamWriter out;
+	protected BufferedWriter out;
 	protected String encoding;
 	
-	public DirectSlxExporter(SlxRecordReader reader, OutputStreamWriter out){
+	public DirectSlxExporter(SlxRecordReader reader, BufferedWriter out){
 		this.reader = reader;
 		this.out = out;
 	}
 	
-	public DirectSlxExporter(SlxRecordReader reader, String outputFile) throws UnsupportedEncodingException, FileNotFoundException{
+	public DirectSlxExporter(SlxRecordReader reader, String outputFile) throws IOException {
 		this.reader = reader;
 		//Make the dir if it is missing
 		if (!new java.io.File(outputFile).getParentFile().exists()) new java.io.File(outputFile).getParentFile().mkdirs();
 		
 		encoding = "utf-8";
-		this.out  = new OutputStreamWriter(new FileOutputStream(outputFile), "UTF8");
+         out  = Files.newBufferedWriter(Paths.get(outputFile), Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
 	}
 	public void close() throws IOException{
 		if (!bottomWritten) writeBottom();

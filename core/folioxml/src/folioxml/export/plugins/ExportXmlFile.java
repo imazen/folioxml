@@ -12,6 +12,9 @@ import folioxml.slx.SlxRecord;
 import folioxml.xml.*;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -25,7 +28,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
     private Boolean indentXml = null;
 
     private Deque<FileNode> openFileNodes = null;
-    protected OutputStreamWriter out;
+    protected Writer out;
     private int indentLevel = 0;
     private String indentString = "  ";
 
@@ -34,7 +37,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
 
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
-        out  = new OutputStreamWriter(new FileOutputStream(export.getLocalPath(set.getId() + ".xml", AssetType.Xml, FolderCreation.CreateParents).toString()), "UTF8");
+        out  = Files.newBufferedWriter(export.getLocalPath(set.getId() + ".xml", AssetType.Xml, FolderCreation.CreateParents), Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
 
         out.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
         openElement("infobases");

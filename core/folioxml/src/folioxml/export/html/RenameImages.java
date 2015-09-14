@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -206,7 +207,11 @@ public class RenameImages {
 
     public void ExportAssetInventory() throws IOException, InvalidMarkupException {
         Path xmlPath = export.getLocalPath("AssetInventory.xml", AssetType.Xml,FolderCreation.CreateParents);
-        OutputStreamWriter out  = new OutputStreamWriter(new FileOutputStream(xmlPath.toString()), "UTF8");
+
+
+        BufferedWriter out  = Files.newBufferedWriter(xmlPath, Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+
+
         out.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 
         Node assetsNode = new Node("<assets />");

@@ -31,26 +31,4 @@ public class FileUtils {
 		}
 		return to;
 	}
-	/**
-	 * ouputs a new file
-	 * @param outputFileName
-	 * @param content
-	 * @return
-	 */
-	public static boolean writeFileFromString(File outputFileName, String content) {
-		try {
-
-			
-			//File fileName = new File(outputFileName);
-			FileOutputStream fos2 = new FileOutputStream(outputFileName, false);
-
-			fos2.write(content.getBytes());
-
-			fos2.close();
-		} catch (IOException ioe) {
-			return false;
-		}
-		return true;
-
-	}
 }
