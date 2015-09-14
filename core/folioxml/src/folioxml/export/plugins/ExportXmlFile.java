@@ -37,7 +37,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
 
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
-        out  = Files.newBufferedWriter(export.getLocalPath(set.getId() + ".xml", AssetType.Xml, FolderCreation.CreateParents), Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+        out  = Files.newBufferedWriter(export.getLocalPath(set.getId() + ".xml", AssetType.Xml, FolderCreation.CreateParents), Charset.forName("UTF-8"));
 
         out.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
         openElement("infobases");

@@ -28,7 +28,7 @@ public class DirectSlxExporter {
 		if (!new java.io.File(outputFile).getParentFile().exists()) new java.io.File(outputFile).getParentFile().mkdirs();
 		
 		encoding = "utf-8";
-         out  = Files.newBufferedWriter(Paths.get(outputFile), Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+         out  = Files.newBufferedWriter(Paths.get(outputFile), Charset.forName("UTF-8"));
 	}
 	public void close() throws IOException{
 		if (!bottomWritten) writeBottom();

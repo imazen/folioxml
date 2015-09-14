@@ -102,7 +102,7 @@ public class FolioToSlxDiagnosticTool implements ISlxTokenReader {
 		Writer fw = null;
 		
 		try{
-            fw = Files.newBufferedWriter(Paths.get(fileName), Charset.forName("UTF-8"), StandardOpenOption.CREATE);
+            fw = Files.newBufferedWriter(Paths.get(fileName), Charset.forName("UTF-8"));
 
 			fw.write(sb.toString());
 			

@@ -102,7 +102,7 @@ public class SlxRecordReaderTestFile{
 	    FileReader fr = new FileReader(f);
 	    BufferedWriter writer = null;
 	    File file  = new File(TestConfig.getFolioHlp().getExportDir(true), "folio-help-out.txt");
-	    if (convert) writer = Files.newBufferedWriter(file.toPath(), Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+	    if (convert) writer = Files.newBufferedWriter(file.toPath(), Charset.forName("UTF-8"));
 	    try{
 		    FolioTokenReader ftr = new FolioTokenReader(new FileReader(f),new FileIncludeResolver(f.getAbsolutePath()));
 		    SlxRecordReader srr = new SlxRecordReader(new SlxTranslatingReader(ftr));

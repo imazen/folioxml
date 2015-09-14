@@ -25,7 +25,7 @@ public class ExportSlxFile implements InfobaseSetPlugin {
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
 
 
-        this.out  =  Files.newBufferedWriter(export.getLocalPath("export.slx", AssetType.Slx, FolderCreation.CreateParents), Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+        this.out  =  Files.newBufferedWriter(export.getLocalPath("export.slx", AssetType.Slx, FolderCreation.CreateParents), Charset.forName("UTF-8"));
 
     }
 

@@ -209,7 +209,7 @@ public class RenameImages {
         Path xmlPath = export.getLocalPath("AssetInventory.xml", AssetType.Xml,FolderCreation.CreateParents);
 
 
-        BufferedWriter out  = Files.newBufferedWriter(xmlPath, Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+        BufferedWriter out  = Files.newBufferedWriter(xmlPath, Charset.forName("UTF-8"));
 
 
         out.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");

@@ -87,7 +87,7 @@ public class ExportCssFile implements InfobaseSetPlugin {
         if (css_flushed) return;
 
 
-        Writer out  = Files.newBufferedWriter(Paths.get(cssFile), Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+        Writer out  = Files.newBufferedWriter(Paths.get(cssFile), Charset.forName("UTF-8"));
 
         try{
             for(Pair<InfobaseConfig, SlxRecord> p : allInfobases){
