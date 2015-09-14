@@ -4,8 +4,12 @@ import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxToken;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -95,10 +99,11 @@ public class FolioToSlxDiagnosticTool implements ISlxTokenReader {
 		
 		if (!new File(fileName).getParentFile().exists()) new File(fileName).getParentFile().mkdir();
 		
-		FileWriter fw = null;
+		Writer fw = null;
 		
 		try{
-			fw = new FileWriter(fileName);
+            fw = Files.newBufferedWriter(Paths.get(fileName), Charset.forName("UTF-8"), StandardOpenOption.CREATE);
+
 			fw.write(sb.toString());
 			
 			fw.close();
@@ -107,7 +112,7 @@ public class FolioToSlxDiagnosticTool implements ISlxTokenReader {
 			fw = null;
 			return false;
 		}
-			return true;
+		return true;
 	}
 
 	protected ISlxTokenReader reader;

@@ -15,7 +15,8 @@ import folioxml.xml.SlxToXmlTransformer;
 import folioxml.xml.XmlRecord;
 
 import java.io.*;
-import java.nio.file.Path;
+import java.nio.charset.Charset;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -170,7 +171,7 @@ public class InfobaseSetVisitor implements LogStreamProvider {
             if (name == null) return new NilAppendable();
         }
         if (!openLogs.containsKey(name)){
-            BufferedWriter bw = new BufferedWriter(new FileWriter(baseLogPath + name + ".txt", true));
+            BufferedWriter bw = Files.newBufferedWriter(Paths.get(baseLogPath + name + ".txt"), Charset.forName("UTF-8"), StandardOpenOption.APPEND);
             openLogs.put(name, bw);
 
         }

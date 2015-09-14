@@ -1,5 +1,6 @@
 package folioxml.slx;
 
+import com.sun.xml.internal.bind.api.impl.NameConverter;
 import folioxml.config.TestConfig;
 import org.junit.Test;
 
@@ -14,6 +15,10 @@ import folioxml.utils.Stopwatch;
 
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class SlxRecordReaderTestFile{
 
@@ -97,7 +102,7 @@ public class SlxRecordReaderTestFile{
 	    FileReader fr = new FileReader(f);
 	    BufferedWriter writer = null;
 	    File file  = new File(TestConfig.getFolioHlp().getExportDir(true), "folio-help-out.txt");
-	    if (convert) writer = new BufferedWriter(new FileWriter(file));
+	    if (convert) writer = Files.newBufferedWriter(file.toPath(), Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
 	    try{
 		    FolioTokenReader ftr = new FolioTokenReader(new FileReader(f),new FileIncludeResolver(f.getAbsolutePath()));
 		    SlxRecordReader srr = new SlxRecordReader(new SlxTranslatingReader(ftr));
