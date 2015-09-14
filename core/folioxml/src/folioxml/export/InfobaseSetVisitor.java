@@ -1,5 +1,6 @@
 package folioxml.export;
 
+import com.sun.xml.internal.bind.api.impl.NameConverter;
 import folioxml.config.*;
 import folioxml.core.FolioToSlxDiagnosticTool;
 import folioxml.core.InvalidMarkupException;
@@ -171,7 +172,7 @@ public class InfobaseSetVisitor implements LogStreamProvider {
             if (name == null) return new NilAppendable();
         }
         if (!openLogs.containsKey(name)){
-            BufferedWriter bw = Files.newBufferedWriter(Paths.get(baseLogPath + name + ".txt"), Charset.forName("UTF-8"), StandardOpenOption.APPEND);
+            BufferedWriter bw = Files.newBufferedWriter(Paths.get(baseLogPath + name + ".txt"), Charset.forName("UTF-8"), StandardOpenOption.WRITE, StandardOpenOption.APPEND, StandardOpenOption.CREATE);
             openLogs.put(name, bw);
 
         }
