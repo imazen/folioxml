@@ -14,7 +14,6 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,97 +22,101 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+
 /**
- *
  * @author dlinde
  */
 public class Indexer {
-      public static void main(String[] args) throws Exception {
-          if(args.length != 2){
-              throw new Exception("Usage: java " + Indexer.class.getName()
-                      + " <index dir> <data dir>");
-          }
-          Path indexDir = Paths.get(args[0]);
-          File dataDir = new File(args[1]);
+    public static void main(String[] args) throws Exception {
+        if (args.length != 2) {
+            throw new Exception("Usage: java " + Indexer.class.getName()
+                    + " <index dir> <data dir>");
+        }
+        Path indexDir = Paths.get(args[0]);
+        File dataDir = new File(args[1]);
 
-          long start = new Date().getTime();
-          int numIndexed = index(indexDir, dataDir) ;
-          long end = new Date().getTime();
+        long start = new Date().getTime();
+        int numIndexed = index(indexDir, dataDir);
+        long end = new Date().getTime();
 
-          System.out.println("Indexing " + numIndexed + " files took " +
-                  (end - start) + " Milliseconds");
-      }
-      //open an index and start file directory traversial
-      public static int index(Path indexDir, File dataDir)throws IOException{
-          if(!dataDir.exists() || !dataDir.isDirectory()){
-              throw new IOException(dataDir +
-                      " does not exist or is not a directory");
-          }
-          IndexWriter writer = new IndexWriter(FSDirectory.open(indexDir), new IndexWriterConfig(new StandardAnalyzer()));
+        System.out.println("Indexing " + numIndexed + " files took " +
+                (end - start) + " Milliseconds");
+    }
 
-          indexDirectory(writer, dataDir);
+    //open an index and start file directory traversial
+    public static int index(Path indexDir, File dataDir) throws IOException {
+        if (!dataDir.exists() || !dataDir.isDirectory()) {
+            throw new IOException(dataDir +
+                    " does not exist or is not a directory");
+        }
+        IndexWriter writer = new IndexWriter(FSDirectory.open(indexDir), new IndexWriterConfig(new StandardAnalyzer()));
 
-          int numIndexed = writer.numDocs();
+        indexDirectory(writer, dataDir);
 
-          writer.close();
-          return numIndexed;
+        int numIndexed = writer.numDocs();
 
-      }
-      // recursive method that calls itself when it finds a directory
-      private static void indexDirectory(IndexWriter writer, File dir)throws
-              IOException{
-          File[] files = dir.listFiles();
+        writer.close();
+        return numIndexed;
 
-          for(int i = 0; i < files.length; i++){
-              File f = files[i];
-              if (f.isDirectory()){
-                  indexDirectory(writer, f);
-              }else if (f.getName().endsWith(".txt")){
-                  indexFile(writer,f);
-              }
-          }
-      }
-      /**
-       * readTextFile
-       * @param fullPathFilename
-       * @return String records
-       * @throws java.io.IOException
-       */
-      public static String readTextFile(String fullPathFilename) throws IOException {
-          StringBuilder sb = new StringBuilder(1024);
-          BufferedReader reader = new BufferedReader(new FileReader(fullPathFilename));
+    }
 
-          char[] chars = new char[1024];
-          int numRead = 0;
-          while ((numRead = reader.read(chars)) > -1) {
-              sb.append(String.valueOf(chars));
-          }
+    // recursive method that calls itself when it finds a directory
+    private static void indexDirectory(IndexWriter writer, File dir) throws
+            IOException {
+        File[] files = dir.listFiles();
 
-          reader.close();
+        for (int i = 0; i < files.length; i++) {
+            File f = files[i];
+            if (f.isDirectory()) {
+                indexDirectory(writer, f);
+            } else if (f.getName().endsWith(".txt")) {
+                indexFile(writer, f);
+            }
+        }
+    }
 
-          return sb.toString();
-      }
+    /**
+     * readTextFile
+     *
+     * @param fullPathFilename
+     * @return String records
+     * @throws java.io.IOException
+     */
+    public static String readTextFile(String fullPathFilename) throws IOException {
+        StringBuilder sb = new StringBuilder(1024);
+        BufferedReader reader = new BufferedReader(new FileReader(fullPathFilename));
 
-      // method to actually index a file using Lucene
-      private static void indexFile(IndexWriter writer, File f) throws IOException{
-          if (f.isHidden() || !f.exists() || !f.canRead()){
-              return;
-          }
+        char[] chars = new char[1024];
+        int numRead = 0;
+        while ((numRead = reader.read(chars)) > -1) {
+            sb.append(String.valueOf(chars));
+        }
 
-          System.out.println("Indexing " + f.getCanonicalPath());
+        reader.close();
 
-          Document doc = new Document();
+        return sb.toString();
+    }
 
+    // method to actually index a file using Lucene
+    private static void indexFile(IndexWriter writer, File f) throws IOException {
+        if (f.isHidden() || !f.exists() || !f.canRead()) {
+            return;
+        }
 
-          doc.add(new TextField("contents",readTextFile(f.getPath())
-                    ,Field.Store.YES));
+        System.out.println("Indexing " + f.getCanonicalPath());
 
-
-          doc.add(new StoredField("filename", f.getCanonicalPath()));
-
-          writer.addDocument(doc);
+        Document doc = new Document();
 
 
-     }
+        doc.add(new TextField("contents", readTextFile(f.getPath())
+                , Field.Store.YES));
+
+
+        doc.add(new StoredField("filename", f.getCanonicalPath()));
+
+        writer.addDocument(doc);
+
+
+    }
 
 }

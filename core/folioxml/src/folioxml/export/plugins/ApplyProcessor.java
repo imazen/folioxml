@@ -16,15 +16,16 @@ import java.io.IOException;
 public class ApplyProcessor implements InfobaseSetPlugin {
 
     NodeListProcessor processor;
-    public ApplyProcessor(NodeListProcessor p){
+
+    public ApplyProcessor(NodeListProcessor p) {
         this.processor = p;
     }
 
 
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
-        if (processor instanceof ExportingNodeListProcessor){
-            ExportingNodeListProcessor enlp = (ExportingNodeListProcessor)processor;
+        if (processor instanceof ExportingNodeListProcessor) {
+            ExportingNodeListProcessor enlp = (ExportingNodeListProcessor) processor;
             enlp.setExportLocations(export);
             enlp.setLogProvider(logs);
         }
@@ -53,9 +54,9 @@ public class ApplyProcessor implements InfobaseSetPlugin {
 
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
-        if  (!xr.isRootRecord()){
-            if (processor instanceof ExportingNodeListProcessor){
-                ExportingNodeListProcessor enlp = (ExportingNodeListProcessor)processor;
+        if (!xr.isRootRecord()) {
+            if (processor instanceof ExportingNodeListProcessor) {
+                ExportingNodeListProcessor enlp = (ExportingNodeListProcessor) processor;
                 enlp.setFileNode(file);
             }
             processor.process(new NodeList(xr));

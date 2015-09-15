@@ -11,11 +11,15 @@ import folioxml.xml.NodeList;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URI;
-import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,7 +49,7 @@ public class RenameImages {
 
         //
         NodeList images = nodes.filterByTagName("img|object|link", true);
-        for (Node n:images.list()){
+        for (Node n : images.list()) {
             //If it's an image, convert it to an img tag, if it's a data link, convert to 'a'.
 
 
@@ -66,7 +70,8 @@ public class RenameImages {
 
             boolean isObjectLink = n.matches("link") && (n.get("objectName") != null || n.get("dataLink") != null);
 
-            if (n.matches("link") && !isObjectLink) continue; //We don't care about web, program, query, popup, jump, or menu links.
+            if (n.matches("link") && !isObjectLink)
+                continue; //We don't care about web, program, query, popup, jump, or menu links.
             /*boolean isLinkToImage
 
 
@@ -90,25 +95,25 @@ public class RenameImages {
                 //Parse the file signature (cached on 'src'
                 BundledAsset b = getAsset(src);
 
-                if (b.success){
+                if (b.success) {
                     String resultUri = export.getUri(asset_use_index_in_url ? Long.toString(b.assetId) : b.targetPath, AssetType.Image, document_base);
                     n.set(attr, resultUri);
                     n.set("resolved", "true");
-                    if (isImage){
+                    if (isImage) {
                         n.setTagName("img");
                         n.removeAttr("type");
                         n.removeAttr("handler");
                         b.alt = n.get("name");
                         n.set("alt", n.get("name")); //The alt tag can use the name
                         n.removeAttr("name");
-                    }else if (isImageLink){
+                    } else if (isImageLink) {
                         n.setTagName("a");
                         n.removeAttr("type");
                         n.removeAttr("handler");
                         b.alt = n.get("objectName");
                         n.set("alt", n.get("objectName")); //The alt tag can use the name
                         n.removeAttr("objectName");
-                    }else if (isObjectLink){
+                    } else if (isObjectLink) {
                         n.setTagName("a");
                         b.alt = n.get("dataLink");
                         n.set("alt", b.alt);
@@ -118,7 +123,7 @@ public class RenameImages {
                         n.removeAttr("dataLink");
 
                     }
-                }else{
+                } else {
                     //Unscucessfully.
 
                 }
@@ -137,9 +142,11 @@ public class RenameImages {
 
     public Integer nextAssetId;
 
-    public class BundledAsset{
+    public class BundledAsset {
 
-        public BundledAsset(){}
+        public BundledAsset() {
+        }
+
         public Path originalDiskLocation;
         public String originalFileExtension;
         public String originalPath;
@@ -158,15 +165,15 @@ public class RenameImages {
 
     }
 
-      BundledAsset fail(String path, String message) {
-         BundledAsset b = new BundledAsset();
-         b.success = false;
-         b.error_message = path;
-         b.originalPath = path;
-         System.err.println(path);
-         System.err.println(message);
-         return b;
-     }
+    BundledAsset fail(String path, String message) {
+        BundledAsset b = new BundledAsset();
+        b.success = false;
+        b.error_message = path;
+        b.originalPath = path;
+        System.err.println(path);
+        System.err.println(message);
+        return b;
+    }
 
 
     //Flags
@@ -180,23 +187,23 @@ public class RenameImages {
     private HashMap<String, BundledAsset> assets = new HashMap<String, BundledAsset>();
 
 
-    public void CopyConvertFiles() throws IOException{
-        for(Map.Entry<String,BundledAsset> pair: assets.entrySet()){
+    public void CopyConvertFiles() throws IOException {
+        for (Map.Entry<String, BundledAsset> pair : assets.entrySet()) {
             BundledAsset target = pair.getValue();
             if (!target.success) continue;
 
             //If the destination file doesn't exist, copy
-            if (!Files.exists(target.targetDiskLocation)){
-                if (!Files.isDirectory(target.targetDiskLocation.getParent())){
+            if (!Files.exists(target.targetDiskLocation)) {
+                if (!Files.isDirectory(target.targetDiskLocation.getParent())) {
                     Files.createDirectory(target.targetDiskLocation.getParent());
                 }
-                try{
-                    if ("bmp".equals(target.originalFileExtension) && "png".equals(target.targetFileExtension)){
+                try {
+                    if ("bmp".equals(target.originalFileExtension) && "png".equals(target.targetFileExtension)) {
                         ConvertToPng(target.originalDiskLocation.toFile(), target.targetDiskLocation.toFile());
-                    }else {
-                        Files.copy(target.originalDiskLocation,  target.targetDiskLocation, StandardCopyOption.COPY_ATTRIBUTES);
+                    } else {
+                        Files.copy(target.originalDiskLocation, target.targetDiskLocation, StandardCopyOption.COPY_ATTRIBUTES);
                     }
-                }catch(IOException e){
+                } catch (IOException e) {
                     System.err.println("Failed to copy/compress to " + pair.getValue().targetDiskLocation);
                     e.printStackTrace(System.err);
                 }
@@ -206,10 +213,10 @@ public class RenameImages {
     }
 
     public void ExportAssetInventory() throws IOException, InvalidMarkupException {
-        Path xmlPath = export.getLocalPath("AssetInventory.xml", AssetType.Xml,FolderCreation.CreateParents);
+        Path xmlPath = export.getLocalPath("AssetInventory.xml", AssetType.Xml, FolderCreation.CreateParents);
 
 
-        BufferedWriter out  = Files.newBufferedWriter(xmlPath, Charset.forName("UTF-8"));
+        BufferedWriter out = Files.newBufferedWriter(xmlPath, Charset.forName("UTF-8"));
 
 
         out.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
@@ -217,7 +224,7 @@ public class RenameImages {
         Node assetsNode = new Node("<assets />");
 
 
-        for(Map.Entry<String,BundledAsset> pair: assets.entrySet()){
+        for (Map.Entry<String, BundledAsset> pair : assets.entrySet()) {
             BundledAsset target = pair.getValue();
             if (!target.success) continue;
 
@@ -229,7 +236,8 @@ public class RenameImages {
 
             n.set("originalPath", target.originalPath.toString());
             n.set("orginalDiskLocation", target.originalDiskLocation.toString());
-            if (target.originalFileExtension != null) n.set("originalFileType", target.originalFileExtension.toString());
+            if (target.originalFileExtension != null)
+                n.set("originalFileType", target.originalFileExtension.toString());
             n.set("targetPath", target.targetPath.toString());
             n.set("targetDiskLocation", target.targetDiskLocation.toString());
             if (target.targetFileExtension != null) n.set("targetFileType", target.targetFileExtension.toString());
@@ -239,15 +247,14 @@ public class RenameImages {
         out.append(assetsNode.toXmlString(true));
         out.close();
     }
-    public void ConvertToPng(File input, File output) throws IOException{
+
+    public void ConvertToPng(File input, File output) throws IOException {
         //Read the file to a BufferedImage
         BufferedImage image = ImageIO.read(input);
 
         //Write the image to the destination as a PNG
         ImageIO.write(image, "png", output);
     }
-
-
 
 
     private BundledAsset parse(String path) throws IOException {
@@ -262,7 +269,7 @@ public class RenameImages {
             m = object_file.matcher(path);
             b.dataLink = false;
 
-            if (!m.find()){
+            if (!m.find()) {
                 //Not a data link or object/ole? skip.
                 return fail(path, "Path is not a Data link or OB/OLE file.");
             }
@@ -271,7 +278,7 @@ public class RenameImages {
 
         //Which infobase does it correspond with
         b.infobase = infobase_set.byName(m.group(1));
-        if (b.infobase == null){
+        if (b.infobase == null) {
             return fail(path, "Failed to find corresponding InfobaseConfig for '" + m.group(1) + "'");
         }
 
@@ -279,21 +286,20 @@ public class RenameImages {
         b.originalDiskLocation = Paths.get(b.infobase.getFlatFilePath()).resolveSibling(path.replace("\\", File.separator)).toAbsolutePath();
 
 
-
         String filename = null;
-        if (m.pattern() == data_file){
+        if (m.pattern() == data_file) {
             b.targetPath = m.group(2).toLowerCase(Locale.ENGLISH); //Use existing filename
-        }else{
+        } else {
             //object or OLE file
             byte[] buffer = null;
-            try{
+            try {
                 buffer = getFileSignature(b.originalDiskLocation.toFile());
             } catch (IOException e) {
                 e.printStackTrace();
                 return fail(path, b.originalDiskLocation.toString() + "\n" + e.toString());
             }
             String ext = getExtensionForSignature(buffer);
-            if (ext == null){
+            if (ext == null) {
                 return fail(path, "Unknown file type; unrecognized magic byte signature.");
             }
             b.originalFileExtension = ext;
@@ -322,6 +328,7 @@ public class RenameImages {
         }
         return b;
     }
+
     public String modifyImageUrl(String path, FileNode document_base) throws IOException {
 
         BundledAsset b = getAsset(path);
@@ -330,11 +337,11 @@ public class RenameImages {
 
         Path document = export.getLocalPath(document_base.getRelativePath(), AssetType.Html, FolderCreation.None);
 
-        return export.getUri(b.targetPath,AssetType.Image,document);
+        return export.getUri(b.targetPath, AssetType.Image, document);
     }
 
 
-    public static byte[] getFileSignature(File file)  throws IOException{
+    public static byte[] getFileSignature(File file) throws IOException {
         InputStream ios = null;
         try {
             byte[] buffer = new byte[12];
@@ -349,10 +356,10 @@ public class RenameImages {
 
 
     public String getExtensionForSignature(byte[] buffer) {
-        for(Pair<String,byte[]> sig: signatures){
+        for (Pair<String, byte[]> sig : signatures) {
             byte[] bsig = sig.getSecond();
             boolean match = true;
-            for (int i = 0; i < bsig.length && i < buffer.length; i++){
+            for (int i = 0; i < bsig.length && i < buffer.length; i++) {
                 if (bsig[i] != buffer[i]) {
                     match = false; //not a match
                     break;
@@ -364,26 +371,27 @@ public class RenameImages {
     }
 
     //https://en.wikipedia.org/wiki/List_of_file_signatures
-    private static byte[] jpeg = new byte[]{(byte)0xFF,(byte)0xD8,(byte)0xFF,(byte)0xE0};
-    private static byte[] gif87 = new byte[]{(byte)0x47,(byte)0x49,(byte)0x46,(byte)0x38, (byte)0x37, (byte)0x61};
-    private static byte[] gif89 = new byte[]{(byte)0x47,(byte)0x49,(byte)0x46,(byte)0x38, (byte)0x39, (byte)0x61};
-    private static byte[] ico = new byte[]{(byte)0,(byte)0,(byte)1,(byte)0};
-    private static byte[] png = new byte[]{(byte)0x89,(byte)0x50,(byte)0x4e,(byte)0x47, (byte)0x0D, (byte)0x0a, (byte)0x1A, (byte)0x0A};
-    private static byte[] pdf = new byte[]{(byte)0x25,(byte)0x50,(byte)0x44,(byte)0x46};
-    private static byte[] tiff_little = new byte[]{(byte)0x49,(byte)0x49,(byte)0x2A,(byte)0x00};
-    private static byte[] tiff_big = new byte[]{(byte)0x4D,(byte)0x4D,(byte)0x00,(byte)0x2A};
-    private static byte[] bmp = new byte[]{(byte)0x42,(byte)0x4D};
-    private static ArrayList<Pair<String, byte[]>> AllFileSignatures(){
+    private static byte[] jpeg = new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0};
+    private static byte[] gif87 = new byte[]{(byte) 0x47, (byte) 0x49, (byte) 0x46, (byte) 0x38, (byte) 0x37, (byte) 0x61};
+    private static byte[] gif89 = new byte[]{(byte) 0x47, (byte) 0x49, (byte) 0x46, (byte) 0x38, (byte) 0x39, (byte) 0x61};
+    private static byte[] ico = new byte[]{(byte) 0, (byte) 0, (byte) 1, (byte) 0};
+    private static byte[] png = new byte[]{(byte) 0x89, (byte) 0x50, (byte) 0x4e, (byte) 0x47, (byte) 0x0D, (byte) 0x0a, (byte) 0x1A, (byte) 0x0A};
+    private static byte[] pdf = new byte[]{(byte) 0x25, (byte) 0x50, (byte) 0x44, (byte) 0x46};
+    private static byte[] tiff_little = new byte[]{(byte) 0x49, (byte) 0x49, (byte) 0x2A, (byte) 0x00};
+    private static byte[] tiff_big = new byte[]{(byte) 0x4D, (byte) 0x4D, (byte) 0x00, (byte) 0x2A};
+    private static byte[] bmp = new byte[]{(byte) 0x42, (byte) 0x4D};
+
+    private static ArrayList<Pair<String, byte[]>> AllFileSignatures() {
         ArrayList<Pair<String, byte[]>> signatures = new ArrayList<Pair<String, byte[]>>();
-        signatures.add(new Pair<String,byte[]>("jpg",jpeg));
-        signatures.add(new Pair<String,byte[]>("tiff",tiff_big));
-        signatures.add(new Pair<String,byte[]>("tiff",tiff_little));
-        signatures.add(new Pair<String,byte[]>("pdf",pdf));
-        signatures.add(new Pair<String,byte[]>("png",png));
-        signatures.add(new Pair<String,byte[]>("ico",ico));
-        signatures.add(new Pair<String,byte[]>("gif",gif87));
-        signatures.add(new Pair<String,byte[]>("gif",gif89));
-        signatures.add(new Pair<String,byte[]>("bmp",bmp));
+        signatures.add(new Pair<String, byte[]>("jpg", jpeg));
+        signatures.add(new Pair<String, byte[]>("tiff", tiff_big));
+        signatures.add(new Pair<String, byte[]>("tiff", tiff_little));
+        signatures.add(new Pair<String, byte[]>("pdf", pdf));
+        signatures.add(new Pair<String, byte[]>("png", png));
+        signatures.add(new Pair<String, byte[]>("ico", ico));
+        signatures.add(new Pair<String, byte[]>("gif", gif87));
+        signatures.add(new Pair<String, byte[]>("gif", gif89));
+        signatures.add(new Pair<String, byte[]>("bmp", bmp));
         return signatures;
     }
 }

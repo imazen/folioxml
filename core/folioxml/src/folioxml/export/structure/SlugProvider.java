@@ -1,11 +1,7 @@
 package folioxml.export.structure;
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
-import folioxml.core.TokenUtils;
 import folioxml.export.FileNode;
-import folioxml.export.NodeInfoProvider;
 import folioxml.export.StaticFileNode;
 import folioxml.xml.XmlRecord;
 
@@ -13,7 +9,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 
 public class SlugProvider extends BaseFileSplitter {
@@ -30,13 +25,12 @@ public class SlugProvider extends BaseFileSplitter {
     }
 
 
-
     private StaticFileNode silentRoot = new StaticFileNode(null);
 
     public void PopulateNodeInfo(XmlRecord r, FileNode f) throws InvalidMarkupException {
         //Infobase ID comes in handy when generating the slug
         XmlRecord root = r.getRoot();
-        if (root != null && root.get("infobaseId") != null){
+        if (root != null && root.get("infobaseId") != null) {
             f.getBag().put("infobase-id", root.get("infobaseId"));
         }
 
@@ -51,12 +45,12 @@ public class SlugProvider extends BaseFileSplitter {
 
         String heading = getHeading(r, f);
 
-        String slug =  slugify(heading, 100);
+        String slug = slugify(heading, 100);
 
         if (r.isRootRecord() && (slug == null || slug.isEmpty())) {
             Object name = f.getBag().get("infobase-id");
             if (name == null) name = "index";
-            slug = (String)name;
+            slug = (String) name;
         }
         FileNode parentScope = f.getParent() == null ? silentRoot : f.getParent();
         Integer suffix = incrementSlug(slug, parentScope);
@@ -71,25 +65,25 @@ public class SlugProvider extends BaseFileSplitter {
         return heading;
     }
 
-    protected String slugify(String text, int maxLength){
+    protected String slugify(String text, int maxLength) {
         String slug = text.toLowerCase(Locale.ENGLISH).replaceAll("[^a-zA-Z0-9-_~$]", " ").trim();
         slug = slug.replaceAll("[ \t\r\n]+", "-").toLowerCase(Locale.ENGLISH);
 
-        if (slug.length() > maxLength) slug = slug.substring(0,maxLength);
+        if (slug.length() > maxLength) slug = slug.substring(0, maxLength);
         return slug;
     }
 
 
-    protected Integer incrementSlug(String slug, FileNode scope){
+    protected Integer incrementSlug(String slug, FileNode scope) {
         //Access sibling slugs to ensure uniqueness.
         Object oslugs = scope.getBag().get("childSlugs");
         if (oslugs == null) {
             oslugs = new HashMap<String, Integer>();
             scope.getBag().put("childSlugs", oslugs);
         }
-        Map<String, Integer> siblingSlugs = (Map<String, Integer>)oslugs;
+        Map<String, Integer> siblingSlugs = (Map<String, Integer>) oslugs;
 
-        if (siblingSlugs.get(slug) == null){
+        if (siblingSlugs.get(slug) == null) {
             siblingSlugs.put(slug, 0);
         }
         //Increment
@@ -103,9 +97,9 @@ public class SlugProvider extends BaseFileSplitter {
     public String getRelativePathFor(FileNode fn) {
 
         StringBuilder sb = new StringBuilder();
-        Deque<StaticFileNode> list = ((StaticFileNode)fn).getAncestors(true);
+        Deque<StaticFileNode> list = ((StaticFileNode) fn).getAncestors(true);
         StaticFileNode n = null;
-        while (!list.isEmpty()){
+        while (!list.isEmpty()) {
             sb.append((String) list.removeLast().getBag().get("slug"));
             if (!list.isEmpty()) sb.append('/');
         }

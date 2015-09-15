@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
+public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker {
 
 
-    public InfobaseSetIndexer(){
+    public InfobaseSetIndexer() {
 
     }
 
@@ -51,12 +51,14 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
     }
 
     InfobaseConfig currentInfobase;
+
     @Override
     public ISlxTokenReader wrapSlxReader(ISlxTokenReader reader) {
         return reader;
     }
 
     Document doc = null;
+
     @Override
     public void onSlxRecordParsed(SlxRecord r) throws InvalidMarkupException {
         boolean isRoot = r.isRootRecord();
@@ -72,12 +74,12 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
         doc.add(addAnalyzedField("groups", r.get("groups")));
         doc.add(addNonTokenizedField("infobase", currentInfobase.getId()));
 
-        if (!isRoot){
+        if (!isRoot) {
             //Iterate all tokens and stream to applicable fields so a query can be evaluated later
             FieldCollector coll = new FieldCollector(doc, conf);
 
             StringBuilder contentSb = new StringBuilder();
-            SlxContextStack stack = new SlxContextStack(false,false);
+            SlxContextStack stack = new SlxContextStack(false, false);
             List<String> destinations = new ArrayList<String>();
             stack.process(r);
             String spacing = TokenUtils.entityDecodeString(" &#x00A0; ");
@@ -85,7 +87,7 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
                 stack.process(t);// call this on each token.
 
                 //Hidden to indexing, not to view. This is totally separate from what ExportHiddenText does.
-                boolean hidden = coll.collect(t, stack,r);
+                boolean hidden = coll.collect(t, stack, r);
 
                 if (!hidden && t.isTextOrEntity()) { //Changed dec 17 to include whitespace... was causing indexing errors.. fields separated by whitespace were being joined.
                     String s = t.markup;
@@ -95,25 +97,24 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
                 if (t.matches("p|br|td|th|note") && !t.isOpening()) {
                     contentSb.append(spacing);
                 }
-                if (t.isTag() && t.matches("bookmark")){
+                if (t.isTag() && t.matches("bookmark")) {
                     //Add bookmarks as-is
                     doc.add(new StringField("destinations", t.get("name"), Field.Store.YES));
                 }
             }
 
-            doc.add(new TextField(conf.getDefaultField(),contentSb.toString(), Field.Store.YES));
+            doc.add(new TextField(conf.getDefaultField(), contentSb.toString(), Field.Store.YES));
 
-            String folioSectionHeading = TokenUtils.entityDecodeString(r.getFullHeading(",",false,20)).trim();
-            doc.add(new TextField("folioSectionHeading",folioSectionHeading,Field.Store.YES));
+            String folioSectionHeading = TokenUtils.entityDecodeString(r.getFullHeading(",", false, 20)).trim();
+            doc.add(new TextField("folioSectionHeading", folioSectionHeading, Field.Store.YES));
 
 
-            doc.add(new StoredField("title",r.getFullHeading(" - ",true,2)));
-            doc.add(new StoredField("heading",r.get("heading")));
+            doc.add(new StoredField("title", r.getFullHeading(" - ", true, 2)));
+            doc.add(new StoredField("heading", r.get("heading")));
 
             coll.flush();
         }
     }
-
 
 
     @Override
@@ -124,30 +125,30 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
         //Add URI
-        if (xr.get("uri") != null) doc.add(new StoredField("uri",xr.get("uri")));
+        if (xr.get("uri") != null) doc.add(new StoredField("uri", xr.get("uri")));
         //Add
 
         String relative_path = file.getAttributes().get("relative_path");
         String uri_fragment = file.getAttributes().get("uri_fragment");
 
-        if (relative_path == null || uri_fragment == null){
+        if (relative_path == null || uri_fragment == null) {
             throw new InvalidMarkupException("Both relative_path and uri_fragment must be defined on the FileNode for indexing");
         }
 
         doc.add(new StoredField("relative_path", relative_path));
         doc.add(new StoredField("uri_fragment", uri_fragment));
 
-        if (xr.isRootRecord()){
+        if (xr.isRootRecord()) {
             //Configure field indexing based on the .DEF file.
             conf = new InfobaseFieldOptsSet(xr);
-            doc.add(new StoredField("xml",xr.toXmlString(false)));
+            doc.add(new StoredField("xml", xr.toXmlString(false)));
         }
 
         w.addDocument(doc);
     }
 
     @Override
-    public void onRecordTransformed( XmlRecord r, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
+    public void onRecordTransformed(XmlRecord r, SlxRecord dirty_slx) throws InvalidMarkupException, IOException {
 
     }
 
@@ -158,13 +159,12 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
 
     @Override
     public void endInfobaseSet(InfobaseSet set) throws IOException {
-        try{
+        try {
             w.commit();
-        }finally{
+        } finally {
             w.close();
         }
     }
-
 
 
     private Field addNonTokenizedField(String name, String value) {
@@ -173,7 +173,7 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker{
 
 
     private Field addAnalyzedField(String name, String value) {
-        if  (value == null) value = ""; //Some records have no groups... causing null
+        if (value == null) value = ""; //Some records have no groups... causing null
         return new TextField(name, value, Field.Store.YES);
     }
 

@@ -12,11 +12,11 @@ import java.util.Map;
  */
 public class TestConfig {
 
-    public static String slash(){
+    public static String slash() {
         return System.getProperty("file.separator");
     }
 
-    public static Map<String,InfobaseSet> getAllUncached(){
+    public static Map<String, InfobaseSet> getAllUncached() {
 
 
         InputStream foo = TestConfig.class.getResourceAsStream("/test.yaml");
@@ -30,19 +30,19 @@ public class TestConfig {
         }
         String workingDir = classDir.getParent().getParent().getParent().getParent().toAbsolutePath().toString();
 
-        return YamlInfobaseSet.parseYaml(workingDir,foo);
+        return YamlInfobaseSet.parseYaml(workingDir, foo);
     }
 
-    public static Map<String,InfobaseSet> getAll(){
-        if (configs == null){
+    public static Map<String, InfobaseSet> getAll() {
+        if (configs == null) {
             configs = getAllUncached();
         }
         return configs;
     }
 
-    static Map<String,InfobaseSet> configs;
+    static Map<String, InfobaseSet> configs;
 
-    public static InfobaseConfig getFolioHlp(){
+    public static InfobaseConfig getFolioHlp() {
         return getAll().get("folio_help").getFirst();
     }
 

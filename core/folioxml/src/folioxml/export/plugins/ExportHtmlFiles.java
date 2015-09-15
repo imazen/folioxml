@@ -2,35 +2,31 @@ package folioxml.export.plugins;
 
 import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
-import folioxml.core.TokenBase;
 import folioxml.core.TokenUtils;
-import folioxml.export.ExportingNodeListProcessor;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.LogStreamProvider;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
-import folioxml.utils.HtmlEntities;
-import folioxml.xml.*;
+import folioxml.xml.Node;
+import folioxml.xml.XmlRecord;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 
 public class ExportHtmlFiles implements InfobaseSetPlugin {
 
-    public ExportHtmlFiles(){}
+    public ExportHtmlFiles() {
+    }
 
-    public ExportHtmlFiles(boolean addNavLinks, boolean useHighslide){
+    public ExportHtmlFiles(boolean addNavLinks, boolean useHighslide) {
         this.addNavLinks = addNavLinks;
         this.useHighslide = useHighslide;
     }
@@ -40,6 +36,7 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
 
     protected OutputStreamWriter out;
     private ExportLocations export;
+
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
         this.export = export;
@@ -78,9 +75,10 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
     }
 
     FileNode lastFile = null;
+
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
-        if (lastFile != file){
+        if (lastFile != file) {
             if (lastFile != null && out != null) {
                 //New URI
                 String newUri = export.getUri(file.getRelativePath(), AssetType.Html, export.getLocalPath(lastFile.getRelativePath(), AssetType.Html, FolderCreation.None));
@@ -88,8 +86,8 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
                 closeFile();
             }
             openFile(file, xr);
-            if (lastFile != null){
-                String previousUrl = export.getUri(lastFile.getRelativePath(), AssetType.Html,export.getLocalPath(file.getRelativePath(),AssetType.Html, FolderCreation.None));
+            if (lastFile != null) {
+                String previousUrl = export.getUri(lastFile.getRelativePath(), AssetType.Html, export.getLocalPath(file.getRelativePath(), AssetType.Html, FolderCreation.None));
                 writePrevLink(previousUrl, lastFile);
             }
             lastFile = file;
@@ -133,7 +131,7 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         }
 
 
-        out  = new OutputStreamWriter(new FileOutputStream(htmlPath.toFile()), "UTF8");
+        out = new OutputStreamWriter(new FileOutputStream(htmlPath.toFile()), "UTF8");
 
         out.append("<!DOCTYPE html>\n");
         openElement("html");
@@ -145,20 +143,20 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         if (title == null) title = "";
         out.write(TokenUtils.lightEntityEncode(title));
         closeElement("title");
-        if (fn.getBag().get("folio-id") != null){
+        if (fn.getBag().get("folio-id") != null) {
             writeIndent();
             out.append("<meta data-first-folio-id=\"" + fn.getBag().get("folio-id").toString() + "\" />\n");
         }
-        if (fn.getBag().get("folio-level") != null){
+        if (fn.getBag().get("folio-level") != null) {
             writeIndent();
             out.append("<meta data-folio-level=\"" + fn.getBag().get("folio-level").toString() + "\" />\n");
         }
 
         writeIndent();
-        for (String uri: cssUris)
+        for (String uri : cssUris)
             out.append("<link rel='stylesheet' type='text/css' href='" + uri + "' />\n");
-        for (String uri: jsUris)
-            out.append("<script type='text/javascript' src='" + uri+ "'></script>\n");
+        for (String uri : jsUris)
+            out.append("<script type='text/javascript' src='" + uri + "'></script>\n");
 
         if (useHighslide)
             out.append("<script type=\"text/javascript\">hs.graphicsDir = '" + URI.create(highslideFolder).resolve("graphics") + "/';</script>\n");
@@ -166,6 +164,7 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         closeElement("head");
         openElement("body");
     }
+
     private void closeFile() throws IOException {
         closeElement("body");
         closeElement("html");
@@ -176,11 +175,13 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
     private boolean indentXml = true;
     private int indentLevel = 0;
     private String indentString = "  ";
+
     private void writeIndent() throws IOException {
-        for (int i = 0; i < indentLevel; i++){
+        for (int i = 0; i < indentLevel; i++) {
             out.append(indentString);
         }
     }
+
     private void openElement(String elementName) throws IOException {
         writeIndent();
         out.append("<");
@@ -188,6 +189,7 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         out.append(">\n");
         indentLevel++;
     }
+
     private void openElement(Node element) throws IOException {
         StringBuilder sb = new StringBuilder();
         writeIndent();
@@ -196,6 +198,7 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
         out.append("\n");
         indentLevel++;
     }
+
     private void closeElement(String elementName) throws IOException {
         indentLevel--;
         writeIndent();

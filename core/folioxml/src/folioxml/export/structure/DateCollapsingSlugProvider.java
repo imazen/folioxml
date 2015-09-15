@@ -9,9 +9,10 @@ import folioxml.xml.XmlRecord;
  */
 public class DateCollapsingSlugProvider extends SlugProvider {
 
-    public DateCollapsingSlugProvider(){}
+    public DateCollapsingSlugProvider() {
+    }
 
-    public DateCollapsingSlugProvider(String levelRegex){
+    public DateCollapsingSlugProvider(String levelRegex) {
         this.levelRegex = levelRegex;
     }
 
@@ -20,7 +21,7 @@ public class DateCollapsingSlugProvider extends SlugProvider {
         String heading = r.get("heading");
         if (heading == null) heading = "UNTITLED";
 
-        if ("Issue".equalsIgnoreCase(r.getLevelType())){
+        if ("Issue".equalsIgnoreCase(r.getLevelType())) {
             //then apply regex to months
             heading = heading.replaceFirst("\\A\\d\\d?/\\d\\d\\s+", "").trim(); //Drop the d/m prefix
             heading = heading.replaceAll("(?i)\\A.*(January|February|March|April|May|June|July|August|September|October|November|December).*\\Z", "$1"); //If present, just use the month.

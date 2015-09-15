@@ -4,13 +4,13 @@ import folioxml.core.InvalidMarkupException;
 import folioxml.folio.FolioToken;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class FolioLinkUtilsTest {
 
 
     @Test
-    public void TestProgramLinkConversion() throws InvalidMarkupException{
+    public void TestProgramLinkConversion() throws InvalidMarkupException {
         assertEquals("<link class=\"Class\" program=\"program.exe\">", FolioLinkUtils.translate(new FolioToken("<PL:Class:\"program.exe\">")).toTokenString());
 
         assertEquals("<link class=\"Class\" href=\"www.program.exe\">", FolioLinkUtils.translate(new FolioToken("<PL:Class:\"www.program.exe\">")).toTokenString());
@@ -27,7 +27,7 @@ public class FolioLinkUtilsTest {
 
 
     @Test
-    public void TestWebLinkConversion() throws InvalidMarkupException{
+    public void TestWebLinkConversion() throws InvalidMarkupException {
         assertEquals("<link class=\"Class\" href=\"domain.com\">", FolioLinkUtils.translate(new FolioToken("<WW:Class:\"  domain.com  \">")).toTokenString());
 
         assertEquals("<link class=\"Class\" href=\"img\\test.exe\">", FolioLinkUtils.translate(new FolioToken("<WW:Class:\"img\\test.exe\">")).toTokenString());

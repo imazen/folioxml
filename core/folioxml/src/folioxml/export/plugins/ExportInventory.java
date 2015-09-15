@@ -18,7 +18,8 @@ import java.io.IOException;
 
 public class ExportInventory implements InfobaseSetPlugin {
 
-    public ExportInventory(){}
+    public ExportInventory() {
+    }
 
     InventoryNodes inventory = null;
     LogStreamProvider logs = null;
@@ -56,7 +57,7 @@ public class ExportInventory implements InfobaseSetPlugin {
 
     @Override
     public void onRecordComplete(XmlRecord xr, FileNode file) throws InvalidMarkupException, IOException {
-        if  (!xr.isRootRecord()){
+        if (!xr.isRootRecord()) {
             inventory.process(new NodeList(xr));
         }
     }

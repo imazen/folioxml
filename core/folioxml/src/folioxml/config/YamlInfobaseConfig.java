@@ -9,12 +9,12 @@ import java.util.*;
 public class YamlInfobaseConfig implements InfobaseConfig {
 
 
-    Map<String,Object> data;
+    Map<String, Object> data;
 
     YamlInfobaseSet parent;
 
 
-    public YamlInfobaseConfig(YamlInfobaseSet parent, Map<String,Object> configData){
+    public YamlInfobaseConfig(YamlInfobaseSet parent, Map<String, Object> configData) {
         this.parent = parent;
         this.data = configData;
     }
@@ -26,13 +26,13 @@ public class YamlInfobaseConfig implements InfobaseConfig {
 
     @Override
     public String getFlatFilePath() {
-        return getStringAsPath("path", parent.getInfobaseDir(),  FolderCreation.None);
+        return getStringAsPath("path", parent.getInfobaseDir(), FolderCreation.None);
     }
 
     @Override
     public String getIndexDir() {
-        String indexPath =  getStringAsPath("index_dir", FolderCreation.None);
-        if (indexPath == null){
+        String indexPath = getStringAsPath("index_dir", FolderCreation.None);
+        if (indexPath == null) {
             indexPath = Paths.get(getExportDir(true)).resolve(getId() + "_lucene_index").toString();
         }
         return indexPath;
@@ -54,7 +54,7 @@ public class YamlInfobaseConfig implements InfobaseConfig {
     // Generates a base path that can be used for logs, reports, etc.
     public String generateExportBaseFile() {
 
-        String exportFolderName =  getId() + new SimpleDateFormat("-dd-MMM-yy-(S)").format(new Date());
+        String exportFolderName = getId() + new SimpleDateFormat("-dd-MMM-yy-(S)").format(new Date());
         return getExportFile(Paths.get(exportFolderName).resolve(getId()).toString(), true);
 
     }
@@ -63,17 +63,17 @@ public class YamlInfobaseConfig implements InfobaseConfig {
     public List<String> getAliases() {
         ArrayList<String> aliases = new ArrayList<String>();
         File fff = new File(getFlatFilePath());
-        String nameWithoutExtension = fff.getName().replaceAll("\\.FFF","").toLowerCase(Locale.ENGLISH);
+        String nameWithoutExtension = fff.getName().replaceAll("\\.FFF", "").toLowerCase(Locale.ENGLISH);
         String sanitizedName = nameWithoutExtension.replaceAll("[^0-9a-zA-Z_-]|^[0-9_-]", "");
         aliases.add(sanitizedName);
         aliases.add(nameWithoutExtension);
         aliases.add(nameWithoutExtension + ".nfo");
 
         Object aliasList = data.get("aliases");
-        if (aliasList != null){
-            List<Object> configAliases = (List<Object>)aliasList;
+        if (aliasList != null) {
+            List<Object> configAliases = (List<Object>) aliasList;
 
-            for(Object o: configAliases){
+            for (Object o : configAliases) {
                 aliases.add(o.toString().toLowerCase(Locale.ENGLISH));
             }
         }
@@ -83,15 +83,15 @@ public class YamlInfobaseConfig implements InfobaseConfig {
     @Override
     public ExportLocations generateExportLocations() {
         Object el = data.get("export_locations");
-        return new YamlExportLocations(Paths.get(parent.basedir), this.getId(), new Date(), (Map<String,Object>)el);
+        return new YamlExportLocations(Paths.get(parent.basedir), this.getId(), new Date(), (Map<String, Object>) el);
     }
 
     @Override
-    public String getStringAsPath(String key,  FolderCreation pathOptions) {
+    public String getStringAsPath(String key, FolderCreation pathOptions) {
         return getStringAsPath(key, null, pathOptions);
     }
 
-    public  Object getObject(String key) {
+    public Object getObject(String key) {
         return data.get(key);
     }
 
@@ -99,15 +99,15 @@ public class YamlInfobaseConfig implements InfobaseConfig {
         String value = getString(key);
         if (value == null) return null;
         String path = parent.resolvePath(value, base_path);
-        if (pathOptions != FolderCreation.None) createFoldersInPath(path,pathOptions);
+        if (pathOptions != FolderCreation.None) createFoldersInPath(path, pathOptions);
         return path;
     }
 
-    public static String createFoldersInPath(String path, FolderCreation creationOptions){
+    public static String createFoldersInPath(String path, FolderCreation creationOptions) {
         if (creationOptions == FolderCreation.None) return path;
-        File to_create = creationOptions == FolderCreation.CreateParents   ? new File(path).getParentFile() : new File(path);
-        if (!to_create.exists() && !to_create.mkdirs()){
-           //throw new IOException("Failed to create directories in " + to_create.toString());
+        File to_create = creationOptions == FolderCreation.CreateParents ? new File(path).getParentFile() : new File(path);
+        if (!to_create.exists() && !to_create.mkdirs()) {
+            //throw new IOException("Failed to create directories in " + to_create.toString());
         }
         return path;
     }
@@ -117,13 +117,14 @@ public class YamlInfobaseConfig implements InfobaseConfig {
         Object o = data.get(key);
         return o == null ? null : o.toString();
     }
+
     @Override
     public Boolean getBool(String key) {
-        return (Boolean)data.get(key);
+        return (Boolean) data.get(key);
     }
 
     @Override
     public Integer getInteger(String key) {
-        return (Integer)data.get(key);
+        return (Integer) data.get(key);
     }
 }

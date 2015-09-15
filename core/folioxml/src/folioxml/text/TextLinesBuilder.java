@@ -22,12 +22,13 @@ public class TextLinesBuilder {
     private Pattern listAlignment = Pattern.compile("\\A\\s*?(•|[A-Z]|[ivx]{1,5}[\\.\\)]|[0-9]{1,2}[\\.\\)]?)\\t+[^\\t\\n]*\\Z");
 
 
-    public TextLinesBuilder(){}
+    public TextLinesBuilder() {
+    }
 
 
-    public List<StringBuilder> generateLines(NodeList nl){
+    public List<StringBuilder> generateLines(NodeList nl) {
         List<StringBuilder> lines = new ArrayList<StringBuilder>();
-        for(Node n: nl.list()){
+        for (Node n : nl.list()) {
             line_new(lines);
             add_lines(n, lines);
         }
@@ -36,7 +37,7 @@ public class TextLinesBuilder {
 
     public TabUsage analyzeTabUsage(List<StringBuilder> lines) throws InvalidMarkupException {
         TabUsage result = TabUsage.None;
-        for(StringBuilder l:lines){
+        for (StringBuilder l : lines) {
 
             Matcher m = listAlignment.matcher(l);
             if (m.find()) return TabUsage.ListAlignment; //Numbered list indentation;
@@ -45,21 +46,22 @@ public class TextLinesBuilder {
             if (m.find()) return TabUsage.Tabulation; //Tabulation is a quick exit, no escalation from there
 
             m = tabsAtTheSides.matcher(l);
-            if (m.find()){
+            if (m.find()) {
                 result = TabUsage.Indentation; //Escalate to indentation.
-            }else if (l.indexOf("\t") > -1) {
+            } else if (l.indexOf("\t") > -1) {
                 throw new InvalidMarkupException("Tab analysis missed a code path for line '" + l.toString() + "'");
 
             }
         }
         return result;
     }
+
     public TabUsage analyzeTabUsage(NodeList nl) throws InvalidMarkupException {
         List<StringBuilder> lines = generateLines(nl);
         return analyzeTabUsage(lines);
     }
 
-    public enum TabUsage{
+    public enum TabUsage {
         Indentation,
         ListAlignment,
         Tabulation,
@@ -67,15 +69,14 @@ public class TextLinesBuilder {
     }
 
 
-
-    private void add_lines(Node n, List<StringBuilder> lines){
+    private void add_lines(Node n, List<StringBuilder> lines) {
         if (n.matches("p|br|table|td|th|note|div|record")) line_new(lines);
 
-        if (n.isTag() && n.children != null){
-            for(Node c:n.children.list()){
-                add_lines(c,lines);
+        if (n.isTag() && n.children != null) {
+            for (Node c : n.children.list()) {
+                add_lines(c, lines);
             }
-        }else if (n.isTextOrEntity()){
+        } else if (n.isTextOrEntity()) {
             String s = n.markup;
             if (n.isEntity()) s = TokenUtils.entityDecodeString(s);
             last_line(lines).append(s);
@@ -85,15 +86,15 @@ public class TextLinesBuilder {
 
     }
 
-    private StringBuilder last_line(List<StringBuilder> lines){
-        if (lines.size() == 0){
+    private StringBuilder last_line(List<StringBuilder> lines) {
+        if (lines.size() == 0) {
             lines.add(new StringBuilder());
         }
         return lines.get(lines.size() - 1);
     }
 
-    private void line_new(List<StringBuilder> lines){
-        if (lines.size() == 0 || lines.get(lines.size() - 1).length() > 0){
+    private void line_new(List<StringBuilder> lines) {
+        if (lines.size() == 0 || lines.get(lines.size() - 1).length() > 0) {
             lines.add(new StringBuilder());
         }
     }

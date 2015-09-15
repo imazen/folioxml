@@ -8,13 +8,11 @@ import folioxml.core.TokenUtils;
 import folioxml.css.EffectiveStyle;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
-import folioxml.export.InventoryNodes;
 import folioxml.export.LogStreamProvider;
 import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxContextStack;
 import folioxml.slx.SlxRecord;
 import folioxml.slx.SlxToken;
-import folioxml.xml.NodeList;
 import folioxml.xml.XmlRecord;
 
 import java.io.IOException;
@@ -23,7 +21,8 @@ import java.util.List;
 
 public class ExportHiddenText implements InfobaseSetPlugin {
 
-    public ExportHiddenText(){}
+    public ExportHiddenText() {
+    }
 
     LogStreamProvider logs = null;
 
@@ -50,7 +49,7 @@ public class ExportHiddenText implements InfobaseSetPlugin {
 
     @Override
     public void onSlxRecordParsed(SlxRecord clean_slx) throws InvalidMarkupException, IOException {
-        if (clean_slx.isRootRecord()){
+        if (clean_slx.isRootRecord()) {
             eDisplay.addStylesheet(clean_slx);
             eForeground.addStylesheet(clean_slx);
             eBackground.addStylesheet(clean_slx);
@@ -58,7 +57,7 @@ public class ExportHiddenText implements InfobaseSetPlugin {
         }
 
         StringBuilder hiddenText = new StringBuilder();
-        SlxContextStack stack = new SlxContextStack(false,false);
+        SlxContextStack stack = new SlxContextStack(false, false);
         stack.process(clean_slx);
         String spacing = TokenUtils.entityDecodeString(" &#x00A0; ");
         boolean recordUsesColorInvisibility = false;
@@ -71,21 +70,23 @@ public class ExportHiddenText implements InfobaseSetPlugin {
             if (!t.isTextOrEntity() && !causesNewline) continue;
 
             //Get all open tags within the current context.
-            List<SlxToken> tags = stack.getOpenTags(null,false,false);
+            List<SlxToken> tags = stack.getOpenTags(null, false, false);
 
             boolean hidden = false;
             //Get the effective CSS values
             String display = eDisplay.getEffectiveValue(t, tags);
 
             //Get the effective colors and default to black on white
-            String fc = eForeground.getEffectiveValue(t,tags); if (fc == null) fc = "#000000";
-            String bg = eBackground.getEffectiveValue(t,tags); if (bg == null) bg = "#ffffff";
+            String fc = eForeground.getEffectiveValue(t, tags);
+            if (fc == null) fc = "#000000";
+            String bg = eBackground.getEffectiveValue(t, tags);
+            if (bg == null) bg = "#ffffff";
 
-            if (fc.equalsIgnoreCase(bg)){
+            if (fc.equalsIgnoreCase(bg)) {
                 recordUsesColorInvisibility = true;
                 hidden = true;
             }
-            if ("none".equalsIgnoreCase(display)){
+            if ("none".equalsIgnoreCase(display)) {
                 hidden = true;
             }
 

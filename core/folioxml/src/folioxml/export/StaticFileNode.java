@@ -1,13 +1,14 @@
 package folioxml.export;
 
 
-import folioxml.xml.XmlRecord;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 
-import java.util.*;
+public class StaticFileNode implements FileNode {
 
-public class StaticFileNode implements FileNode{
-
-    public StaticFileNode(FileNode parent){
+    public StaticFileNode(FileNode parent) {
         this.parent = parent;
     }
 
@@ -22,7 +23,7 @@ public class StaticFileNode implements FileNode{
     }
 
     public StaticFileNode getP() {
-        return (StaticFileNode)parent;
+        return (StaticFileNode) parent;
     }
 
 
@@ -45,36 +46,36 @@ public class StaticFileNode implements FileNode{
     }
 
 
-    public int incrementCounter(String counterName, Integer startAt){
+    public int incrementCounter(String counterName, Integer startAt) {
         Integer current = getCounter(counterName, startAt) + 1;
-        getBag().put(counterName,current);
+        getBag().put(counterName, current);
         return current;
     }
 
-    public int getCounter(String counterName, Integer defaultValue){
-        Integer current = (Integer)getBag().get(counterName);
+    public int getCounter(String counterName, Integer defaultValue) {
+        Integer current = (Integer) getBag().get(counterName);
         return (current == null) ? defaultValue : current;
     }
 
-    public int setCounter(String counterName, Integer value){
-        getBag().put(counterName,value);
+    public int setCounter(String counterName, Integer value) {
+        getBag().put(counterName, value);
         return value;
     }
 
 
-    public String getDelimitedHierarchyValues(String counterName, String delimiter){
+    public String getDelimitedHierarchyValues(String counterName, String delimiter) {
         return ((parent == null) ? "" : getP().getDelimitedHierarchyValues(counterName, delimiter) + delimiter) + Integer.toString(getCounter(counterName, null));
     }
 
 
-    public Deque<StaticFileNode> getAncestors(boolean includeSelf){
+    public Deque<StaticFileNode> getAncestors(boolean includeSelf) {
         Deque<StaticFileNode> parents = new ArrayDeque<StaticFileNode>();
 
         StaticFileNode current = this;
         if (includeSelf) parents.add(this);
-        while (current.parent != null){
-            parents.addLast((StaticFileNode)current.parent);
-            current = (StaticFileNode)current.parent;
+        while (current.parent != null) {
+            parents.addLast((StaticFileNode) current.parent);
+            current = (StaticFileNode) current.parent;
         }
         return parents;
     }

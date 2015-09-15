@@ -15,10 +15,10 @@ public class ReplaceUnderline implements NodeListProcessor {
 
 
         NodeList stylin = nodes.search(new And(new NodeFilter(null, "style", null), new Not(new AncestorFilter(new NodeFilter("a|link")))));
-        for(Node n:stylin.list()){
+        for (Node n : stylin.list()) {
 
             String style = n.get("style");
-            if (style.indexOf(text_underline, 0) >= 0){
+            if (style.indexOf(text_underline, 0) >= 0) {
                 n.addClass("replace_underline");
                 style = style.replace(text_underline, "");
                 n.set("style", style);

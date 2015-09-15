@@ -12,28 +12,28 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
-public class YamlInfobaseSet implements InfobaseSet{
+public class YamlInfobaseSet implements InfobaseSet {
 
-    public static Map<String,InfobaseSet> parseYaml(String workingDir, InputStream s){
+    public static Map<String, InfobaseSet> parseYaml(String workingDir, InputStream s) {
         Yaml yaml = new Yaml();
-        HashMap<String,InfobaseSet> results = new HashMap<String,InfobaseSet>();
-        Map<String,Object> yml;
-        yml = (Map<String,Object>)yaml.load(s);
-        for(Map.Entry<String,Object> set: yml.entrySet()){
-            InfobaseSet is = new YamlInfobaseSet(set.getKey(), (Map<String, Object>)(set.getValue()), workingDir);
-            results.put(set.getKey(),is);
+        HashMap<String, InfobaseSet> results = new HashMap<String, InfobaseSet>();
+        Map<String, Object> yml;
+        yml = (Map<String, Object>) yaml.load(s);
+        for (Map.Entry<String, Object> set : yml.entrySet()) {
+            InfobaseSet is = new YamlInfobaseSet(set.getKey(), (Map<String, Object>) (set.getValue()), workingDir);
+            results.put(set.getKey(), is);
         }
         return results;
     }
 
-    public static Map<String,InfobaseSet> parseYamlFile(String path) throws FileNotFoundException {
+    public static Map<String, InfobaseSet> parseYamlFile(String path) throws FileNotFoundException {
         return parseYaml(new File(path).getParent(), new FileInputStream(new File(path)));
     }
 
     String name;
 
     String basedir;
-    Map<String,Object> data;
+    Map<String, Object> data;
     List<InfobaseConfig> infobases;
     Map<String, InfobaseConfig> infobasesByAlias;
 
@@ -57,7 +57,7 @@ public class YamlInfobaseSet implements InfobaseSet{
     public String getExportDir(boolean create) {
         String exportPath = getStringAsPath("export_dir", create ? FolderCreation.CreateAsDir : FolderCreation.None);
 
-        if (exportPath == null){
+        if (exportPath == null) {
             exportPath = Paths.get(getFirst().getFlatFilePath()).resolveSibling("export").toString();
         }
         return exportPath;
@@ -65,9 +65,9 @@ public class YamlInfobaseSet implements InfobaseSet{
     }
 
     public String getInfobaseDir() {
-        String dir =  getStringAsPath("infobase_dir", FolderCreation.None);
-        if (dir == null){
-            dir = resolvePath(basedir,null);
+        String dir = getStringAsPath("infobase_dir", FolderCreation.None);
+        if (dir == null) {
+            dir = resolvePath(basedir, null);
         }
         return dir;
     }
@@ -85,7 +85,7 @@ public class YamlInfobaseSet implements InfobaseSet{
     @Override
     public ExportLocations generateExportLocations() {
         Object el = data.get("export_locations");
-        return new YamlExportLocations(Paths.get(basedir), this.name, new Date(), (Map<String,Object>)el);
+        return new YamlExportLocations(Paths.get(basedir), this.name, new Date(), (Map<String, Object>) el);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class YamlInfobaseSet implements InfobaseSet{
     // Generates a base path that can be used for logs, reports, etc.
     public String generateExportBaseFile() {
         String cleanName = name.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-zA-Z_-]", "");
-        String exportFolderName =  cleanName + "-all" + new SimpleDateFormat("-dd-MMM-yy-(s)").format(new Date());
+        String exportFolderName = cleanName + "-all" + new SimpleDateFormat("-dd-MMM-yy-(s)").format(new Date());
         return getExportFile(Paths.get(exportFolderName).resolve(cleanName).toString(), true);
     }
 
@@ -104,7 +104,7 @@ public class YamlInfobaseSet implements InfobaseSet{
     }
 
     @Override
-    public String getStringAsPath(String key,  FolderCreation pathOptions) {
+    public String getStringAsPath(String key, FolderCreation pathOptions) {
         return getStringAsPath(key, basedir, pathOptions);
     }
 
@@ -123,64 +123,63 @@ public class YamlInfobaseSet implements InfobaseSet{
     }
 
 
-
     @Override
-    public  Object getObject(String key) {
+    public Object getObject(String key) {
         return data.get(key);
     }
 
 
-
     @Override
     public Boolean getBool(String key) {
-        return (Boolean)data.get(key);
+        return (Boolean) data.get(key);
     }
 
     @Override
     public Integer getInteger(String key) {
-        return (Integer)data.get(key);
+        return (Integer) data.get(key);
     }
 
-    public YamlInfobaseSet(String name, Map<String,Object> map, String workingDir){
+    public YamlInfobaseSet(String name, Map<String, Object> map, String workingDir) {
         this.basedir = workingDir;
         this.data = map;
         this.name = name;
         this.infobases = new ArrayList<InfobaseConfig>();
         this.infobasesByAlias = new HashMap<String, InfobaseConfig>();
-        for(Object o: ((List<Object>)data.get("infobases"))){
-            Map<String,Object> infobase = (Map<String,Object>)o;
+        for (Object o : ((List<Object>) data.get("infobases"))) {
+            Map<String, Object> infobase = (Map<String, Object>) o;
             InfobaseConfig c = new YamlInfobaseConfig(this, infobase);
             this.infobases.add(c);
-            for (String a: c.getAliases()){
+            for (String a : c.getAliases()) {
                 this.infobasesByAlias.put(a, c);
             }
         }
 
     }
 
-    private String slash(){
+    private String slash() {
         return System.getProperty("file.separator");
     }
 
     @Override
     public String getIndexDir() {
-        String indexPath =  getStringAsPath("index_dir", FolderCreation.None);
-        if (indexPath == null){
+        String indexPath = getStringAsPath("index_dir", FolderCreation.None);
+        if (indexPath == null) {
             indexPath = Paths.get(getExportDir(true)).resolve("combined_lucene_index").toString();
         }
         return indexPath;
     }
 
-    private String fixSlashes(String path){
+    private String fixSlashes(String path) {
         char otherSlash = slash().charAt(0) == '/' ? '\\' : '/';
         return path.replace(otherSlash, slash().charAt(0));
     }
-    private String joinPath(String a, String b){
+
+    private String joinPath(String a, String b) {
         a = fixSlashes(a);
         b = fixSlashes(b);
 
         //Trim slashes
-        while (a.endsWith(slash())) a = a.substring(0,a.length() -1);
+        while (a.endsWith(slash())) a = a.substring(0, a.length() - 1);
         while (b.startsWith(slash())) b = b.substring(1);
 
         return a + slash() + b;
@@ -189,20 +188,20 @@ public class YamlInfobaseSet implements InfobaseSet{
     public String resolvePath(String path, String base_path) {
         if (path == null) return null;
         //Deal with user directories
-        path = path.replaceFirst("^~",System.getProperty("user.home"));
+        path = path.replaceFirst("^~", System.getProperty("user.home"));
 
         path = fixSlashes(path);
 
         Path p_path = Paths.get(path);
 
-        if (p_path.isAbsolute()){
+        if (p_path.isAbsolute()) {
             return p_path.toAbsolutePath().toString();
-        }else{
-            if (base_path != null){
+        } else {
+            if (base_path != null) {
                 //Clean the base path, possibly resolving it
                 String clean_base = resolvePath(base_path, null);
                 return Paths.get(clean_base).resolve(p_path).toAbsolutePath().toString();
-            }else{
+            } else {
                 return path; //Sad path, lost path,
             }
 

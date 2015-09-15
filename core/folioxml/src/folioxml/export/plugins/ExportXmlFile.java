@@ -2,8 +2,6 @@ package folioxml.export.plugins;
 
 import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
-import folioxml.core.TokenUtils;
-import folioxml.css.StylesheetBuilder;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.LogStreamProvider;
@@ -11,20 +9,23 @@ import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
 import folioxml.xml.*;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 
 public class ExportXmlFile implements InfobaseSetPlugin {
 
-    public ExportXmlFile(){}
-    public ExportXmlFile(Boolean indentXml){
+    public ExportXmlFile() {
+    }
+
+    public ExportXmlFile(Boolean indentXml) {
         this.indentXml = indentXml;
     }
+
     private Boolean indentXml = null;
 
     private Deque<FileNode> openFileNodes = null;
@@ -32,12 +33,12 @@ public class ExportXmlFile implements InfobaseSetPlugin {
     private int indentLevel = 0;
     private String indentString = "  ";
 
-    private Boolean  skipNormalRecords = true;
+    private Boolean skipNormalRecords = true;
     private Boolean nestFileElements = true;
 
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
-        out  = Files.newBufferedWriter(export.getLocalPath(set.getId() + ".xml", AssetType.Xml, FolderCreation.CreateParents), Charset.forName("UTF-8"));
+        out = Files.newBufferedWriter(export.getLocalPath(set.getId() + ".xml", AssetType.Xml, FolderCreation.CreateParents), Charset.forName("UTF-8"));
 
         out.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
         openElement("infobases");
@@ -58,9 +59,10 @@ public class ExportXmlFile implements InfobaseSetPlugin {
 
     boolean infobaseTagOpened = false;
     InfobaseConfig current = null;
+
     @Override
     public void beginInfobase(InfobaseConfig infobase) throws IOException {
-        current= infobase;
+        current = infobase;
         openFileNodes = new ArrayDeque<FileNode>();
     }
 
@@ -89,9 +91,9 @@ public class ExportXmlFile implements InfobaseSetPlugin {
         if (xr.isRootRecord() == infobaseTagOpened)
             throw new InvalidMarkupException("The first record of every infobase should be the root record");
 
-        if (!infobaseTagOpened){
+        if (!infobaseTagOpened) {
             String author = new NodeList(xr).search(new NodeFilter("infobase-meta", "type", "author")).getTextContents().trim();
-            NodeList titleElements = new NodeList(xr).search(new NodeFilter("infobase-meta","type","title"));
+            NodeList titleElements = new NodeList(xr).search(new NodeFilter("infobase-meta", "type", "title"));
             String title = titleElements.count() > 0 ? titleElements.first().get("content").trim() : "";
 
             Node n = new Node("<infobase></infobase>");
@@ -103,9 +105,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
             openElement(n);
 
             infobaseTagOpened = true;
-        }
-
-        else{
+        } else {
 
             boolean skip = skipNormalRecords && !xr.isLevelRecord();
             if (nestFileElements) {
@@ -120,7 +120,7 @@ public class ExportXmlFile implements InfobaseSetPlugin {
                 if (skip) return;
                 openBody();
 
-            }else{
+            } else {
                 closeAllUntil(file);
                 if (skip) return;
                 openFile(file);
@@ -135,25 +135,23 @@ public class ExportXmlFile implements InfobaseSetPlugin {
     }
 
 
-
-
-    public Deque<FileNode> getAncestors(FileNode n, boolean includeSelf){
+    public Deque<FileNode> getAncestors(FileNode n, boolean includeSelf) {
         Deque<FileNode> parents = new ArrayDeque<FileNode>();
 
         FileNode current = n;
         if (includeSelf) parents.add(n);
-        while (current.getParent() != null){
+        while (current.getParent() != null) {
             parents.addLast(current.getParent());
             current = current.getParent();
         }
         return parents;
     }
 
-    public FileNode getCommonAncestor(FileNode a, FileNode b, boolean includeSelves){
+    public FileNode getCommonAncestor(FileNode a, FileNode b, boolean includeSelves) {
         Deque<FileNode> parents = getAncestors(a, includeSelves);
         Deque<FileNode> otherParents = getAncestors(b, includeSelves);
         FileNode common = null;
-        while (!parents.isEmpty() && !otherParents.isEmpty()){
+        while (!parents.isEmpty() && !otherParents.isEmpty()) {
             FileNode c = parents.removeLast();
             if (c == otherParents.removeLast()) common = c;
             else break;
@@ -161,13 +159,13 @@ public class ExportXmlFile implements InfobaseSetPlugin {
         return common;
     }
 
-    private boolean getBool(FileNode n, String key, boolean defaultValue){
+    private boolean getBool(FileNode n, String key, boolean defaultValue) {
         Object o = n.getBag().get(key);
-        return o == null ? defaultValue : (Boolean)o;
+        return o == null ? defaultValue : (Boolean) o;
     }
 
-    private void setBool(FileNode n, String key, boolean value){
-        n.getBag().put(key,value);
+    private void setBool(FileNode n, String key, boolean value) {
+        n.getBag().put(key, value);
     }
 
     private void openFile(FileNode n) throws IOException, InvalidMarkupException {
@@ -181,46 +179,48 @@ public class ExportXmlFile implements InfobaseSetPlugin {
 
     private void openBody() throws IOException {
         FileNode top = openFileNodes.peek();
-        if (!getBool(top, "bodyOpen", false)){
+        if (!getBool(top, "bodyOpen", false)) {
             openElement("body");
-            setBool(top,"bodyOpen", true);
+            setBool(top, "bodyOpen", true);
         }
     }
 
     private void openChildren() throws IOException {
         FileNode top = openFileNodes.peek();
         if (top == null) return;
-        if (getBool(top, "bodyOpen", false)){
+        if (getBool(top, "bodyOpen", false)) {
             closeElement("body");
-            setBool(top,"bodyOpen", false);
+            setBool(top, "bodyOpen", false);
         }
-        if (!getBool(top, "childrenOpen", false)){
+        if (!getBool(top, "childrenOpen", false)) {
             openElement("children");
-            setBool(top,"childrenOpen", true);
+            setBool(top, "childrenOpen", true);
         }
         //Close body tag if open, open children tag.
     }
+
     private void closeAllUntil(FileNode until) throws IOException {
-        while (!openFileNodes.isEmpty()){
+        while (!openFileNodes.isEmpty()) {
             if (openFileNodes.peek() == until) return;
             FileNode top = openFileNodes.removeFirst();
-            if (getBool(top, "bodyOpen", false)){
+            if (getBool(top, "bodyOpen", false)) {
                 closeElement("body");
-                setBool(top,"bodyOpen", false);
+                setBool(top, "bodyOpen", false);
             }
-            if (getBool(top, "childrenOpen", false)){
+            if (getBool(top, "childrenOpen", false)) {
                 closeElement("children");
-                setBool(top,"childrenOpen", false);
+                setBool(top, "childrenOpen", false);
             }
             closeElement("file");
         }
     }
 
     private void writeIndent() throws IOException {
-        for (int i = 0; i < indentLevel; i++){
+        for (int i = 0; i < indentLevel; i++) {
             out.append(indentString);
         }
     }
+
     private void openElement(String elementName) throws IOException {
         writeIndent();
         out.append("<");
@@ -228,17 +228,19 @@ public class ExportXmlFile implements InfobaseSetPlugin {
         out.append(">\n");
         indentLevel++;
     }
+
     private void openElement(Node element) throws IOException, InvalidMarkupException {
         StringBuilder sb = new StringBuilder();
         writeIndent();
-        if (element.getAttributes().values().contains(null)){
-          //  throw new IOException("Null attribute value in " + element.toXmlString(true));
+        if (element.getAttributes().values().contains(null)) {
+            //  throw new IOException("Null attribute value in " + element.toXmlString(true));
         }
         element.writeTokenTo(sb);
         out.append(sb);
         out.append("\n");
         indentLevel++;
     }
+
     private void closeElement(String elementName) throws IOException {
         indentLevel--;
         writeIndent();

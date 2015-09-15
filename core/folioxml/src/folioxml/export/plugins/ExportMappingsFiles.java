@@ -15,9 +15,11 @@ import java.io.IOException;
 
 public class ExportMappingsFiles implements InfobaseSetPlugin {
 
-    public ExportMappingsFiles(){}
+    public ExportMappingsFiles() {
+    }
 
     ExportLocations export;
+
     @Override
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException, InvalidMarkupException {
         this.export = export;
@@ -29,6 +31,7 @@ public class ExportMappingsFiles implements InfobaseSetPlugin {
     }
 
     FolioToSlxDiagnosticTool tool = null;
+
     @Override
     public ISlxTokenReader wrapSlxReader(ISlxTokenReader reader) {
         tool = new FolioToSlxDiagnosticTool(reader);
@@ -56,10 +59,10 @@ public class ExportMappingsFiles implements InfobaseSetPlugin {
     }
 
 
-
     @Override
     public void endInfobase(InfobaseConfig infobase) throws IOException, InvalidMarkupException {
-        if (tool != null) tool.outputDataFiles(export.getLocalPath(infobase.getId() + ".mappings.txt", AssetType.Text, FolderCreation.CreateParents).toString());
+        if (tool != null)
+            tool.outputDataFiles(export.getLocalPath(infobase.getId() + ".mappings.txt", AssetType.Text, FolderCreation.CreateParents).toString());
         tool = null;
 
     }

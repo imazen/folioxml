@@ -10,12 +10,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by nathanael on 6/17/15.
  */
-public class YamlExportLocations implements  ExportLocations {
+public class YamlExportLocations implements ExportLocations {
 
 
     String config_id;
@@ -30,47 +29,47 @@ public class YamlExportLocations implements  ExportLocations {
         this.locations_config = locations_config;
     }
 
-    private String getStamp(){
+    private String getStamp() {
         return new SimpleDateFormat("dd-MMM-yy-(S)").format(export_date);
     }
 
-    private String applyRegexes(String input, AssetType kind){
+    private String applyRegexes(String input, AssetType kind) {
         String regex = getString("find", kind, null);
         String replacement = getString("replace", kind, null);
         if (regex == null || replacement == null) return input;
 
-        return input.replaceAll(regex,replacement);
+        return input.replaceAll(regex, replacement);
     }
 
-    private String expandPath(String path, String input){
+    private String expandPath(String path, String input) {
         return path.replaceAll("\\{id\\}", Matcher.quoteReplacement(config_id)).replaceAll("\\{stamp\\}", Matcher.quoteReplacement(getStamp())).replaceAll("\\{input\\}", Matcher.quoteReplacement(input)).replaceFirst("^~", Matcher.quoteReplacement(System.getProperty("user.home")));
     }
 
 
-    private String getString(String key, AssetType category, String defaultValue){
+    private String getString(String key, AssetType category, String defaultValue) {
         Object cat = locations_config.get(category.toString().toLowerCase());
         if (cat == null) cat = locations_config.get(category.toString());
         if (cat == null) return defaultValue;
 
-        Map<String,Object> conf = (Map<String,Object>)cat;
+        Map<String, Object> conf = (Map<String, Object>) cat;
 
         Object value = conf.get(key);
         if (value == null) value = conf.get(key.toLowerCase());
 
-        return value == null ? defaultValue : (String)value;
+        return value == null ? defaultValue : (String) value;
     }
 
     private Path createFoldersInPath(Path path, FolderCreation creationOptions) throws IOException {
         if (creationOptions == FolderCreation.None) return path;
-        File to_create = creationOptions == FolderCreation.CreateParents   ? path.getParent().toFile() : path.toFile();
-        if (!to_create.exists() && !to_create.mkdirs()){
+        File to_create = creationOptions == FolderCreation.CreateParents ? path.getParent().toFile() : path.toFile();
+        if (!to_create.exists() && !to_create.mkdirs()) {
             throw new IOException("Failed to create directories in " + to_create.toString());
         }
         return path;
     }
 
 
-    private String replace_slashes(String path, char use_slash ){
+    private String replace_slashes(String path, char use_slash) {
         char otherSlash = use_slash == '/' ? '\\' : '/';
         return path.replace(otherSlash, use_slash);
     }
@@ -87,27 +86,26 @@ public class YamlExportLocations implements  ExportLocations {
 
     @Override
     public Path getLocalPath(String relativePath, AssetType assetType, FolderCreation folderCreation) throws IOException {
-        String path_pattern = getString("path", assetType, getString("path",AssetType.Default, null));
-        if (path_pattern == null) throw new IOException("yaml configuration error: No path value configured for export_locations: " + assetType.toString().toLowerCase());
+        String path_pattern = getString("path", assetType, getString("path", AssetType.Default, null));
+        if (path_pattern == null)
+            throw new IOException("yaml configuration error: No path value configured for export_locations: " + assetType.toString().toLowerCase());
 
-        String input = applyRegexes(relativePath,assetType);
+        String input = applyRegexes(relativePath, assetType);
 
         String expanded = expandPath(path_pattern, input);
 
-        Path result =  resolvePath(expanded);
+        Path result = resolvePath(expanded);
 
         return createFoldersInPath(result, folderCreation);
     }
 
 
-
-
     @Override
     public URL getPublicUrl(String relativePath, AssetType assetType) throws MalformedURLException {
-        String url_pattern = getString("url", assetType, getString("url",AssetType.Default, null));
+        String url_pattern = getString("url", assetType, getString("url", AssetType.Default, null));
         if (url_pattern == null) return null;
 
-        String input = applyRegexes(replace_slashes(relativePath, '/'),assetType);
+        String input = applyRegexes(replace_slashes(relativePath, '/'), assetType);
 
         String expanded = expandPath(url_pattern, input);
 
@@ -116,10 +114,10 @@ public class YamlExportLocations implements  ExportLocations {
 
     @Override
     public String getUri(String relativePath, AssetType assetType, Path document_base) throws IOException {
-        URL pub = getPublicUrl(relativePath,assetType);
+        URL pub = getPublicUrl(relativePath, assetType);
         if (pub != null) return pub.toString();
 
-        Path assetPath = getLocalPath(relativePath,assetType, FolderCreation.None);
+        Path assetPath = getLocalPath(relativePath, assetType, FolderCreation.None);
 
         String relative_physical = document_base.getParent().relativize(assetPath).toString();
         return replace_slashes(relative_physical, '/');

@@ -8,7 +8,8 @@ import java.io.IOException;
 
 public class IdentityProcessor implements NodeListProcessor {
 
-    public IdentityProcessor(){}
+    public IdentityProcessor() {
+    }
 
     public NodeList process(NodeList nodes) throws InvalidMarkupException, IOException {
         return nodes;

@@ -1,16 +1,11 @@
 package folioxml.export.structure;
 
 
-import folioxml.config.InfobaseConfig;
-import folioxml.config.InfobaseSet;
 import folioxml.core.InvalidMarkupException;
-import folioxml.core.TokenUtils;
 import folioxml.export.FileNode;
-import folioxml.export.NodeInfoProvider;
 import folioxml.export.StaticFileNode;
 import folioxml.xml.XmlRecord;
 
-import javax.jws.soap.SOAPBinding;
 import java.util.*;
 
 
@@ -27,9 +22,10 @@ public class IdSlugProvider extends BaseFileSplitter {
         super(levelRegex, splitOnFieldName);
         this.idKind = idKind == null ? 0 : idKind;
         this.start_index = start_index == null ? 1 : start_index;
-        this.root_index = root_index == null ? 1 :  root_index;
+        this.root_index = root_index == null ? 1 : root_index;
         this.sequentialIndex = root_index;
     }
+
     int idKind;
     int start_index;
     int root_index;
@@ -51,28 +47,28 @@ public class IdSlugProvider extends BaseFileSplitter {
     }
 
     public String getRelativePathFor(FileNode fn, int kind) {
-        if (kind == 0){
+        if (kind == 0) {
             return getSlugPathFor(fn);
-        }else if (kind == 1){
+        } else if (kind == 1) {
             return Integer.toString((Integer) fn.getBag().get("global-index"));
-        }else if (kind == 2 ){
+        } else if (kind == 2) {
             return getNestedIntegerPathFor(fn);
-        }else if (kind == 3){
+        } else if (kind == 3) {
             return ((UUID) fn.getBag().get("guid")).toString();
-        }else if (kind == 4){
-            if (fn.getBag().get("folio-id") == null){
-                return (fn.getBag().get("infobase-id") + "-i" +Integer.toString((Integer) fn.getBag().get("global-index"))).toLowerCase();
-            }else {
+        } else if (kind == 4) {
+            if (fn.getBag().get("folio-id") == null) {
+                return (fn.getBag().get("infobase-id") + "-i" + Integer.toString((Integer) fn.getBag().get("global-index"))).toLowerCase();
+            } else {
                 return (fn.getBag().get("infobase-id") + "-" + (String) fn.getBag().get("folio-id")).toLowerCase();
             }
-        }else if (kind > 4){
+        } else if (kind > 4) {
             //Try to use split field value as ID, then fall back to kind - 5
 
             Object otext = fn.getBag().get("split-field-text");
             if (otext == null)
                 return getRelativePathFor(fn, kind - 5);
             else
-                return (String)otext;
+                return (String) otext;
         }
         return getSlugPathFor(fn);
     }
@@ -81,9 +77,9 @@ public class IdSlugProvider extends BaseFileSplitter {
     public String getNestedIntegerPathFor(FileNode fn) {
 
         StringBuilder sb = new StringBuilder();
-        Deque<StaticFileNode> list = ((StaticFileNode)fn).getAncestors(true);
+        Deque<StaticFileNode> list = ((StaticFileNode) fn).getAncestors(true);
         StaticFileNode n = null;
-        while (!list.isEmpty()){
+        while (!list.isEmpty()) {
             sb.append((String) list.removeLast().getBag().get("local-index"));
             if (!list.isEmpty()) sb.append('.');
         }
@@ -93,9 +89,9 @@ public class IdSlugProvider extends BaseFileSplitter {
     public String getSlugPathFor(FileNode fn) {
 
         StringBuilder sb = new StringBuilder();
-        Deque<StaticFileNode> list = ((StaticFileNode)fn).getAncestors(true);
+        Deque<StaticFileNode> list = ((StaticFileNode) fn).getAncestors(true);
         StaticFileNode n = null;
-        while (!list.isEmpty()){
+        while (!list.isEmpty()) {
             sb.append((String) list.removeLast().getBag().get("slug"));
             if (!list.isEmpty()) sb.append('/');
         }
@@ -103,22 +99,21 @@ public class IdSlugProvider extends BaseFileSplitter {
     }
 
 
-
     public void PopulateNodeInfo(XmlRecord r, FileNode f) throws InvalidMarkupException {
         //Infobase ID comes in handy when generating the slug
         XmlRecord root = r.getRoot();
 
-        if (root != null && root.get("infobaseId") != null){
+        if (root != null && root.get("infobaseId") != null) {
             f.getBag().put("infobase-id", root.get("infobaseId"));
         }
 
         String[] levels = root.get("levelDefOrder").split(",");
         String level = r.getLevelType();
-        if (level != null){
+        if (level != null) {
             f.getBag().put("folio-level", level);
 
-            for (int i =0; i < levels.length; i++){
-                if (levels[i].equalsIgnoreCase(level)){
+            for (int i = 0; i < levels.length; i++) {
+                if (levels[i].equalsIgnoreCase(level)) {
                     f.getBag().put("folio-level-index", i + 1);
                     f.getAttributes().put("level-index", Integer.toString(i + 1));
                     break;
@@ -143,13 +138,13 @@ public class IdSlugProvider extends BaseFileSplitter {
         }
 
         String splitText = getSplitFieldText(r);
-        if (splitText != null && splitText.length() > 0){
+        if (splitText != null && splitText.length() > 0) {
             //ONLY ADD IF unique across infobase
 
             Integer totalCount = incrementValueCount(splitText, "splitTexts", silentRoot);
-            if (totalCount > 1){
+            if (totalCount > 1) {
                 System.out.append("Skipping use of split-text-field for ID - value '" + splitText + "' has been used before and is not unique.\n");
-            }else {
+            } else {
                 f.getBag().put("split-field-text", splitText);
                 f.getAttributes().put(splitOnFieldName.toLowerCase() + "-text", splitText);
             }
@@ -160,7 +155,7 @@ public class IdSlugProvider extends BaseFileSplitter {
 
     }
 
-    private void populateHeadings(FileNode from, FileNode to){
+    private void populateHeadings(FileNode from, FileNode to) {
         Object headingIndex = from.getBag().get("folio-level-index");
         if (headingIndex != null) {
             String heading = from.getAttributes().get("heading");
@@ -174,14 +169,14 @@ public class IdSlugProvider extends BaseFileSplitter {
 
     private String getSlug(XmlRecord r, FileNode f) throws InvalidMarkupException {
 
-        String heading =  r.get("heading");
+        String heading = r.get("heading");
 
-        String slug =  heading == null ? null : slugify(heading, 100);
+        String slug = heading == null ? null : slugify(heading, 100);
 
         if (r.isRootRecord() && (slug == null || slug.isEmpty())) {
             Object name = f.getBag().get("infobase-id");
             if (name == null) name = "index";
-            slug = (String)name;
+            slug = (String) name;
         }
         if (slug == null) slug = "untitled";
         FileNode parentScope = f.getParent() == null ? silentRoot : f.getParent();
@@ -191,32 +186,31 @@ public class IdSlugProvider extends BaseFileSplitter {
     }
 
 
-
-    protected String slugify(String text, int maxLength){
+    protected String slugify(String text, int maxLength) {
         String slug = text.toLowerCase(Locale.ENGLISH).replaceAll("[^a-zA-Z0-9-_~$]", " ").trim();
         slug = slug.replaceAll("[ \t\r\n]+", "-").toLowerCase(Locale.ENGLISH);
 
-        if (slug.length() > maxLength) slug = slug.substring(0,maxLength);
+        if (slug.length() > maxLength) slug = slug.substring(0, maxLength);
         return slug;
     }
 
 
-    protected Integer incrementSlug(String slug, FileNode scope){
+    protected Integer incrementSlug(String slug, FileNode scope) {
         return incrementValueCount(slug, "childSlugs", scope);
     }
 
-    protected Integer incrementValueCount(String value, String  dictName, FileNode scope){
+    protected Integer incrementValueCount(String value, String dictName, FileNode scope) {
         //Access sibling values to ensure uniqueness.
         Object oslugs = scope.getBag().get(dictName);
         if (oslugs == null) {
             oslugs = new HashMap<String, Integer>();
             scope.getBag().put(dictName, oslugs);
         }
-        Map<String, Integer> allValues = (Map<String, Integer>)oslugs;
+        Map<String, Integer> allValues = (Map<String, Integer>) oslugs;
 
         String normalizedValue = value.trim().toLowerCase();
 
-        if (allValues.get(normalizedValue) == null){
+        if (allValues.get(normalizedValue) == null) {
             allValues.put(normalizedValue, 0);
         }
         //Increment
@@ -226,19 +220,18 @@ public class IdSlugProvider extends BaseFileSplitter {
     }
 
 
-    protected Integer incrementChildCount(FileNode scope){
+    protected Integer incrementChildCount(FileNode scope) {
         //Access sibling slugs to ensure uniqueness.
         Object count = scope.getBag().get("childCount");
         if (count == null) {
             Integer index_at = ((scope == silentRoot) ? root_index : start_index);
             scope.getBag().put("childCount", index_at - 1);
         }
-        Integer child_count = (Integer)scope.getBag().get("childCount");
+        Integer child_count = (Integer) scope.getBag().get("childCount");
         child_count++;
-        scope.getBag().put("childCount",child_count);
+        scope.getBag().put("childCount", child_count);
         return child_count;
     }
-
 
 
 }

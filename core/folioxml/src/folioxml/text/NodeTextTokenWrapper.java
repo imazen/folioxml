@@ -6,7 +6,7 @@ import folioxml.xml.Node;
 /**
  * Created by nathanael on 6/18/15.
  */
-public class NodeTextTokenWrapper  implements ITextToken {
+public class NodeTextTokenWrapper implements ITextToken {
     private Node n;
 
     public NodeTextTokenWrapper(Node n) {

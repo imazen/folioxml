@@ -105,7 +105,7 @@ public class RegexTestHarness {
 
             if (index != text.length()) {
 
-                if (index < 0){
+                if (index < 0) {
                     throw new Error();
                 }
                 CharSequence next = null;
@@ -169,7 +169,7 @@ public class RegexTestHarness {
         char[] chars = new char[8192];
         int numRead = 0;
         while ((numRead = reader.read(chars)) > -1) {
-            sb.append(String.valueOf(chars,0,numRead));
+            sb.append(String.valueOf(chars, 0, numRead));
         }
 
         reader.close();
@@ -183,7 +183,7 @@ public class RegexTestHarness {
         char[] chars = new char[8192];
         int numRead = 0;
         while ((numRead = reader.read(chars)) > -1) {
-            sb.append(String.valueOf(chars,0,numRead));
+            sb.append(String.valueOf(chars, 0, numRead));
         }
 
         reader.close();

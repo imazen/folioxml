@@ -13,39 +13,39 @@ import java.util.regex.Pattern;
 public class FixHttpLinks implements NodeListProcessor {
 
 
-    public FixHttpLinks(){
+    public FixHttpLinks() {
 
     }
 
-    protected static Pattern scheme = Pattern.compile("\\A\\s*(mailto:|[a-zA-Z][A-Za-z0-9+.-]*://)",Pattern.CASE_INSENSITIVE);
+    protected static Pattern scheme = Pattern.compile("\\A\\s*(mailto:|[a-zA-Z][A-Za-z0-9+.-]*://)", Pattern.CASE_INSENSITIVE);
 
-    protected static Pattern missingslash = Pattern.compile("\\A\\s*(https?):/([^/])",Pattern.CASE_INSENSITIVE);//\\G\\s++(\\w[\\w-:]*+)(?:\\s*+=\\s*+\"([^\"]*+)\"|\\s*+=\\s*+'([^']*+)'|\\s*+=\\s*+([^\\s=/>]*+)|(\\s*?))");
+    protected static Pattern missingslash = Pattern.compile("\\A\\s*(https?):/([^/])", Pattern.CASE_INSENSITIVE);//\\G\\s++(\\w[\\w-:]*+)(?:\\s*+=\\s*+\"([^\"]*+)\"|\\s*+=\\s*+'([^']*+)'|\\s*+=\\s*+([^\\s=/>]*+)|(\\s*?))");
 
 
-    private boolean validUrl(String address){
-        try{
+    private boolean validUrl(String address) {
+        try {
             URL u = new URL(address);
             return true;
-        }catch(MalformedURLException e){
+        } catch (MalformedURLException e) {
             return false;
         }
     }
 
     public NodeList process(NodeList nodes) throws InvalidMarkupException {
         NodeList links = nodes.filterByTagName("a|link", true);
-        for (Node n:links.list()){
+        for (Node n : links.list()) {
             //Type may be any of 'folio', 'data-link', 'ole', or 'class-object', as the attributes from the object definition have been merged in
             //Limit this exclusively to web links; data links are physical paths.
-            if (TokenUtils.fastMatches("folio|data-link", n.get("type"))){
+            if (TokenUtils.fastMatches("folio|data-link", n.get("type"))) {
                 continue;
             }
             String url = n.get("href");
             String repairedUrl = repairUrl(url);
-            if (repairedUrl != null && !repairedUrl.equals(url)){
-                n.set("href",  repairedUrl);
+            if (repairedUrl != null && !repairedUrl.equals(url)) {
+                n.set("href", repairedUrl);
                 n.setTagName("a"); //Just those we change.
-            }else{
-                if (validUrl(url)){
+            } else {
+                if (validUrl(url)) {
                     n.setTagName("a"); //And those that validate as a correct URL w/schema & everything.
                 }
             }
@@ -53,20 +53,20 @@ public class FixHttpLinks implements NodeListProcessor {
         return nodes;
     }
 
-    public  String repairUrl(String url){
+    public String repairUrl(String url) {
         //Backslashes indicate a physical path; do not touch.
         if (url == null || url.contains("\\")) return url;
 
         //First check if the scheme is missing
-        if (!scheme.matcher(url).find()){
+        if (!scheme.matcher(url).find()) {
             //Try to repair http:/ -> http://
             String url2 = missingslash.matcher(url).replaceFirst("$1://$2");
             //If the scheme is still missing, add it
-            if (!scheme.matcher(url2).find()){
+            if (!scheme.matcher(url2).find()) {
                 url2 = "http://" + url.trim();
             }
             //If that causes the URL to be correctly formed, return that repaired url
-            if (validUrl(url2)){
+            if (validUrl(url2)) {
                 return url2;
             }
         }

@@ -3,34 +3,32 @@ package folioxml.directexport;
 import folioxml.config.InfobaseSet;
 import folioxml.config.TestConfig;
 import folioxml.config.YamlInfobaseSet;
-import folioxml.export.html.ReplaceUnderline;
-import folioxml.export.structure.DateCollapsingSlugProvider;
+import folioxml.core.InvalidMarkupException;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.InfobaseSetVisitor;
-import folioxml.export.structure.SlugProvider;
 import folioxml.export.html.*;
-
 import folioxml.export.plugins.*;
+import folioxml.export.structure.DateCollapsingSlugProvider;
+import folioxml.export.structure.SlugProvider;
 import folioxml.lucene.InfobaseSetIndexer;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import folioxml.core.InvalidMarkupException;
-
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 public class SimultaneousTest {
 
 
-    private InfobaseSet loadPrivate(String name){
+    private InfobaseSet loadPrivate(String name) {
 
-        InputStream privateYaml =  TestConfig.class.getResourceAsStream("/private.yaml");
+        InputStream privateYaml = TestConfig.class.getResourceAsStream("/private.yaml");
 
         String classDir = TestConfig.class.getProtectionDomain().getCodeSource().getLocation().getFile();
         String workingDir = Paths.get(classDir).getParent().getParent().getParent().getParent().toAbsolutePath().toString();
@@ -38,18 +36,20 @@ public class SimultaneousTest {
         return YamlInfobaseSet.parseYaml(workingDir, privateYaml).get(name);
     }
 
-    @Test @Ignore
-    public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+    @Test
+    @Ignore
+    public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(new SlugProvider("Book|Section")));
         plugins.add(new InfobaseSetIndexer());
-        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"),plugins);
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"), plugins);
         visitor.complete();
     }
 
-    @Test @Ignore
-    public void InventoryHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+    @Test
+    @Ignore
+    public void InventoryHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(new SlugProvider()));
@@ -57,12 +57,13 @@ public class SimultaneousTest {
         plugins.add(new ApplyProcessor(new FixHttpLinks()));
         plugins.add(new ResolveHyperlinks());
         plugins.add(new ExportInventory());
-        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"),plugins);
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"), plugins);
         visitor.complete();
     }
 
-    @Test @Ignore
-    public void ExportHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+    @Test
+    @Ignore
+    public void ExportHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
         //inventory and
 
         //NodeInfoProvider class name
@@ -88,7 +89,7 @@ public class SimultaneousTest {
                 CleanupSlxStuff.CleanupOptions.RenameLinkToA,
                 CleanupSlxStuff.CleanupOptions.RenameBookmarks,
                 CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
-        MultiRunner xhtml = new MultiRunner( new Images(), new Notes(), new Popups(), cleanup,new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags());
+        MultiRunner xhtml = new MultiRunner(new Images(), new Notes(), new Popups(), cleanup, new FauxTabs(80, 120), new ReplaceUnderline(), new SplitSelfClosingTags());
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(new SlugProvider("Book|Section")));
@@ -101,7 +102,7 @@ public class SimultaneousTest {
         plugins.add(new ExportCssFile());
         plugins.add(new ApplyProcessor(new HtmlTidy()));
         plugins.add(new ExportXmlFile());
-        plugins.add(new ExportHtmlFiles(true,true));
+        plugins.add(new ExportHtmlFiles(true, true));
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"), plugins);
 
         visitor.complete();
@@ -109,21 +110,23 @@ public class SimultaneousTest {
     }
 
 
-    @Test @Ignore
-    public void IndexSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+    @Test
+    @Ignore
+    public void IndexSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(new DateCollapsingSlugProvider()));
         plugins.add(new InfobaseSetIndexer());
         //plugins.add(new ExportMappingsFiles());
-        InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"),plugins);
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"), plugins);
 
         visitor.complete();
     }
 
 
-    @Test @Ignore
-    public void InventorySet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+    @Test
+    @Ignore
+    public void InventorySet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
 
         CleanupSlxStuff cleanup = new CleanupSlxStuff(EnumSet.of(CleanupSlxStuff.CleanupOptions.PullProgramLinks, CleanupSlxStuff.CleanupOptions.PullMenuLinks, CleanupSlxStuff.CleanupOptions.DropTypeAttr));
         MultiRunner xhtml = new MultiRunner(cleanup, new Images(), new Notes(), new Popups(), new SplitSelfClosingTags());
@@ -139,8 +142,9 @@ public class SimultaneousTest {
 
     }
 
-    @Test @Ignore
-    public void ExportSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+    @Test
+    @Ignore
+    public void ExportSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
         //inventory and
 
         //NodeInfoProvider class name
@@ -166,7 +170,7 @@ public class SimultaneousTest {
                 CleanupSlxStuff.CleanupOptions.RenameLinkToA,
                 CleanupSlxStuff.CleanupOptions.RenameBookmarks,
                 CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
-        MultiRunner xhtml = new MultiRunner( new Images(), new Notes(), new Popups(), cleanup,new FauxTabs(80,120), new ReplaceUnderline(), new SplitSelfClosingTags());
+        MultiRunner xhtml = new MultiRunner(new Images(), new Notes(), new Popups(), cleanup, new FauxTabs(80, 120), new ReplaceUnderline(), new SplitSelfClosingTags());
 
         List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
         plugins.add(new ExportStructure(new DateCollapsingSlugProvider()));
@@ -178,7 +182,7 @@ public class SimultaneousTest {
         plugins.add(new ApplyProcessor(xhtml));
         plugins.add(new ExportCssFile());
         plugins.add(new ExportXmlFile(false));
-        plugins.add(new ExportHtmlFiles(true,true));
+        plugins.add(new ExportHtmlFiles(true, true));
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"), plugins);
 
         visitor.complete();

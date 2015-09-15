@@ -8,6 +8,7 @@ import java.nio.file.Path;
 public interface ExportLocations {
 
     Path getLocalPath(String relativePath, AssetType assetType, FolderCreation folderCreation) throws IOException;
+
     URL getPublicUrl(String relativePath, AssetType assetType) throws MalformedURLException;
 
     // Attempts to get the public URL - if not available, uses a relative URL based on the difference between the current document_base and the asset on the filesystem.

@@ -6,6 +6,8 @@ import java.io.IOException;
 
 public interface IXmlTokenReader {
     public XmlToken read() throws IOException, InvalidMarkupException;
+
     public void close() throws IOException;
+
     public boolean canRead();
 }

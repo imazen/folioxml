@@ -19,18 +19,18 @@ public class TextLinesSequencer {
         linesOfTOkens = new ArrayList<List<ITextToken>>(linebreaks.count());
 
         Node prev = null;
-        for(Node b:linebreaks.list()){
-            NodeList tokens = nl.textEntityNodesBetween(prev,b,exclusionFilter);
+        for (Node b : linebreaks.list()) {
+            NodeList tokens = nl.textEntityNodesBetween(prev, b, exclusionFilter);
             addLineFromTextNodeList(tokens);
             prev = b;
         }
-        NodeList tokens = nl.textEntityNodesBetween(prev,null,exclusionFilter);
+        NodeList tokens = nl.textEntityNodesBetween(prev, null, exclusionFilter);
         addLineFromTextNodeList(tokens);
     }
 
-    private void addLineFromTextNodeList(NodeList tokens){
+    private void addLineFromTextNodeList(NodeList tokens) {
         ArrayList<ITextToken> wrapped = new ArrayList<ITextToken>(tokens.count());
-        for(Node text: tokens.list()){
+        for (Node text : tokens.list()) {
             wrapped.add(new NodeTextTokenWrapper(text));
         }
         linesOfTOkens.add(wrapped);
@@ -39,10 +39,10 @@ public class TextLinesSequencer {
     public List<List<ITextToken>> linesOfTOkens;
 
 
-    public List<VirtualCharSequence> getLines(boolean decodeEntities){
+    public List<VirtualCharSequence> getLines(boolean decodeEntities) {
         List<VirtualCharSequence> lines = new ArrayList<VirtualCharSequence>(linesOfTOkens.size());
-        for(List<ITextToken> line: linesOfTOkens){
-            lines.add(new VirtualCharSequence(line,decodeEntities));
+        for (List<ITextToken> line : linesOfTOkens) {
+            lines.add(new VirtualCharSequence(line, decodeEntities));
         }
         return lines;
     }

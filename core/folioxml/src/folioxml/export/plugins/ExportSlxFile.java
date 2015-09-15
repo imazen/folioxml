@@ -2,7 +2,6 @@ package folioxml.export.plugins;
 
 import folioxml.config.*;
 import folioxml.core.InvalidMarkupException;
-import folioxml.css.StylesheetBuilder;
 import folioxml.export.FileNode;
 import folioxml.export.InfobaseSetPlugin;
 import folioxml.export.LogStreamProvider;
@@ -10,11 +9,10 @@ import folioxml.slx.ISlxTokenReader;
 import folioxml.slx.SlxRecord;
 import folioxml.xml.XmlRecord;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 
 public class ExportSlxFile implements InfobaseSetPlugin {
@@ -25,7 +23,7 @@ public class ExportSlxFile implements InfobaseSetPlugin {
     public void beginInfobaseSet(InfobaseSet set, ExportLocations export, LogStreamProvider logs) throws IOException {
 
 
-        this.out  =  Files.newBufferedWriter(export.getLocalPath("export.slx", AssetType.Slx, FolderCreation.CreateParents), Charset.forName("UTF-8"));
+        this.out = Files.newBufferedWriter(export.getLocalPath("export.slx", AssetType.Slx, FolderCreation.CreateParents), Charset.forName("UTF-8"));
 
     }
 

@@ -9,13 +9,10 @@ import folioxml.export.FileNode;
 import folioxml.export.LogStreamProvider;
 import folioxml.export.NodeListProcessor;
 import folioxml.xml.Node;
-import folioxml.xml.NodeFilter;
 import folioxml.xml.NodeList;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -28,16 +25,16 @@ public class LinkMapper implements NodeListProcessor, ExportingNodeListProcessor
 
     private HashMap<String, Object> uriToUriMap;
 
-    public LinkMapper(InfobaseConfigBase c){
+    public LinkMapper(InfobaseConfigBase c) {
         this.c = c;
 
-        Map<String,Object> mapperConfig = c.getObject("link_mapper") != null ? (Map<String,Object>)c.getObject("link_mapper") : new HashMap<String,Object>();
+        Map<String, Object> mapperConfig = c.getObject("link_mapper") != null ? (Map<String, Object>) c.getObject("link_mapper") : new HashMap<String, Object>();
 
         if (mapperConfig.get("infobases") != null) {
-            infobaseToUriMap = (HashMap<String,Object>) mapperConfig.get("infobases");
+            infobaseToUriMap = (HashMap<String, Object>) mapperConfig.get("infobases");
         }
         if (mapperConfig.get("urls") != null) {
-            uriToUriMap = (HashMap<String,Object>) mapperConfig.get("urls");
+            uriToUriMap = (HashMap<String, Object>) mapperConfig.get("urls");
         }
     }
 
@@ -45,19 +42,19 @@ public class LinkMapper implements NodeListProcessor, ExportingNodeListProcessor
     public NodeList process(NodeList nodes) throws InvalidMarkupException, IOException {
 
         NodeList links = nodes.filterByTagName("a|link", true);
-        for (Node n:links.list()) {
+        for (Node n : links.list()) {
             String newUrl = null;
 
             String infobase = n.get("infobase");
             if (infobase != null && infobaseToUriMap != null && infobaseToUriMap.containsKey(infobase)) {
-                newUrl =  (String) infobaseToUriMap.get(infobase);
+                newUrl = (String) infobaseToUriMap.get(infobase);
             }
             String href = n.get("href");
             if (href != null && uriToUriMap != null && uriToUriMap.containsKey(href)) {
-                newUrl =  (String) uriToUriMap.get(href);
+                newUrl = (String) uriToUriMap.get(href);
             }
 
-            if (newUrl != null){
+            if (newUrl != null) {
                 String old = n.toXmlString(true);
                 n.setTagName("a");
                 n.removeAttr("infobase");

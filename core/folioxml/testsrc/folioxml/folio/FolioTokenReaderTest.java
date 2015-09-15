@@ -1,8 +1,8 @@
 package folioxml.folio;
 
-import org.junit.*;
 import folioxml.core.InvalidMarkupException;
 import folioxml.utils.Stopwatch;
+import org.junit.*;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -13,7 +13,6 @@ import java.util.List;
 import static org.junit.Assert.assertTrue;
 
 /**
- *
  * @author nathanael
  */
 public class FolioTokenReaderTest {
@@ -42,6 +41,7 @@ public class FolioTokenReaderTest {
     @After
     public void tearDown() {
     }
+
     private static FolioToken.TokenType comment = FolioToken.TokenType.Comment;
     private static FolioToken.TokenType text = FolioToken.TokenType.Text;
     private static FolioToken.TokenType tag = FolioToken.TokenType.Tag;
@@ -138,28 +138,28 @@ public class FolioTokenReaderTest {
     public void TestSequences() throws Exception {
         String txt =
                 "<CM> ***********************************************\n" +
-                "** Folio Flat File Identifier and Version Info **\n" +
-                "*********************************************** </CM>\n" +
-                "<VI:Folio,FFF,4.6.1.0>\n\n\n" +
-                "<CM> ***********************************************\n" +
-                "     **        Definition File Include            **\n" +
-                "     *********************************************** </CM>\n" +
-                "<TT:\" Another Title \">\n" +
-                "<RE:\"3/20/2005 5:57:07 PM\">\n" +
-                "<AU> Company Name Inc.</AU>\n" +
-                "<SU> Some Description </SU>\n" +
-                "<AS> First part of description<CR> second part of description</AS>\n" +
-                "<RM> The Product<CR> Product Description Details</RM>\n" +
-                "<HE><JU:LF><AP:0.125><IN:FI:0><TS:Right,RT,NO><BR:BT:0.00972222,0><SD:NO><GI><TB><FT:\"Times New Roman\",SR>Page:  <GP><FT></HE>\n" +
-                "<FO></FO>\n" +
-                "\n" +
-                "\n" +
-                "<CM> ***********************************************\n" +
-                "     **              Record Text                  **\n" +
-                "     *********************************************** </CM>\n\n" +
-                "<RD,ID:911:Book,CH><GR:\"non indexed groups\"><GR:\"group 1\"><GR:\"group 2\"><GR:\"group 3\">" +
-                "<BH><JU:CN><BR:AL:0.15,0.0291667,FC:255,255,0><SD:255,0,0><FD:\"non indexed field\"><BD+><UN:2+><PT:48><FC:255,255,0>" +
-                "<BC:255,0,0>WARNING!<UN><PT><FC:0,0,255><BC><CR><PT:12><FC:255,255,0><BC:255,0,0>You have inadvertently opened the infobase: <UN+>Book911.NFO<UN><CR><CR><PT:16>";
+                        "** Folio Flat File Identifier and Version Info **\n" +
+                        "*********************************************** </CM>\n" +
+                        "<VI:Folio,FFF,4.6.1.0>\n\n\n" +
+                        "<CM> ***********************************************\n" +
+                        "     **        Definition File Include            **\n" +
+                        "     *********************************************** </CM>\n" +
+                        "<TT:\" Another Title \">\n" +
+                        "<RE:\"3/20/2005 5:57:07 PM\">\n" +
+                        "<AU> Company Name Inc.</AU>\n" +
+                        "<SU> Some Description </SU>\n" +
+                        "<AS> First part of description<CR> second part of description</AS>\n" +
+                        "<RM> The Product<CR> Product Description Details</RM>\n" +
+                        "<HE><JU:LF><AP:0.125><IN:FI:0><TS:Right,RT,NO><BR:BT:0.00972222,0><SD:NO><GI><TB><FT:\"Times New Roman\",SR>Page:  <GP><FT></HE>\n" +
+                        "<FO></FO>\n" +
+                        "\n" +
+                        "\n" +
+                        "<CM> ***********************************************\n" +
+                        "     **              Record Text                  **\n" +
+                        "     *********************************************** </CM>\n\n" +
+                        "<RD,ID:911:Book,CH><GR:\"non indexed groups\"><GR:\"group 1\"><GR:\"group 2\"><GR:\"group 3\">" +
+                        "<BH><JU:CN><BR:AL:0.15,0.0291667,FC:255,255,0><SD:255,0,0><FD:\"non indexed field\"><BD+><UN:2+><PT:48><FC:255,255,0>" +
+                        "<BC:255,0,0>WARNING!<UN><PT><FC:0,0,255><BC><CR><PT:12><FC:255,255,0><BC:255,0,0>You have inadvertently opened the infobase: <UN+>Book911.NFO<UN><CR><CR><PT:16>";
 
         //generateCode(txt);
         this.TestMessageTop();
@@ -169,13 +169,14 @@ public class FolioTokenReaderTest {
     public void main() throws Exception {
         BlockSizeVariations();
     }
+
     @Test
-    public void PerfTest()throws Exception {
+    public void PerfTest() throws Exception {
         //1000 loops of BlockSizeVariations in 10816 ms
         //down from 27,00 with output statements.
         Stopwatch s = new Stopwatch();
         s.start();
-        for (int i = 0; i < 1000;i++) BlockSizeVariations();
+        for (int i = 0; i < 1000; i++) BlockSizeVariations();
         s.stop();
         System.out.println("1000 loops of BlockSizeVariations in " + s.toString());
     }
@@ -420,7 +421,7 @@ public class FolioTokenReaderTest {
         assertTrue(ft.isClosing() == false);
         assertTrue(ft.text.equals("\n"));
 
-              assertTrue(r.canRead());
+        assertTrue(r.canRead());
         ft = r.read();
         assertTrue(ft.type == FolioToken.TokenType.Tag);
         assertTrue(ft.isClosing() == false);

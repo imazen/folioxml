@@ -1,44 +1,44 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>folioxml</groupId>
-		<artifactId>contrib</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>folioxml</groupId>
+        <artifactId>contrib</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
 
-	<groupId>folioxml</groupId>
-	<artifactId>folioxml-lucene</artifactId>
-	<packaging>jar</packaging>
+    <groupId>folioxml</groupId>
+    <artifactId>folioxml-lucene</artifactId>
+    <packaging>jar</packaging>
 
-	<name>folioxml - lucene</name>
+    <name>folioxml - lucene</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId>
-			<version>${lucene.core.version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${lucene.core.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-common</artifactId>
             <version>${lucene.core.version}</version>
         </dependency>
-		<dependency>
-			<groupId>folioxml</groupId>
-			<artifactId>folioxml-core</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>folioxml</groupId>
-			<artifactId>diff_match_patch</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>folioxml</groupId>
+            <artifactId>folioxml-core</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>folioxml</groupId>
+            <artifactId>diff_match_patch</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>testsrc</testSourceDirectory>
-	</build>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>testsrc</testSourceDirectory>
+    </build>
 </project>
