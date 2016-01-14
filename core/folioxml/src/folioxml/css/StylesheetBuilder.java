@@ -6,63 +6,98 @@ import folioxml.slx.SlxToken;
 
 /**
  * Operates on SLX valid only (that has been CssClassCleaner proccessed inside SlxTransformer)
- * @author nathanael
  *
+ * @author nathanael
  */
 public class StylesheetBuilder {
 
-	private SlxRecord root = null;
-	public StylesheetBuilder(SlxRecord root){
-		this.root = root;
-	}
-	
+    private SlxRecord root = null;
 
-	
-	private void getDefaultCss(StringBuilder sb){
-		sb.append("td p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins... 
-		sb.append("th p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins... 
-		
-		sb.append("p {margin:0; margin-top:0.2em;} p._empty{ padding-top:1em; }\n"); //Empty paragraphs get padding to mimic folio model.
-		
-		sb.append("body {font-family: \"Times New Roman\"; font-size:12pt; line-height:1.0em; white-space-collapse: preserve; white-space:pre-wrap; margin:30px;}\n"); //Set the default font size and face. Folio uses TimesNewRoman 12
-		//white-space-collapse: preserve; - Tries to maintain compatibility with Folio's treatment of whitespace.
-		//font-weight: bolder; text-align: center 
-		
-		sb.append("th {font-weight:auto;text-align:auto;}\n"); //Reset to act like td - what is folio behavior?
-	}
-	
-	public String getCss() throws InvalidMarkupException{
-		StringBuilder sb = new StringBuilder();
-		
-		getDefaultCss(sb);
-		
-		for(SlxToken t:root.getTokens()){
-			if (t.matches("style-def")){
-				String cls = t.get("class");
-				String style = t.get("style");
-				String type = t.get("type");
-				if (cls != null && style != null){
-					String selector = "";
-					/* style-def types: level, highlighter, character-style, paragraph, link, field */
-					if (type.equalsIgnoreCase("level")) selector = "div";
-					if (type.equalsIgnoreCase("paragraph")) selector = "p";
-					if (type.equalsIgnoreCase("link")) selector = "a";
-					if (selector.length() == 0) selector = "span";
-					selector += "." + cls;
-					
-					sb.append(selector + " {\n");
-					sb.append(style.replace(";", ";\n"));
-					sb.append("}\n");
-					
-				}
-			}
-		}
-		return sb.toString();
-	}
-	
-	public String getCssAndStyleTags() throws InvalidMarkupException{
-		return "<style type=\"text/css\">\n" + getCss() + "</style>";
-	}
+    public StylesheetBuilder(SlxRecord root) {
+        this.root = root;
+    }
+
+    public static final String DEFAULT_FONT_SIZE = "12pt";
+
+    private void getDefaultCss(String applySelector, StringBuilder sb) {
+        sb.append("a.folio_pagination_link {display:block; margin:1em;}\n");
+
+        sb.append(applySelector + "td p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins...
+        sb.append(applySelector + "th p:first {margin:0 0 0 0;}\n"); //The first P tag shouldn't have margins...
+
+        sb.append(applySelector + "p {margin:0; margin-top:0.2em;} p._empty{ padding-top:1em; }\n"); //Empty paragraphs get padding to mimic folio model.
+
+
+        //Set the default font size and face. Folio uses TimesNewRoman 12
+        //white-space-collapse: preserve; - Tries to maintain compatibility with Folio's treatment of whitespace.
+        //font-weight: bolder; text-align: center
+        // margin:30px;
+        sb.append(applySelector.length() == 0 ? "body" : applySelector + " {font-family: \"Times New Roman\"; font-size:" + DEFAULT_FONT_SIZE + "; line-height:1.0em; white-space-collapse: preserve; white-space:pre-wrap;}\n");
+
+
+        sb.append(applySelector + "th {font-weight:auto;text-align:auto;}\n"); //Reset to act like td - what is folio behavior?
+
+        //Add faux-tabulation rules. Remove width restriction since faux-tabs can make it bigger.
+        sb.append(applySelector + "p.faux_tabulation {white-space: pre-wrap; white-space-collapse: preserve; font-family: \"Courier New\", monospace; width:auto !important; }\n");
+    }
+
+    public String getCss(String applySelector, boolean selectorIsRecordDiv) throws InvalidMarkupException {
+        StringBuilder sb = new StringBuilder();
+
+        if (applySelector == null) applySelector = "";
+        if (applySelector.length() > 0 && !applySelector.endsWith(" ")) applySelector += " ";
+
+        if (applySelector.isEmpty()) selectorIsRecordDiv = false;
+
+        getDefaultCss(applySelector, sb);
+
+        StringBuilder replace_underline = new StringBuilder(applySelector + ".replace_underline, ");
+        String text_underline = "text-decoration:underline;";
+
+        for (SlxToken t : root.getTokens()) {
+            if (t.matches("style-def")) {
+                String cls = t.get("class");
+                String style = t.get("style");
+                String type = t.get("type");
+                if (cls != null && style != null) {
+                    String selector = "";
+                    /* style-def types: level, highlighter, character-style, paragraph, link, field */
+                    if (type.equalsIgnoreCase("level")) selector = "div";
+                    if (type.equalsIgnoreCase("paragraph")) selector = "p";
+                    if (type.equalsIgnoreCase("link")) selector = "a";
+                    if (selector.length() == 0) selector = "span";
+
+                    if (type.equalsIgnoreCase("level") && selectorIsRecordDiv) {
+                        selector = applySelector.trim() + "." + cls; //the selector for level styles applies to the same div; not a child!
+                    } else {
+                        selector = applySelector + selector + "." + cls;
+                    }
+                    //Factor out non-link underlines into a single rule.
+                    if (!type.equalsIgnoreCase("link") && style.indexOf(text_underline, 0) >= 0) {
+                        replace_underline.append(selector);
+                        replace_underline.append(", ");
+                        style = style.replace(text_underline, "");
+                    }
+
+
+                    sb.append(selector + " {\n  ");
+                    sb.append(style.replace(";", ";\n  "));
+                    sb.append("}\n");
+
+                }
+            }
+        }
+        //Write underlining rule last
+        sb.append(replace_underline.toString().replaceFirst(", \\Z", ""));
+        sb.append("{\n  ");
+        sb.append(text_underline);
+        sb.append("\n}\n");
+        return sb.toString();
+    }
+
+    public String getCssAndStyleTags() throws InvalidMarkupException {
+        return "<style type=\"text/css\">\n" + getCss(null, false) + "</style>";
+    }
 }
 
 /* Default stylesheet for HTML 4 - we have to modify things so they mimic folio behavior...

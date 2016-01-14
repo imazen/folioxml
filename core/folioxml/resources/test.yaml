@@ -1,0 +1,30 @@
+folio_help:
+  infobases:
+    - id: foliohelp
+      path: files/folio-help/FolioHlp.FFF
+#    - id: getting_started
+#      path: files/folio-help/Getstrt4.FFF
+
+  export_locations:
+    default:
+      path: "files/folio-help/export/{id}-{stamp}/{input}"
+    luceneindex:
+      path: "files/indexes/folio-help/"
+    image:
+      path: files/folio-help/export/{input}
+    html:
+      path: "files/folio-help/export/{id}-{stamp}/{input}.html"
+
+  structure_class: folioxml.export.structure.SlugProvider
+  structure_class_params:
+    - "Book|Section"
+
+  skip_normal_records: false
+  use_highslide: true
+  add_nav_links: true #html only
+  indent_xml: false
+
+
+  pull:
+    program_links: true
+    menu_links: true

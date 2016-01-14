@@ -18,4 +18,12 @@
 		<sourceDirectory>src</sourceDirectory>
 	</build>
 
+    <dependencies>
+        <dependency>
+            <groupId>folioxml</groupId>
+            <artifactId>folioxml-lucene</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
 </project>

@@ -105,7 +105,7 @@ public class RegexTestHarness {
 
             if (index != text.length()) {
 
-                if (index < 0){
+                if (index < 0) {
                     throw new Error();
                 }
                 CharSequence next = null;
@@ -147,7 +147,7 @@ public class RegexTestHarness {
 
     private static CharBuffer useCharBuffer() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(
-                folioxml.utils.ConfUtil.getFFFPath("folio-help")));
+                folioxml.config.TestConfig.getFolioHlp().getFlatFilePath());
         char[] whole = new char[0]; //bug if file < 8192 chars
         char[] chars = new char[32000];
         int numRead = 0;
@@ -164,12 +164,12 @@ public class RegexTestHarness {
 
     private static StringBuffer useStringBuffer() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(
-                folioxml.utils.ConfUtil.getFFFPath("folio-help")));
+                folioxml.config.TestConfig.getFolioHlp().getFlatFilePath());
         StringBuffer sb = new StringBuffer(8192);
         char[] chars = new char[8192];
         int numRead = 0;
         while ((numRead = reader.read(chars)) > -1) {
-            sb.append(String.valueOf(chars,0,numRead));
+            sb.append(String.valueOf(chars, 0, numRead));
         }
 
         reader.close();
@@ -178,12 +178,12 @@ public class RegexTestHarness {
 
     private static StringBuilder useStringBuilder() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(
-                folioxml.utils.ConfUtil.getFFFPath("folio-help")));
+                folioxml.config.TestConfig.getFolioHlp().getFlatFilePath());
         StringBuilder sb = new StringBuilder(8192);
         char[] chars = new char[8192];
         int numRead = 0;
         while ((numRead = reader.read(chars)) > -1) {
-            sb.append(String.valueOf(chars,0,numRead));
+            sb.append(String.valueOf(chars, 0, numRead));
         }
 
         reader.close();

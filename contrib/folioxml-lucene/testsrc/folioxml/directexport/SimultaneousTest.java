@@ -1,117 +1,194 @@
 package folioxml.directexport;
 
-import folioxml.export.html.ResolveQueryLinks;
-
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.store.FSDirectory;
+import folioxml.config.InfobaseSet;
+import folioxml.config.TestConfig;
+import folioxml.config.YamlInfobaseSet;
+import folioxml.core.InvalidMarkupException;
+import folioxml.export.InfobaseSetPlugin;
+import folioxml.export.InfobaseSetVisitor;
+import folioxml.export.html.*;
+import folioxml.export.plugins.*;
+import folioxml.export.structure.DateCollapsingSlugProvider;
+import folioxml.export.structure.SlugProvider;
+import folioxml.lucene.InfobaseSetIndexer;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import folioxml.core.InvalidMarkupException;
-import folioxml.lucene.QueryResolverInfo;
-import folioxml.lucene.SlxIndexer;
-import folioxml.lucene.SlxIndexingConfig;
-import folioxml.slx.SlxRecord;
-import folioxml.slx.SlxRecordReader;
-import folioxml.tools.OutputRedirector;
-import folioxml.utils.ConfUtil;
-import folioxml.utils.YamlUtil;
-
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 public class SimultaneousTest {
-	
-	@Test @Ignore
-	public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		Index(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
-	}
-	
-	@Test @Ignore
-	public void ExportHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		Export(YamlUtil.getProperty(YamlUtil.getConfiguration().getFolioHelp().getPath()));
-		
-		
-	}
 
-	
-	public void Index(String fffPath) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-    
-	    //Create SLX valid reader
-	    SlxRecordReader srr = new SlxRecordReader(new File(fffPath));
-	    srr.silent = true;
-	    //Index the data to the index location
-		new SlxIndexer(srr, SlxIndexingConfig.FolioQueryCompatible()).indexAll(fffPath.replace(".", "_"));
-		
-		//Close the original file
-		srr.close();
-	}
-	
-	
-	
-	public void Export(String sourceFile) throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
-		File f = new File(sourceFile);
-		SlxRecordReader srr = new SlxRecordReader(f);
-		srr.silent = false;
-		String xmlFile = f.getParent() + File.separatorChar + f.getName()+ new SimpleDateFormat("-dd-MMM-yy-(s)").format(new Date()) + ".xml";
-	    DirectXmlExporter x = new DirectXmlExporter(srr,xmlFile);
-	    DirectXhtmlExporter xh = new DirectXhtmlExporter(srr,xmlFile.replace(".xml", ".xhtml"));
-	    DirectSlxExporter xs = new DirectSlxExporter(srr,xmlFile.replace(".xml", ".slx"));
-	    
-	    OutputRedirector redir = new OutputRedirector(xmlFile.replace(".xml", ".log.txt"));
-	    redir.open();
-	    
-	    //Support query link resolution if the lucene index exists.
-	    IndexSearcher searcher = null;
-	    File index = new File(sourceFile.replace(".", "_"));
-	    SlxIndexingConfig indexConfig = null;
-        QueryResolverInfo queryInfo = null;
-	    if (index.isDirectory()) {
-	    	searcher = new IndexSearcher(FSDirectory.open(index));
-	    	indexConfig = SlxIndexingConfig.FolioQueryCompatible();
-            queryInfo = new QueryResolverInfo(searcher, indexConfig.getRecordAnalyzer(), indexConfig.textField);
 
-	    	xh.queryLinkResolver = new ResolveQueryLinks(queryInfo);
-	    }
-	    //x.maxRecords = 250;
-	    //xh.maxRecords = 250;
-	    //TODO: I gotta 
-	    int i =0;
-	    try{
-	    while(true){
-			SlxRecord r = srr.read();
-		    if (r == null) break;//loop exit
-		    if (i == 0) indexConfig.UpdateFieldIndexingInfo(r);
-		    //do slx first
-		    if (xs != null) xs.processRecord(r);
-		    xh.processRecord(r);
-		    //x.processRecord(r); //This will be broken - Html exporter corrupts the tokens
-		    
-		    
-		    i++;
-		    if (queryInfo != null && i % 1000 == 0) System.out.println("Query links resolved: " + queryInfo.workingQueryLinks + ", " +
-                    queryInfo.noresultQueryLinks + " with no results, and " +
-                    queryInfo.invalidQueryLinks + " with invalid syntax.");
-		    
-	    }
-	    }finally{
-	    	if (searcher != null) searcher.close();
-	    	srr.close();
-	    	x.close();
-	    	xh.close();
-	    	if (xs != null) xs.close();
-	    }
-	    System.out.println("Invalid query links (for syntax reasons): " + queryInfo.invalidQueryLinks);
-	    System.out.println("No result query links: " + queryInfo.noresultQueryLinks);
-	    System.out.println("Working query links: " + queryInfo.workingQueryLinks);
-	    System.out.println("Cross-infobase query links: " + queryInfo.crossInfobaseQueries);
-	    System.out.println("Read " +Integer.toString(i) + " records.");
-	    redir.close();
-	}
+    private InfobaseSet loadPrivate(String name) {
+
+        InputStream privateYaml = TestConfig.class.getResourceAsStream("/private.yaml");
+
+        String classDir = TestConfig.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+        String workingDir = Paths.get(classDir).getParent().getParent().getParent().getParent().toAbsolutePath().toString();
+
+        return YamlInfobaseSet.parseYaml(workingDir, privateYaml).get(name);
+    }
+
+    @Test
+    @Ignore
+    public void IndexHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
+
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new ExportStructure(new SlugProvider("Book|Section")));
+        plugins.add(new InfobaseSetIndexer());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"), plugins);
+        visitor.complete();
+    }
+
+    @Test
+    @Ignore
+    public void InventoryHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
+
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new ExportStructure(new SlugProvider()));
+        plugins.add(new RenameFiles());
+        plugins.add(new ApplyProcessor(new FixHttpLinks()));
+        plugins.add(new ResolveHyperlinks());
+        plugins.add(new ExportInventory());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"), plugins);
+        visitor.complete();
+    }
+
+    @Test
+    @Ignore
+    public void ExportHelp() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
+        //inventory and
+
+        //NodeInfoProvider class name
+
+        //FixHttpLinks (MUST occur before ResolveHyperlinks or any other processors)
+        //ResolveHyperlinks
+
+        //Log unresolved hyperlinks
+
+        //export XHTML or XML? Indent XML? HEadings only?
+
+        //Notes/Popups: Pull and log, or enable via highslide?
+        //FauxTabs?
+        //
+        //Drop program/menu links?
+
+
+        //Newlines in headings converts to "" instead of "  "
+        CleanupSlxStuff cleanup = new CleanupSlxStuff(EnumSet.of(
+                CleanupSlxStuff.CleanupOptions.PullProgramLinks,
+                CleanupSlxStuff.CleanupOptions.PullMenuLinks,
+                CleanupSlxStuff.CleanupOptions.DropTypeAttr,
+                CleanupSlxStuff.CleanupOptions.RenameLinkToA,
+                CleanupSlxStuff.CleanupOptions.RenameBookmarks,
+                CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
+        MultiRunner xhtml = new MultiRunner(new Images(), new Notes(), new Popups(), cleanup, new FauxTabs(80, 120), new ReplaceUnderline(), new SplitSelfClosingTags());
+
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new ExportStructure(new SlugProvider("Book|Section")));
+        plugins.add(new RenameFiles());
+        plugins.add(new ApplyProcessor(new FixHttpLinks()));
+        plugins.add(new ResolveHyperlinks());
+        plugins.add(new ExportInventory());
+
+        plugins.add(new ApplyProcessor(xhtml));
+        plugins.add(new ExportCssFile());
+        plugins.add(new ApplyProcessor(new HtmlTidy()));
+        plugins.add(new ExportXmlFile());
+        plugins.add(new ExportHtmlFiles(true, true));
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(TestConfig.get("folio_help"), plugins);
+
+        visitor.complete();
+
+    }
+
+
+    @Test
+    @Ignore
+    public void IndexSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
+
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new ExportStructure(new DateCollapsingSlugProvider()));
+        plugins.add(new InfobaseSetIndexer());
+        //plugins.add(new ExportMappingsFiles());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"), plugins);
+
+        visitor.complete();
+    }
+
+
+    @Test
+    @Ignore
+    public void InventorySet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
+
+        CleanupSlxStuff cleanup = new CleanupSlxStuff(EnumSet.of(CleanupSlxStuff.CleanupOptions.PullProgramLinks, CleanupSlxStuff.CleanupOptions.PullMenuLinks, CleanupSlxStuff.CleanupOptions.DropTypeAttr));
+        MultiRunner xhtml = new MultiRunner(cleanup, new Images(), new Notes(), new Popups(), new SplitSelfClosingTags());
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new ExportStructure(new SlugProvider()));
+        plugins.add(new RenameFiles());
+        plugins.add(new ApplyProcessor(new FixHttpLinks()));
+        plugins.add(new ResolveHyperlinks());
+        plugins.add(new ExportInventory());
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"), plugins);
+
+        visitor.complete();
+
+    }
+
+    @Test
+    @Ignore
+    public void ExportSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException {
+        //inventory and
+
+        //NodeInfoProvider class name
+
+        //FixHttpLinks (MUST occur before ResolveHyperlinks or any other processors)
+        //ResolveHyperlinks
+
+        //Log unresolved hyperlinks
+
+        //export XHTML or XML? Indent XML? HEadings only?
+
+        //Notes/Popups: Pull and log, or enable via highslide?
+        //FauxTabs?
+        //
+        //Drop program/menu links?
+
+
+        //Newlines in headings converts to "" instead of "  "
+        CleanupSlxStuff cleanup = new CleanupSlxStuff(EnumSet.of(
+                CleanupSlxStuff.CleanupOptions.PullProgramLinks,
+                CleanupSlxStuff.CleanupOptions.PullMenuLinks,
+                CleanupSlxStuff.CleanupOptions.DropTypeAttr,
+                CleanupSlxStuff.CleanupOptions.RenameLinkToA,
+                CleanupSlxStuff.CleanupOptions.RenameBookmarks,
+                CleanupSlxStuff.CleanupOptions.RenameRecordToDiv));
+        MultiRunner xhtml = new MultiRunner(new Images(), new Notes(), new Popups(), cleanup, new FauxTabs(80, 120), new ReplaceUnderline(), new SplitSelfClosingTags());
+
+        List<InfobaseSetPlugin> plugins = new ArrayList<InfobaseSetPlugin>();
+        plugins.add(new ExportStructure(new DateCollapsingSlugProvider()));
+        plugins.add(new RenameFiles());
+        plugins.add(new ApplyProcessor(new FixHttpLinks()));
+        plugins.add(new ResolveHyperlinks());
+        plugins.add(new ExportInventory());
+
+        plugins.add(new ApplyProcessor(xhtml));
+        plugins.add(new ExportCssFile());
+        plugins.add(new ExportXmlFile(false));
+        plugins.add(new ExportHtmlFiles(true, true));
+        InfobaseSetVisitor visitor = new InfobaseSetVisitor(loadPrivate("testset"), plugins);
+
+        visitor.complete();
+
+    }
+
 
 }
 

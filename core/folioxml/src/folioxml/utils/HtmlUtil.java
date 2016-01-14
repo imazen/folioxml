@@ -8,7 +8,7 @@ import java.util.Locale;
 public class HtmlUtil {
 
 	/*
-	 * 
+     *
 	 * https://developer.mozilla.org/en-US/docs/HTML/Block-level_elements
 	 * <address> Contact information. <article> HTML5 Article content. <aside>
 	 * HTML5 Aside content. <audio> HTML5 Audio player. <blockquote> Long
@@ -29,62 +29,62 @@ public class HtmlUtil {
 	 * <tfoot> Table footer. <ul> Unordered list. <video> HTML5 Vide
 	 */
 
-	private static String[] Html5BlockElementsTags = { "article", "aside",
-			"audio", "canvas", "figcaption", "figure", "footer", "header",
-			"hgroup", "output", "section", "video" };
+    private static String[] Html5BlockElementsTags = {"article", "aside",
+            "audio", "canvas", "figcaption", "figure", "footer", "header",
+            "hgroup", "output", "section", "video"};
 
 
     //// added '<br />' 
-	private static String[] blockElementsTags = { "address", "blockquote",
-			"dd", "div", "dl", "fieldset", "div", "form", "h1", "h2", "h3",
-			"h4", "h5", "h6", "noscript", "hr", "ol", "p", "pre", "table",
-			"tfoot", "ul" , "br"};
+    private static String[] blockElementsTags = {"address", "blockquote",
+            "dd", "div", "dl", "fieldset", "div", "form", "h1", "h2", "h3",
+            "h4", "h5", "h6", "noscript", "hr", "ol", "p", "pre", "table",
+            "tfoot", "ul", "br"};
 
-	private static HashSet<String> blockElementsTagsSet = null;
-	
-	private static boolean includeHtml5Tags = false;
-	private static boolean shouldNormalizeTagName = false;
+    private static HashSet<String> blockElementsTagsSet = null;
 
-	public static void includeHtml5Tags(boolean mIncludeHtml5Tags) {
-		includeHtml5Tags = mIncludeHtml5Tags;
-	}
+    private static boolean includeHtml5Tags = false;
+    private static boolean shouldNormalizeTagName = false;
 
-	public static void normalizeTag(boolean mShouldNormalizeTagName) {
-		shouldNormalizeTagName = mShouldNormalizeTagName;
-	}
+    public static void includeHtml5Tags(boolean mIncludeHtml5Tags) {
+        includeHtml5Tags = mIncludeHtml5Tags;
+    }
 
-	public static boolean isTagNameBlockLevelElement(String tagName) {
+    public static void normalizeTag(boolean mShouldNormalizeTagName) {
+        shouldNormalizeTagName = mShouldNormalizeTagName;
+    }
 
-		if (shouldNormalizeTagName) {
-			tagName = tagName.toLowerCase(Locale.ENGLISH).trim();
-		}
+    public static boolean isTagNameBlockLevelElement(String tagName) {
 
-		List<String> list = Arrays.asList(blockElementsTags);
+        if (shouldNormalizeTagName) {
+            tagName = tagName.toLowerCase(Locale.ENGLISH).trim();
+        }
 
-		if (includeHtml5Tags) {
-			list.addAll(Arrays.asList(Html5BlockElementsTags));
-		}
-		blockElementsTagsSet = new HashSet<String>(list);
+        List<String> list = Arrays.asList(blockElementsTags);
 
-		return blockElementsTagsSet.contains(tagName);
-	}
+        if (includeHtml5Tags) {
+            list.addAll(Arrays.asList(Html5BlockElementsTags));
+        }
+        blockElementsTagsSet = new HashSet<String>(list);
 
-	public static boolean isTagNameBlockLevelElement(String tagName,
-			boolean mIncludeHtml5Tags) {
+        return blockElementsTagsSet.contains(tagName);
+    }
 
-		includeHtml5Tags = mIncludeHtml5Tags;
+    public static boolean isTagNameBlockLevelElement(String tagName,
+                                                     boolean mIncludeHtml5Tags) {
 
-		return isTagNameBlockLevelElement(tagName);
+        includeHtml5Tags = mIncludeHtml5Tags;
 
-	}
+        return isTagNameBlockLevelElement(tagName);
 
-	public static boolean isTagNameBlockLevelElement(String tagName,
-			boolean mIncludeHtml5Tags, boolean mShouldNormalizeTagName) {
-		
-		
-		shouldNormalizeTagName = mShouldNormalizeTagName;
+    }
 
-		return isTagNameBlockLevelElement(tagName, mIncludeHtml5Tags);
+    public static boolean isTagNameBlockLevelElement(String tagName,
+                                                     boolean mIncludeHtml5Tags, boolean mShouldNormalizeTagName) {
 
-	}
+
+        shouldNormalizeTagName = mShouldNormalizeTagName;
+
+        return isTagNameBlockLevelElement(tagName, mIncludeHtml5Tags);
+
+    }
 }

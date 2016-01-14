@@ -1,86 +1,87 @@
 package folioxml.lucene;
 
-import org.apache.lucene.analysis.Analyzer;
+import folioxml.core.TokenUtils;
 import folioxml.lucene.analysis.folio.FolioEnuAnalyzer;
 import folioxml.lucene.analysis.folio.FolioEnuPhraseAnalyzer;
-import folioxml.core.TokenUtils;
+import org.apache.lucene.analysis.Analyzer;
 
 public class IndexFieldOpts {
-	/*
-	 * Stop word removal will be used on the field. Not implemented.
-	 */
-	public boolean useStopWords = false;
-	//FP, Fast phrase indexing is the lucene default (token vectors).
-	/*
+    /*
+     * Stop word removal will be used on the field. Not implemented.
+     */
+    public boolean useStopWords = false;
+    //FP, Fast phrase indexing is the lucene default (token vectors).
+    /*
 	 * Not implemented
 	 * DT	Used only with Date fields. Controls how dates specified with a 2-number abbreviation (95, 96, 97, etc.) are handled. 
 	 * If this option is used, dates less than or equal to 49 are assumed to be after the year 2000; dates greater than or equal 
 	 * to 50 are assumed to be before the year 2000 (such as 1995). If this option is not used, all dates are assumed to be in the 1900s.	
 	 */
-	public boolean y2kFix = false;
-	
-	/*
-	 * Not implemented. 
-	 * PR	Proximity. All terms in a field primitive must be found within a single application of the field to register a hit. Most often used with TE and TF.	
-	 */
-	public boolean writeProximityMarkersPerApplication = false;
-	
-	/*
-	 * 
-	 * If false, any tokens contained by this field will be excluded from indexing in all fields, including the default field. This won't break other fields apart, just delete text from them.
-	 * Folio Field indexing option 'NO' has this behavior. 
-	 * 
-	 * Verified this via Folio Views experimentation. 
-	 * 
-	 * This can also be false if TF or PF are used by themselves, which results in the exact same behavior (tested).
-	 * 
-	 */
-	public boolean allowOthersToIndex = true;
-	
-	/*
-	 * If true, when a field begins in the exact spot it ended, the breakage will be ignored and it will be considered a single application.
-	 * Not good for compatibility.
-	 */
-	public boolean mergeTouchingApplications = false;
-	
-	public Analyzer fieldAnalyzer = null;
-	
-	public IndexFieldOpts(Analyzer a){
-		this.fieldAnalyzer = a;
-	}
-	public IndexFieldOpts(String[] fieldIndexingFlags){
-		boolean allowOthers = false;
-		
-		//If there isn't anything specified, default to allowing others to index. 
-		if (fieldIndexingFlags.length == 0) allowOthers = true;
-		
-		for (String s: fieldIndexingFlags){
-			//TF|PF|TE|NO|PR|DT|FP|SW
-			if (TokenUtils.fastMatches("TF", s)) this.fieldAnalyzer = new FolioEnuAnalyzer();
-			if (TokenUtils.fastMatches("PF", s)) this.fieldAnalyzer = new FolioEnuPhraseAnalyzer();
-			if (TokenUtils.fastMatches("TE", s)) allowOthers = true;
-			if (TokenUtils.fastMatches("NO", s)) allowOthers = false;
-			if (TokenUtils.fastMatches("PR", s)) this.writeProximityMarkersPerApplication = true;
-			if (TokenUtils.fastMatches("DT", s)) this.y2kFix = false;
-			//FP is already default.if (TokenUtils.fastMatches("FP", s)) return "fast-phrase-indexing";
-			if (TokenUtils.fastMatches("SW", s)) this.useStopWords = true;
-		}
-		this.allowOthersToIndex = allowOthers;
-		
-		//We are assuming the default behavior is 'TF,TE' instead of 'PF,TE'
-		if (this.fieldAnalyzer == null)  this.fieldAnalyzer = new FolioEnuAnalyzer();
-	}
-	
-	// 1) analyze each application as a separate term. Use lowercase normalization and trim 
-	
+    public boolean y2kFix = false;
 
-	//Notes - single quotes just escape special characters, they do not denote a phrase search.
-	// Single quotes cannot be used to determine whether to analyze the text as a single token.
+    /*
+     * Not implemented.
+     * PR	Proximity. All terms in a field primitive must be found within a single application of the field to register a hit. Most often used with TE and TF.
+     */
+    public boolean writeProximityMarkersPerApplication = false;
+
+    /*
+     *
+     * If false, any tokens contained by this field will be excluded from indexing in all fields, including the default field. This won't break other fields apart, just delete text from them.
+     * Folio Field indexing option 'NO' has this behavior.
+     *
+     * Verified this via Folio Views experimentation.
+     *
+     * This can also be false if TF or PF are used by themselves, which results in the exact same behavior (tested).
+     *
+     */
+    public boolean allowOthersToIndex = true;
+
+    /*
+     * If true, when a field begins in the exact spot it ended, the breakage will be ignored and it will be considered a single application.
+     * Not good for compatibility.
+     */
+    public boolean mergeTouchingApplications = false;
+
+    public Analyzer fieldAnalyzer = null;
+
+    public IndexFieldOpts(Analyzer a) {
+        this.fieldAnalyzer = a;
+    }
+
+    public IndexFieldOpts(String[] fieldIndexingFlags) {
+        boolean allowOthers = false;
+
+        //If there isn't anything specified, default to allowing others to index.
+        if (fieldIndexingFlags.length == 0) allowOthers = true;
+
+        for (String s : fieldIndexingFlags) {
+            //TF|PF|TE|NO|PR|DT|FP|SW
+            if (TokenUtils.fastMatches("TF", s)) this.fieldAnalyzer = new FolioEnuAnalyzer();
+            if (TokenUtils.fastMatches("PF", s)) this.fieldAnalyzer = new FolioEnuPhraseAnalyzer();
+            if (TokenUtils.fastMatches("TE", s)) allowOthers = true;
+            if (TokenUtils.fastMatches("NO", s)) allowOthers = false;
+            if (TokenUtils.fastMatches("PR", s)) this.writeProximityMarkersPerApplication = true;
+            if (TokenUtils.fastMatches("DT", s)) this.y2kFix = false;
+            //FP is already default.if (TokenUtils.fastMatches("FP", s)) return "fast-phrase-indexing";
+            if (TokenUtils.fastMatches("SW", s)) this.useStopWords = true;
+        }
+        this.allowOthersToIndex = allowOthers;
+
+        //We are assuming the default behavior is 'TF,TE' instead of 'PF,TE'
+        if (this.fieldAnalyzer == null) this.fieldAnalyzer = new FolioEnuAnalyzer();
+    }
+
+    // 1) analyze each application as a separate term. Use lowercase normalization and trim
+
+
+    //Notes - single quotes just escape special characters, they do not denote a phrase search.
+    // Single quotes cannot be used to determine whether to analyze the text as a single token.
 	/*
 	
 
 	*/
-	
+
 }
 
 
