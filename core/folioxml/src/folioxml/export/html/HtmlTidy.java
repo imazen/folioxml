@@ -31,8 +31,12 @@ public class HtmlTidy implements NodeListProcessor, ExportingNodeListProcessor {
                 provider.getNamedStream("tidy_invalid_elements").append(n.toXmlString(true)).append("\n");
             }
 
+            // copy the attribute list so we are not modifying in place
+            List<Map.Entry<String, String>> attrs = new ArrayList<Map.Entry<String, String>>();
+            for (Map.Entry<String,String> e : n.getAttributes().entrySet()) {
+                attrs.add(new java.util.AbstractMap.SimpleEntry<String, String>(e));
+            }
 
-            List<Map.Entry<String, String>> attrs = new ArrayList<Map.Entry<String, String>>(n.getAttributes().entrySet());
             //First check for invalid attributes, and print them.
             for (Map.Entry<String, String> pair : attrs) {
                 if (!validAttributes.contains(pair.getKey()) && !invalidAttributes.contains(pair.getKey())) {
