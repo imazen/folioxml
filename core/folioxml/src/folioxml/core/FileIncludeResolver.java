@@ -36,7 +36,11 @@ public class FileIncludeResolver implements IIncludeResolutionService {
      * @throws java.io.FileNotFoundException
      */
     public Reader getReader() throws FileNotFoundException {
-        return new FileReader(baseDocument);
+        try {
+            return new InputStreamReader(new FileInputStream(baseDocument), "Windows-1252");
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
     }
 
 
