@@ -37,11 +37,14 @@ public class PullElements implements NodeListProcessor, ExportingNodeListProcess
         if (pullMenuLinks == null) pullMenuLinks = true;
 
         dropNotes = (Boolean) pull.get("drop_notes");
-        if (dropPopups == null) dropPopups = true;
-        dropPopups = (Boolean) pull.get("drop_popups");
         if (dropNotes == null) dropNotes = false;
+
+        dropPopups = (Boolean) pull.get("drop_popups");
+        if (dropPopups == null) dropPopups = true;
+
         dropOle = (Boolean) pull.get("ole_objects");
         if (dropOle == null) dropOle = false;
+
         dropMetafile = (Boolean) pull.get("metafile_objects");
         if (dropMetafile == null) dropMetafile = false;
     }
