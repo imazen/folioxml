@@ -289,7 +289,7 @@ public class FauxTabs implements NodeListProcessor, ExportingNodeListProcessor {
         }
     }
 
-    private Pattern tabStopSpec = Pattern.compile("\\A(Center|Right|[\\d.]+) (NM|CN|RT|CA) (NO|DS|DO|DA|UN)\\Z", Pattern.CASE_INSENSITIVE);
+    private Pattern tabStopSpec = Pattern.compile("\\A(Center|Right|-?[\\d.]+) (NM|CN|RT|CA) (NO|DS|DO|DA|UN)\\Z", Pattern.CASE_INSENSITIVE);
 
     private TabStop parseTabStop(String folioSpec) throws InvalidMarkupException {
 
