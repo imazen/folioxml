@@ -21,6 +21,7 @@ public class FolioTokenReader extends folioxml.core.TokenReaderBase {
 
 
     /**
+     *
      * @param reader
      * @param readBlockSize Should (optimally) be the length of the largest comment or text segment in the file.
      * @throws IOException
@@ -36,7 +37,14 @@ public class FolioTokenReader extends folioxml.core.TokenReaderBase {
      * Uses the Windows-1252 encoding
      */
     public FolioTokenReader(File path) throws UnsupportedEncodingException, FileNotFoundException, IOException {
-        this(new InputStreamReader(new FileInputStream(path), "Windows-1252"), new FileIncludeResolver(path.getAbsolutePath()));
+        this(path, "Windows-1252");
+    }
+
+    /**
+     *
+     */
+    public FolioTokenReader(File path, String charsetName) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+        this(new InputStreamReader(new FileInputStream(path), charsetName), new FileIncludeResolver(path.getAbsolutePath()));
 
     }
 
