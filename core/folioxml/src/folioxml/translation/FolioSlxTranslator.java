@@ -58,7 +58,7 @@ public class FolioSlxTranslator {
      *
      * @param ft
      * @return
-     * @throws folioxml.folio.InvalidMarkupException
+     * @throws InvalidMarkupException
      */
     public static SlxToken convertTag(FolioToken ft) throws InvalidMarkupException {
         SlxToken t = null;
@@ -483,9 +483,14 @@ public class FolioSlxTranslator {
 
         }
         //LN level definition
-        if (ft.matches("LN"))
-            return new SlxToken("<infobase-meta type=\"levels\"/>").set("content", join(ft.getOptionsArray()));
+        if (ft.matches("LN")) {
+            List<String> withoutCommas = new ArrayList<String>();
+            for(String s: ft.getOptionsArray()){
+                withoutCommas.add(s.replace(',', ' '));
+            }
+            return new SlxToken("<infobase-meta type=\"levels\"/>").set("content", join(withoutCommas));
 
+        }
         //Object definition.
         if (ft.matches("OD")) {
             return FolioObjectUtils.translateObjectDefinition(ft);
@@ -598,7 +603,7 @@ public class FolioSlxTranslator {
                         //soo...
                         String u = opts.get(k + 1).trim();
                         if (u.endsWith("%")) {
-                            if (!FolioCssUtils.isNumber(u.substring(0, u.length() - 2)))
+                            if (!FolioCssUtils.isNumber(u.substring(0, u.length() - 1)))
                                 throw new InvalidMarkupException("Invalid percentage unit " + u, ft);
                         } else {
                             u = FolioCssUtils.fixUnits(u);
@@ -766,7 +771,7 @@ public class FolioSlxTranslator {
     //<PD:"Pen Name", Character Based Formatting Codes> Highlighter pen
     //<PA:Name,Paragraph formatting, Character formatting> paragraph styles
     //<OD:FO:"Object name", Object Handler,"File Name", RP, File Type>
-    //<LN:Name1,Name2,Name3,Name4> Level definitions. Order of <LE> codes is used instead if this is omitted. Not required for 4.x
+    //<LN:Name1,"Name2, comma",Name3,Name4> Level definitions. Order of <LE> codes is used instead if this is omitted. Not required for 4.x
     //<LE:LevelName,Paragraph attrs, Char attrs> Level definition and style.
     //<HL:Hit List Options>
     //<DQ:"Query"> max 2000 chars. The default query
@@ -780,7 +785,7 @@ public class FolioSlxTranslator {
      * @param folioName
      * @param slxToken
      * @return
-     * @throws folioxml.folio.InvalidMarkupException
+     * @throws InvalidMarkupException
      */
     public static SlxToken tryRename(FolioToken t, String folioName, String slxToken) throws InvalidMarkupException {
         if (t.matches(folioName) && t.assertCount(0)) {
@@ -799,7 +804,7 @@ public class FolioSlxTranslator {
      * @param ft
      * @param regex
      * @return
-     * @throws folioxml.folio.InvalidMarkupException
+     * @throws InvalidMarkupException
      */
     public static SlxToken tryCommentOut(FolioToken ft, String regex) throws InvalidMarkupException {
         //TODO: we need to mark automatic comment-outs so they can automatically be re-inserted when going back to FFF

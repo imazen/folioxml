@@ -50,7 +50,7 @@ public class FolioSlxTransformerTest {
     @Test
     public void TestSegment() throws InvalidMarkupException, IOException {
 
-        String defFile = "<LN:Book:Chapter>";
+        String defFile = "<LN:\"Book\":\"Chapter, hi\">";
         t(
                 "<CM> ***********************************************\n" +
                         "** Folio Flat File Identifier and Version Info **\n" +
@@ -72,7 +72,7 @@ public class FolioSlxTransformerTest {
                         "<CM> ***********************************************\n" +
                         "     **              Record Text                  **\n" +
                         "     *********************************************** </CM>\n\n" +
-                        "<RD,ID:19:Book,CH><GR:\"nonindexed info\"><GR:\"group 5\"><GR:\"group 2\"><GR:\"group 4\">" +
+                        "<RD,ID:19:\"Chapter, hi\",CH><GR:\"nonindexed info\"><GR:\"group 5\"><GR:\"group 2\"><GR:\"group 4\">" +
                         "<BH><JU:CN><BR:AL:0.15,0.0291667,FC:255,255,0><SD:255,0,0><FD:\"non indexed field\"><BD+><UN:2+><PT:48><FC:255,255,0>" +
                         "<BC:255,0,0>WARNING!<UN><PT><FC:0,0,255><BC><CR><PT:12><FC:255,255,0><BC:255,0,0>You have inadvertently opened the infobase: <UN+>Test.NFO<UN><CR><CR><PT:16>" +
                         "",
