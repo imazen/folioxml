@@ -10,10 +10,8 @@ import folioxml.lucene.InfobaseSetIndexer;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -21,11 +19,16 @@ import java.util.List;
 
 public class TestExportRunner {
 
-    private InfobaseSet loadPrivate(String name){
+    private InfobaseSet loadPrivate(String name) {
 
         InputStream privateYaml =  TestConfig.class.getResourceAsStream("/private.yaml");
 
-        String classDir = TestConfig.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+        String classDir = null;
+        try {
+            classDir = new File(TestConfig.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         String workingDir = Paths.get(classDir).getParent().getParent().getParent().getParent().toAbsolutePath().toString();
 
         return YamlInfobaseSet.parseYaml(workingDir, privateYaml).get(name);
@@ -41,6 +44,16 @@ public class TestExportRunner {
         new ExportRunner(TestConfig.get("folio_help")).Export();
     }
 
+    @Test @Ignore
+    public void IndexCrp() throws InvalidMarkupException, IOException {
+        new ExportRunner(loadPrivate("crp")).Index();
+    }
+
+    @Test @Ignore
+    public void ExportCrp() throws InvalidMarkupException, IOException{
+        new ExportRunner(loadPrivate("crp")).Export();
+    }
+
 
     @Test @Ignore
     public void IndexSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
@@ -51,6 +64,11 @@ public class TestExportRunner {
     @Test @Ignore
     public void ExportSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
         new ExportRunner(loadPrivate("testset")).Export();
+    }
+
+    @Test @Ignore
+    public void IndexExportSet() throws UnsupportedEncodingException, FileNotFoundException, InvalidMarkupException, IOException{
+        new ExportRunner(loadPrivate("testset")).Run();
     }
 
     @Test @Ignore
