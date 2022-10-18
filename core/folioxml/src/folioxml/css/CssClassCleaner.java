@@ -229,7 +229,7 @@ public class CssClassCleaner {
         //Index style-def tags only. Then repeat and get the rest.
         for (TokenBase t : r.getTokens()) {
             if (t.isTag() && t.matches("style-def")) {
-                process(t, getNamespace(t), getPrefix(t), true);
+                process(t, getNamespace(t), getPrefix(t), false);
                 //disabled at one point because of Neil's style class name changed quick fix was to disable
             }
         }
