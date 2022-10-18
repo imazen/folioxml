@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/contrib/contrib.iml" filepath="$PROJECT_DIR$/contrib/contrib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/diff_match_patch/diff_match_patch.iml" filepath="$PROJECT_DIR$/diff_match_patch/diff_match_patch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/commandline/folioxml-commandline.iml" filepath="$PROJECT_DIR$/commandline/folioxml-commandline.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/folioxml/folioxml-core.iml" filepath="$PROJECT_DIR$/core/folioxml/folioxml-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/contrib/folioxml-lucene/folioxml-lucene.iml" filepath="$PROJECT_DIR$/contrib/folioxml-lucene/folioxml-lucene.iml" />
+      <module fileurl="file://$PROJECT_DIR$/parent.iml" filepath="$PROJECT_DIR$/parent.iml" />
+    </modules>
+  </component>
+</project>
