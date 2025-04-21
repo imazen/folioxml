@@ -1,0 +1,297 @@
+<CM> ***********************************************
+     ** Folio Flat File Identifier and Version Info **
+     *********************************************** </CM>
+<VI:Folio,DEF,4.7.1.4>
+
+
+<CM> ***********************************************
+     **           Level Definitions               **
+     *********************************************** </CM>
+<LN:Book,Section,Chapter,Heading,"Sub-Heading 1","Sub-Heading 2","Sub-Heading 3","Sub-Heading 4">
+<LE:Book; PT:20; FC:0,0,255; JU:CN; BP:0.0597222; AP:0.2; TS:1,NM,NO; BR:BT:0.0291667,0.0291667,FC:0,0,255>
+<LE:Section; BD+; PT:18; FC:0,0,160; BP:0.5; AP:0.25; BR:LF:0.05,0.0291667,FC:0,0,160,TP:0.1,0.05,FC:0,0,160>
+<LE:Chapter; BD+; PT:14; FC:255,255,255; BP:0.25; IN:LF:0.25,FI:-0.25; TS:Right,RT,NO; BR:LF:0.0125,0,FC:0,0,128,TP:0.0131944,0,FC:0,0,128,RT:0.0125,0,FC:0,0,128,BT:0.0131944,0,FC:0,0,128; SD:0,0,128>
+<LE:Heading; BD+; FT:Arial,SR; FC:0,0,160; BP:0.125>
+<LE:"Sub-Heading 1"; BD+; UN+; FT:Arial,SR; PT:10; FC:0,0,160; BP:0.125; IN:LF:0.125>
+<LE:"Sub-Heading 2"; FT:Arial,SR; PT:10; FC:0,0,160; BP:0.125; IN:LF:0.125; TS:0.25,NM,NO,0.5,NM,NO,0.75,NM,NO,1,NM,NO,1.25,NM,NO,1.5,NM,NO,1.75,NM,NO,2,NM,NO>
+<LE:"Sub-Heading 3"; UN+; FT:Arial,SR; PT:10; FC:0,0,160; BP:0.125; IN:LF:0.25; TS:0.25,NM,NO,0.5,NM,NO,0.75,NM,NO,1,NM,NO,1.25,NM,NO,1.5,NM,NO,16.4181,NM,NO,16.4181,NM,NO>
+<LE:"Sub-Heading 4"; FT:Arial,SR; PT:10; FC:0,0,160; BP:0.125; IN:LF:0.25; TS:0.25,NM,NO,0.5,NM,NO,0.75,NM,NO,1,NM,NO,1.25,NM,NO,1.5,NM,NO,16.4181,NM,NO,16.4181,NM,NO>
+<LE:"Normal Level"; PT:11; FC:0,0,0; BP:0.0798611; IN:LF:0.25>
+
+
+<CM> ***********************************************
+     **      Paragraph Style Definitions          **
+     *********************************************** </CM>
+<PA:CellBody; FT:Arial,SN; PT:9; FC:0,0,0>
+<PA:CellHeading; BD+; FT:Arial,SR; PT:10; FC:0,0,0>
+<PA:"Example Input"; BD+; FT:Arial,SR; PT:9; FC:0,0,0; BP:0.05; AP:0.05; IN:LF:0.75>
+<PA:"List 1"; PT:11; FC:0,0,0; BP:0.05; IN:LF:0.5,FI:-0.25; TS:0.5,NM,NO,0.75,NM,NO,1,NM,NO,1.25,NM,NO,1.5,NM,NO,1.75,NM,NO,2,NM,NO>
+<PA:"List 2"; PT:11; FC:0,0,0; BP:0.05; IN:LF:0.625,FI:-0.25; TS:0.625,NM,NO,0.75,NM,NO,1,NM,NO,1.25,NM,NO,1.5,NM,NO,1.75,NM,NO,2,NM,NO>
+<PA:"List 3"; PT:11; FC:0,0,0; BP:0.0402778; IN:LF:0.75,FI:-0.25; TS:0.75,NM,NO,1,NM,NO,1.25,NM,NO,1.5,NM,NO,1.75,NM,NO,2,NM,NO>
+<PA:"Menu-First Item"; FT:Arial,SR; PT:10; FC:0,0,0; LW:2.5; IN:LF:0.5; TS:2.5,RT,NO; BR:LF:0.0152778,0.0291667,FC:128,128,128,TP:0.0152778,0.00277778,FC:128,128,128,RT:0.0152778,0.00277778,FC:128,128,128,BT:0,0.00277778,FC:128,128,128; SD:192,192,192>
+<PA:"Menu Header"; BD+; FT:Arial,SR; PT:10; FC:0,0,128; BP:0.1; TS:Right,RT,NO; BR:BT:0.0152778,0.0291667,FC:0,0,160>
+<PA:"Menu-Last Item"; FT:Arial,SR; PT:10; FC:0,0,0; LW:2.5; IN:LF:0.5; TS:2.5,RT,NO; BR:LF:0.0152778,0.0291667,FC:128,128,128,TP:0,0.00277778,FC:128,128,128,RT:0.0152778,0.00277778,FC:128,128,128,BT:0.0152778,0.00277778,FC:128,128,128; SD:192,192,192>
+<PA:"Menu-Menu Name"; FT:Arial,SR; PT:10; FC:0,0,0; LW:1.25; BP:0.1; IN:LF:0.5; TS:2.5,RT,NO; BR:LF:0.0152778,0.0291667,FC:128,128,128,TP:0.0152778,0.00277778,FC:128,128,128,RT:0.0152778,0.00277778,FC:128,128,128,BT:0,0.00277778,FC:128,128,128; SD:192,192,192>
+<PA:"Menu-No Separator"; FT:Arial,SR; PT:10; FC:0,0,0; LW:2.5; IN:LF:0.5; TS:2.5,RT,NO; BR:LF:0.0152778,0.0291667,FC:128,128,128,TP:0,0.00277778,FC:128,128,128,RT:0.0152778,0.00277778,FC:128,128,128,BT:0,0.00277778,FC:128,128,128; SD:192,192,192>
+<PA:"Menu-Separator (Below)"; FT:Arial,SR; PT:10; FC:0,0,0; LW:2.5; IN:LF:0.5; TS:2.5,RT,NO; BR:LF:0.0152778,0.0291667,FC:128,128,128,TP:0,0.00277778,FC:128,128,128,RT:0.0152778,0.00277778,FC:128,128,128,BT:0.0152778,0.00277778,FC:128,128,128; SD:192,192,192>
+<PA:"Menu-Top Level"; FT:"MS Sans Serif",SR; PT:10; FC:0,0,0; BP:0.1; IN:LF:0.25; TS:0.75,NM,NO,1.25,NM,NO,1.75,NM,NO,2.25,NM,NO,2.75,NM,NO,3.25,NM,NO,3.75,NM,NO,4.25,NM,NO,4.75,NM,NO,5.25,NM,NO,5.75,NM,NO,6.25,NM,NO,6.75,NM,NO,7.25,NM,NO,7.75,NM,NO; BR:LF:0.00972222,0.00277778,FC:128,128,128,TP:0.00972222,0,FC:128,128,128,RT:0.00972222,0,FC:128,128,128,BT:0.00972222,0,FC:128,128,128; SD:192,192,192>
+<PA:"(None)+Icon"; PT:11; FC:0,0,0; BP:0.0402778; IN:LF:0.25,FI:-0.25; TS:0.25,NM,NO>
+<PA:Note; PT:11; FC:0,0,0; BP:0.1; IN:LF:0.25; BR:AL:0.0152778,0.0291667,FC:255,0,0>
+<PA:Objects; PT:11; FC:0,0,0; JU:CN; BP:0.1; TS:0.25,NM,NO,0.5,NM,NO,0.75,NM,NO,1,NM,NO>
+<PA:"Popup/Note Windows"; PT:10; FC:0,0,0; IN:LF:0.1,FI:-0.1; BR:LF:0,0.1,RT:0,0.1,BT:0,0.1; SD:255,255,0>
+<PA:"Quick Keys"; PT:11; FC:0,0,0; LW:4; BP:0.0402778; IN:LF:0.25; TS:2,NM,NO>
+<PA:"Server Syntax BNF"; FT:Arial,SR; PT:9; BP:0.0402778; IN:LF:2.25,FI:-2; TS:1.75,CN,NO,2.25,NM,NO>
+<PA:"S-Example Input"; BD+; FT:Arial,SN; PT:9; FC:0,0,0; BP:0.1; AP:0.05; IN:LF:0.8>
+<PA:"S-Rationale"; FT:Arial,SN; PT:9; FC:0,0,0; BP:0.0402778; IN:LF:0.6,FI:-0.05>
+<PA:"S-Step 1"; FT:Arial,SN; PT:11; FC:0,0,255; BP:0.0798611; IN:LF:0.55,FI:-0.3; TS:0.55,NM,NO>
+<PA:"S-Step 1a"; FT:Arial,SN; PT:11; FC:0,0,255; BP:0.05; IN:LF:0.55,FI:-0.15; TS:0.55,NM,NO>
+<PA:"Sub-Heading 2 Copy"; FT:Arial,SR; PT:10; FC:0,0,128; BP:0.1; IN:LF:0.25>
+<PA:Syntax; FT:Arial,SR; PT:9; BP:0.0652778; IN:LF:1.75,FI:-1.5; TS:1.75,NM,NO>
+<PA:"T2-No Lines"; PT:10; FC:0,0,0; BP:0.05; IN:LF:1.75,FI:-1.25; TS:1.75,NM,NO>
+<PA:"Table (2 Column, No Lines)"; PT:10; FC:0,0,0; LW:5.25; BP:0.1; IN:LF:0.5; TS:0.75,NM,NO,2,NM,NO>
+
+
+<CM> ***********************************************
+     **      Character Style Definitions          **
+     *********************************************** </CM>
+<ST:Emphasis,CS; BD+; IT+>
+<ST:"Example Text",CS; BD+; IT-; FT:Arial,SR; PT:9>
+<ST:"Glossary Terms",CS; FT:Arial,SN; PT:10; FC:0,0,128>
+<ST:Keystrokes,CS; FT:Arial,SR; PT:8>
+<ST:"Screen Items",CS; BD+>
+
+
+<CM> ***********************************************
+     **         Link Style Definitions            **
+     *********************************************** </CM>
+<ST:Command,LK; UN+; FC:0,0,255>
+<ST:Default,LK>
+<ST:Jump,LK; UN+; FC:0,128,0>
+<ST:Object,LK; UN+; FC:0,0,128>
+<ST:Popup,LK; UN+; FC:128,128,0>
+<ST:Query,LK; UN+; FC:0,128,0>
+<ST:Web,LK; UN+; FC:128,0,0>
+
+
+<CM> ***********************************************
+     **        Highlighter Definitions            **
+     *********************************************** </CM>
+<PD:"Required Files"; FC:128,0,0; BC:DC>
+
+
+<CM> ***********************************************
+     **           Field Definitions               **
+     *********************************************** </CM>
+<FE:"3.1 - 4.0 Flat File",TX>
+<FE:"4.0 - 4.1 Flat File",TX>
+<FE:"4.11-4.2 Flat File",TX>
+<FE:"4.1 - 4.11 Flat File",TX>
+<FE:"Flat File Code Index",TX>
+<FE:"Flat File Description",TX>
+<FE:"Flat File Descriptive Name",TX,IX:PF,TE>
+<FE:"Flat File Example Code",TX; BD+; IT-; FT:Arial,SR; PT:9>
+<FE:"Flat File Examples",TX>
+<FE:"Flat File Parameters",TX>
+<FE:"Flat File Syntax",TX; BD-; IT-; FT:"Courier New",SR; PT:9>
+<FE:"Mac 4.11",TX>
+<FE:"New to 4.11",TX>
+<FE:"New to 4.2",TX>
+<FE:"New to 4.4",TX>
+<FE:"New to 4.5",TX,IX:TF,TE,FP>
+<FE:"New to 4.6",TX,IX:TF,TE,FP>
+<FE:"New to 4.6.3",TX,IX:TF,TE,FP>
+<FE:"New to 4.6.3 - Documentation Update",TX,IX:TF,TE,FP>
+<FE:"New to 4.7",TX>
+<FE:"Removed from Folio Views Help (complete record)",TX>
+<FE:"Removed from Folio Views Help (partial record)",TX>
+<FE:"Removed from Localized Files (complete Record)",TX>
+<FE:"Removed from Localized Files (partial record)",TX>
+
+
+<CM> ***********************************************
+     **            Query Templates                **
+     *********************************************** </CM>
+<QT:"&1 Search Folio Views Reference","FolioHlp\FFF1.OB">
+<QT:"&2 Search by Topic","FolioHlp\FFF2.OB">
+<QT:"&3 Search Flat File Codes","FolioHlp\FFF3.OB">
+<QT:"&4 Sample Query Template","FolioHlp\FFF4.OB">
+
+
+<CM> ***********************************************
+     **          Infobase Properties              **
+     *********************************************** </CM>
+<HL: HR:400>
+
+
+<CM> ***********************************************
+     **        Folio Object Definitions           **
+     *********************************************** </CM>
+<OD:FO:"Main Menu Hypergraphic - New.hgx",HyperGraphic,"FolioHlp\FFF5.OB">
+<OD:FO:"Faircom Logo - Used in Folio Validator",Bitmap,"FolioHlp\FFF6.OB">
+<OD:FO:"Toolbar Icon-Go Back1",Bitmap,"FolioHlp\FFF7.OB">
+<OD:FO:"Infobase Views",Bitmap,"FolioHlp\FFF8.OB">
+<OD:FO:"Icon-Link Cursor",Bitmap,"FolioHlp\FFF9.OB">
+<OD:FO:"Table of Contents - Plus",Bitmap,"FolioHlp\FFF10.OB">
+<OD:FO:"Table of Contents - Minus",Bitmap,"FolioHlp\FFF11.OB">
+<OD:FO:"Icon-Step",Bitmap,"FolioHlp\FFF12.OB">
+<OD:FO:"Icon-Magnify",Bitmap,"FolioHlp\FFF13.OB">
+<OD:FO:"Find Infobases Dialog",Bitmap,"FolioHlp\FFF14.OB">
+<OD:FO:"Import URL Dialog (Views)",Bitmap,"FolioHlp\FFF15.OB">
+<OD:FO:"New Dialog",Bitmap,"FolioHlp\FFF16.OB">
+<OD:FO:"New Infobase Options Dialog",Bitmap,"FolioHlp\FFF17.OB">
+<OD:FO:"Shadow Files Images-Shadow",Bitmap,"FolioHlp\FFF18.OB">
+<OD:FO:"Shadow File Images-Plus",Bitmap,"FolioHlp\FFF19.OB">
+<OD:FO:"Shadow Files Images-Master",Bitmap,"FolioHlp\FFF20.OB">
+<OD:FO:"Shadow File Images-Equals",Bitmap,"FolioHlp\FFF21.OB">
+<OD:FO:"Shadow Files Images-Combined",Bitmap,"FolioHlp\FFF22.OB">
+<OD:FO:"Open Dialog",Bitmap,"FolioHlp\FFF23.OB">
+<OD:FO:"Reconcile Warning Dialog",Bitmap,"FolioHlp\FFF24.OB">
+<OD:FO:"Reconcile Options Dialog",Bitmap,"FolioHlp\FFF25.OB">
+<OD:FO:"Shadow File Reconcile - Ex. 1",Bitmap,"FolioHlp\FFF26.OB">
+<OD:FO:"Shadow File Reconcile - Ex. 2",Bitmap,"FolioHlp\FFF27.OB">
+<OD:FO:"Shadow File Reconcile - Ex. 3",Bitmap,"FolioHlp\FFF28.OB">
+<OD:FO:"Print Dialog",Bitmap,"FolioHlp\FFF29.OB">
+<OD:FO:"Page Setup Dialog",Bitmap,"FolioHlp\FFF30.OB">
+<OD:FO:"Infobase Properties Dialog (General)",Bitmap,"FolioHlp\FFF31.OB">
+<OD:FO:"Paste Special Dialog",Bitmap,"FolioHlp\FFF32.OB">
+<OD:FO:"Links Dialog",Bitmap,"FolioHlp\FFF33.OB">
+<OD:FO:"Replace Dialog",Bitmap,"FolioHlp\FFF34.OB">
+<OD:FO:"Tag Range of Records Dialog",Bitmap,"FolioHlp\FFF35.OB">
+<OD:FO:"Record Code",Bitmap,"FolioHlp\FFF36.OB">
+<OD:FO:"Line Break Code",Bitmap,"FolioHlp\FFF37.OB">
+<OD:FO:"Cell Break/Table Break Code",Bitmap,"FolioHlp\FFF38.OB">
+<OD:FO:"Page Break Code",Bitmap,"FolioHlp\FFF39.OB">
+<OD:FO:"Tab Code",Bitmap,"FolioHlp\FFF40.OB">
+<OD:FO:"Expand to Level dialog",Bitmap,"FolioHlp\FFF41.OB">
+<OD:FO:"Hit List Properties Dialog - New",Bitmap,"FolioHlp\FFF42.OB">
+<OD:FO:Ruler,Bitmap,"FolioHlp\FFF43.OB">
+<OD:FO:"Ruler-Tabs",Bitmap,"FolioHlp\FFF44.OB">
+<OD:FO:"Ruler-Fixed Width",Bitmap,"FolioHlp\FFF45.OB">
+<OD:FO:"Ruler-Auto Width",Bitmap,"FolioHlp\FFF46.OB">
+<OD:FO:"Ruler-Tables",Bitmap,"FolioHlp\FFF47.OB">
+<OD:FO:"Contents Pane-Select Branches",Bitmap,"FolioHlp\FFF48.OB">
+<OD:FO:"Contents Pane-Checkbox",Bitmap,"FolioHlp\FFF49.OB">
+<OD:FO:"Contents Pane-Multiselect Checkbox",Bitmap,"FolioHlp\FFF50.OB">
+<OD:FO:"Toolbars Dialog",Bitmap,"FolioHlp\FFF51.OB">
+<OD:FO:"Highlighter Tool",Bitmap,"FolioHlp\FFF52.OB">
+<OD:FO:"Character Style Icon",Bitmap,"FolioHlp\FFF53.OB">
+<OD:FO:"Paragraph Style Icon",Bitmap,"FolioHlp\FFF54.OB">
+<OD:FO:"Level Style Icon",Bitmap,"FolioHlp\FFF55.OB">
+<OD:FO:"Zoom Dialog",Bitmap,"FolioHlp\FFF56.OB">
+<OD:FO:"Insert Object Dialog-Create New",Bitmap,"FolioHlp\FFF57.OB">
+<OD:FO:"Insert Object Dialog-Create from File",Bitmap,"FolioHlp\FFF58.OB">
+<OD:FO:"Picture Dialog",Bitmap,"FolioHlp\FFF59.OB">
+<OD:FO:"Query Template Dialog",Bitmap,"FolioHlp\FFF60.OB">
+<OD:FO:"Advanced Query Dialog",Bitmap,"FolioHlp\FFF61.OB">
+<OD:FO:"Query Bracket-Left",Bitmap,"FolioHlp\FFF62.OB">
+<OD:FO:"Query Bracket-Right",Bitmap,"FolioHlp\FFF63.OB">
+<OD:FO:"Go To Dialog",Bitmap,"FolioHlp\FFF64.OB">
+<OD:FO:"Query Dialog",Bitmap,"FolioHlp\FFF65.OB">
+<OD:FO:"Show History Dialog",Bitmap,"FolioHlp\FFF66.OB">
+<OD:FO:"Layout Dialog-Font",Bitmap,"FolioHlp\FFF67.OB">
+<OD:FO:"Layout Dialog-Paragraph",Bitmap,"FolioHlp\FFF68.OB">
+<OD:FO:"Layout Dialog-Tabs",Bitmap,"FolioHlp\FFF69.OB">
+<OD:FO:"Layout Dialog-Border",Bitmap,"FolioHlp\FFF70.OB">
+<OD:FO:"Border Dialog-Presets",Bitmap,"FolioHlp\FFF71.OB">
+<OD:FO:"Object Properties Dialog",Bitmap,"FolioHlp\FFF72.OB">
+<OD:FO:"New Style Dialog",Bitmap,"FolioHlp\FFF73.OB">
+<OD:FO:"Style Dialog",Bitmap,"FolioHlp\FFF74.OB">
+<OD:FO:"Text Properties Dialog",Bitmap,"FolioHlp\FFF75.OB">
+<OD:FO:"Bookmark Dialog",Bitmap,"FolioHlp\FFF76.OB">
+<OD:FO:"Customize Dialog-Toolbars",Bitmap,"FolioHlp\FFF77.OB">
+<OD:FO:"Customize Dialog-Menus",Bitmap,"FolioHlp\FFF78.OB">
+<OD:FO:"Customize Dialog-Keyboard",Bitmap,"FolioHlp\FFF79.OB">
+<OD:FO:"Field Dialog",Bitmap,"FolioHlp\FFF80.OB">
+<OD:FO:"New Field Dialog",Bitmap,"FolioHlp\FFF81.OB">
+<OD:FO:"Group Dialog",Bitmap,"FolioHlp\FFF82.OB">
+<OD:FO:"Highlighter Dialog",Bitmap,"FolioHlp\FFF83.OB">
+<OD:FO:"New Highlighter Dialog",Bitmap,"FolioHlp\FFF84.OB">
+<OD:FO:"Menu Arrow (Blue)",Bitmap,"FolioHlp\FFF85.OB">
+<OD:FO:"Data Link Dialog",Bitmap,"FolioHlp\FFF86.OB">
+<OD:FO:"Command Link Dialog",Bitmap,"FolioHlp\FFF87.OB">
+<OD:FO:"Note Window",Bitmap,"FolioHlp\FFF88.OB">
+<OD:FO:"Options Dialog-Hitlist",Bitmap,"FolioHlp\FFF89.OB">
+<OD:FO:"Options Dialog-General",Bitmap,"FolioHlp\FFF90.OB">
+<OD:FO:"Options Dialog-Print",Bitmap,"FolioHlp\FFF91.OB">
+<OD:FO:"Options Dialog-Query (new)",Bitmap,"FolioHlp\FFF92.OB">
+<OD:FO:"Options Dialog-Internet",Bitmap,"FolioHlp\FFF93.OB">
+<OD:FO:"Options Dialog-Document",Bitmap,"FolioHlp\FFF94.OB">
+<OD:FO:"Options Dialog-Contents",Bitmap,"FolioHlp\FFF95.OB">
+<OD:FO:"Options Dialog-Object",Bitmap,"FolioHlp\FFF96.OB">
+<OD:FO:"Remove Field Dialog",Bitmap,"FolioHlp\FFF97.OB">
+<OD:FO:"Remove Group Dialog",Bitmap,"FolioHlp\FFF98.OB">
+<OD:FO:"Spell Check Dialog",Bitmap,"FolioHlp\FFF99.OB">
+<OD:FO:"Insert Table Dialog",Bitmap,"FolioHlp\FFF100.OB">
+<OD:FO:"Table Format Dialog",Bitmap,"FolioHlp\FFF101.OB">
+<OD:FO:"Table-Cell Format Dialog",Bitmap,"FolioHlp\FFF102.OB">
+<OD:FO:"Table Border Dialog",Bitmap,"FolioHlp\FFF103.OB">
+<OD:FO:"Cell Border Dialog",Bitmap,"FolioHlp\FFF104.OB">
+<OD:FO:"Welcome Dialog (Views)",Bitmap,"FolioHlp\FFF105.OB">
+<OD:FO:"RB-Rights Browser Screen",Bitmap,"FolioHlp\FFF106.OB">
+<OD:FO:"RM-Properties Dialog",Bitmap,"FolioHlp\FFF107.OB">
+<OD:FO:"RM-Add User Dialog",Bitmap,"FolioHlp\FFF108.OB">
+<OD:FO:"RB-Text Properties",Bitmap,"FolioHlp\FFF109.OB">
+<OD:FO:"RB-Access Properties",Bitmap,"FolioHlp\FFF110.OB">
+<OD:FO:"RB-Limits Properties",Bitmap,"FolioHlp\FFF111.OB">
+<OD:FO:"RB-Status Properties",Bitmap,"FolioHlp\FFF112.OB">
+<OD:FO:"WB-Project View",Bitmap,"FolioHlp\FFF113.OB">
+<OD:FO:"Convert 3.1 Project Dialog",Bitmap,"FolioHlp\FFF114.OB">
+<OD:FO:"WB-Preferences Dialog",Bitmap,"FolioHlp\FFF115.OB">
+<OD:FO:"WB-Project Settings Dialog",Bitmap,"FolioHlp\FFF116.OB">
+<OD:FO:"WB-Add URL to Project Dialog",Bitmap,"FolioHlp\FFF117.OB">
+<OD:FO:"WB-Convert Dialog",Bitmap,"FolioHlp\FFF118.OB">
+<OD:FO:"WB-Create Dialog",Bitmap,"FolioHlp\FFF119.OB">
+<OD:FO:"WB-Validate Dialog",Bitmap,"FolioHlp\FFF120.OB">
+<OD:FO:"WB-Confirm Dialog",Bitmap,"FolioHlp\FFF121.OB">
+<OD:FO:"WB-Extract Dialog",Bitmap,"FolioHlp\FFF122.OB">
+<OD:FO:"WB-Optimize Dialog",Bitmap,"FolioHlp\FFF123.OB">
+<OD:FO:"WB-Validate Infobase Dialog",Bitmap,"FolioHlp\FFF124.OB">
+<OD:FO:"WB-Configure Builds Dialog",Bitmap,"FolioHlp\FFF125.OB">
+<OD:FO:"WB-Configure Build Dialog",Bitmap,"FolioHlp\FFF126.OB">
+<OD:FO:"WB-Configure Filters Dialog",Bitmap,"FolioHlp\FFF127.OB">
+<OD:FO:"WB-Configure Filter Dialog",Bitmap,"FolioHlp\FFF128.OB">
+<OD:FO:"WB-Transform Properties Dialog",Bitmap,"FolioHlp\FFF129.OB">
+<OD:FO:"WB-Logical Import Filter",Bitmap,"FolioHlp\FFF130.OB">
+<OD:FO:"WB-Configure Steps Dialog",Bitmap,"FolioHlp\FFF131.OB">
+<OD:FO:"WB - Validator Options Dialog.bmp",Bitmap,"FolioHlp\FFF132.OB">
+<OD:FO:"QTE Sample Screen - New",Bitmap,"FolioHlp\FFF133.OB">
+<OD:FO:"Query template with all controls",Bitmap,"FolioHlp\FFF134.OB">
+<OD:FO:"Query template - standard buttons",Bitmap,"FolioHlp\FFF135.OB">
+<OD:FO:"Query template - special buttons",Bitmap,"FolioHlp\FFF136.OB">
+<OD:FO:"Query template - edit box",Bitmap,"FolioHlp\FFF137.OB">
+<OD:FO:"Query template - check button",Bitmap,"FolioHlp\FFF138.OB">
+<OD:FO:"Query template - radio button",Bitmap,"FolioHlp\FFF139.OB">
+<OD:FO:"Query template - group box",Bitmap,"FolioHlp\FFF140.OB">
+<OD:FO:"Query template - static text",Bitmap,"FolioHlp\FFF141.OB">
+<OD:FO:"Query template - list box",Bitmap,"FolioHlp\FFF142.OB">
+<OD:FO:"Query template - results text and map",Bitmap,"FolioHlp\FFF143.OB">
+<OD:FO:"Query Template Dialog-Old",Bitmap,"FolioHlp\FFF144.OB">
+<OD:FO:"Toolbars selection dialog",Bitmap,"FolioHlp\FFF145.OB">
+<OD:FO:"Query Template Editor - Standard toolbar",Bitmap,"FolioHlp\FFF146.OB">
+<OD:FO:"Query Template Editor - layout (new)",Bitmap,"FolioHlp\FFF147.OB">
+<OD:FO:"Query Template Editor - Palette (new)",Bitmap,"FolioHlp\FFF148.OB">
+<OD:FO:"Query Template Editor - Grid settings",Bitmap,"FolioHlp\FFF149.OB">
+<OD:FO:"RM-Rights Admin Screen",Bitmap,"FolioHlp\FFF150.OB">
+<OD:FO:"RM-Add Infobase Dialog",Bitmap,"FolioHlp\FFF151.OB">
+<OD:FO:"RM-Text Properties",Bitmap,"FolioHlp\FFF152.OB">
+<OD:FO:"RM-Access Properties",Bitmap,"FolioHlp\FFF153.OB">
+<OD:FO:"RM-Limits Properties",Bitmap,"FolioHlp\FFF154.OB">
+<OD:FO:"RM-Status Properties",Bitmap,"FolioHlp\FFF155.OB">
+<OD:FO:"Icon-Flat File",Bitmap,"FolioHlp\FFF156.OB">
+<OD:FO:"Icon-Definition File",Bitmap,"FolioHlp\FFF157.OB">
+<OD:FO:"Table Example 1 (Flat File)",Bitmap,"FolioHlp\FFF158.OB">
+<OD:FO:"Table Example 2 (Flat File)",Bitmap,"FolioHlp\FFF159.OB">
+<OD:FO:"Table Example 3 (Flat File)",Bitmap,"FolioHlp\FFF160.OB">
+<OD:FO:"Command Character (Macintosh)",Bitmap,"FolioHlp\FFF161.OB">
+<OD:FO:PrunePercentHits,Bitmap,"FolioHlp\FFF162.OB">
+<OD:FO:"Mac Registry Viewer",Bitmap,"FolioHlp\FFF163.OB">
+<OD:FO:"MacReg-Edit Value Dialog",Bitmap,"FolioHlp\FFF164.OB">
+<OD:FO:"MacReg-New Key Dialog",Bitmap,"FolioHlp\FFF165.OB">
+<OD:FO:"MacReg-Find Key Dialog",Bitmap,"FolioHlp\FFF166.OB">
+<OD:FO:"MacReg-SmallFolder",Bitmap,"FolioHlp\FFF167.OB">
+<OD:FO:"MacReg-Small Doc",Bitmap,"FolioHlp\FFF168.OB">
+<OD:FO:"ASCII Chart",Bitmap,"FolioHlp\FFF169.OB">
+<OD:FO:"ANSI Chart",Bitmap,"FolioHlp\FFF170.OB">
+<OD:FO:"Hypergraphic Toolbar",Bitmap,"FolioHlp\FFF171.OB">
+<OD:FO:"HyperGraphics Toolbar-Selection Tools",Bitmap,"FolioHlp\FFF172.OB">
+<OD:FO:"Microsoft Word Document Corruption",Metafile,"FolioHlp\FFF173.OB">
