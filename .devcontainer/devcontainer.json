@@ -1,27 +1,31 @@
 {
-	"name": "FolioXML",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	// "image": "mcr.microsoft.com/devcontainers/java:0-17"
-	"build": {
-		// Path is relative to the devcontainer.json file.
-		"dockerfile": "../Dockerfile"
-	},
+	"name": "FolioXML (Docker)",
+	// Use the pre-built Docker image for faster Codespace startup
+	"image": "imazen/folioxml:latest",
+
+	// Use the Dockerfile for local builds or if you need customizations
+	// "build": {
+	// 	// Path is relative to the devcontainer.json file.
+	// 	"dockerfile": "../Dockerfile"
+	// },
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
+		// Feature to allow running Docker commands inside the container (for testing the build/run)
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
-		"ghcr.io/devcontainers/features/java:1": {
-			"version": "8", // Match the JDK used in the Dockerfile
-			"installMaven": "true",
-			"mavenVersion": "3.8.4"
+		// Add common utilities like bash, curl, etc., needed for scripts
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": "false",
+			"installOhMyZsh": "false"
 		}
+		// Java/Maven features are removed as they are included in the base image or not needed for just *running* the tool
 	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "java -version",
+	// "postCreateCommand": "java -jar /app/folioxml.jar --version",
 
 	// Configure tool-specific properties.
 	"customizations": {
@@ -29,14 +33,17 @@
 		"vscode": {
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
-				"vscjava.vscode-java-pack", // Optional: For Java development within Codespace
-				"redhat.java",
 				"ms-azuretools.vscode-docker",
-				"redhat.vscode-yaml"
+				"redhat.vscode-yaml",
+				"timonwong.shellcheck" // Helpful for editing export.sh
 			]
 		}
 	},
 
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+	// Ensure the workspace is mounted correctly
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+	// Run container as non-root user if available in the base image
+	"remoteUser": "${localEnv:USER}" // Use local user or fallback if needed
 } 

@@ -1,81 +1,98 @@
-
-
 [![GitHub Actions Status](https://github.com/imazen/folioxml/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/imazen/folioxml/actions/workflows/docker-publish.yml)
 [![Docker Hub](https://img.shields.io/docker/pulls/imazen/folioxml.svg)](https://hub.docker.com/r/imazen/folioxml/)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/imazen/folioxml?ref=main)
 
-# What is this?
+# FolioXML: Folio Flat File (.FFF) Conversion Tool
 
-This is a full streaming lexer, parser, and transpiler for Folio Flat File databases. Outputs include SLX, XML, HTML, and Lucene. Stream-based (not DOM-based) - can process gigabytes quickly with very low RAM use.
+This is a full streaming lexer, parser, and transpiler for Folio Flat File databases (`.FFF`, exported from `.NFO`). Outputs include structured XML (SLX), standard XML, static HTML, and Lucene indexes.
 
-## Getting Started (Running with Docker)
+## Getting Started: Converting Your FFF Files
 
-You can build and run this project using Docker without needing to install Java or Maven locally.
+The easiest way to use FolioXML is with Docker, either locally or in a cloud environment like GitHub Codespaces.
 
-1.  **Build the Docker image:**
+**Prerequisites:**
+
+*   **Docker:** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine.
+*   **Your `.FFF` file:** You need to have exported your Folio infobase (`.NFO`) to the Folio Flat File (`.FFF`) format. See [Exporting .nfo to .FFF](#exporting-nfo-to-fff) below.
+*   **(Optional) Your `objects` folder:** If your infobase contains embedded images (BMP, WMF, etc.) or other objects (OLE), ensure you also have the associated `objects` folder that was likely created during the `.FFF` export. FolioXML *does not* automatically extract or convert these objects.
+
+**Steps:**
+
+1.  **Open in Codespace (Recommended) or Clone Locally:**
+    *   **Codespace:** Click the "Open in GitHub Codespaces" badge above. This launches a pre-configured cloud environment with Docker and the necessary tools ready.
+    *   **Local:** Clone the repository: `git clone https://github.com/imazen/folioxml.git && cd folioxml`
+
+2.  **Copy the Example Project:**
+    The `examples/folio-help` directory contains a starting template. Copy it to create your project folder:
     ```bash
-    # Build the image and tag it (e.g., as 'folioxml')
-    docker build -t folioxml .
+    # In your Codespace or local terminal:
+    cp -r examples/folio-help my_project
+    cd my_project
     ```
-    *(Note: The first build downloads dependencies and compiles the code, which takes time.)*
 
-2.  **Run the application with your data:**
+3.  **Add Your Data:**
+    *   Place your `.FFF` file inside the `my_project/input/` directory (e.g., `my_project/input/my_data.fff`).
+    *   **Important:** If you have an `objects` folder containing images/OLE objects referenced by your `.FFF` file, copy it into `my_project/input/` as well (e.g., `my_project/input/objects/`). You will need to handle these objects manually after conversion (see **Handling Embedded Objects** below).
 
-    The recommended approach is to mount your configuration file, input data directory, and an output directory into the container's `/data` volume using a helper script.
+4.  **Configure the Export (`config.yaml`):**
+    Edit the `my_project/config.yaml` file:
+    *   Update `infobases.path`: Change `/data/input/FolioHlp.fff` to `/data/input/your_filename.fff`.
+    *   Update `infobases.id`: Change `foliohelp` to a unique ID for your project (e.g., `my_data`). This ID is used in output filenames.
+    *   *(Optional)* Add `aliases` if you plan to process multiple interlinked infobases later.
+    *   Review and adjust `export_locations` if you want output in different subdirectories (relative to `/data`, which maps to your `my_project` folder).
+    *   Review other options like `structure_class`, `export_html`, `resolve_query_links` etc. See the comments within `config.yaml` for detailed explanations of all options.
 
-    **Using the Example Template:**
-
-    The `examples/folio-help` directory provides a template structure, configuration file (`config.yaml`), and scripts (`export.sh`, `export.ps1`) to get started.
-
-    1.  **Copy the Example:** Copy the entire `examples/folio-help` directory to a new location for your project (e.g., `my_project`).
+5.  **Run the Export:**
+    Execute the appropriate script from within your `my_project` directory:
+    *   **Linux/macOS/WSL/Codespaces:**
         ```bash
-        cp -r examples/folio-help my_project
-        cd my_project
+        chmod +x export.sh # If needed
+        ./export.sh
         ```
-
-    2.  **Add Your Data:** Place your Folio Flat File (`.FFF`) inside the `input/` subdirectory (e.g., replace `input/FolioHlp.fff` with `input/my_infobase.fff`).
-
-    3.  **Update Configuration:** Edit the `config.yaml` file:
-        *   Modify the `infobases.path` setting to point to your `.FFF` file relative to `/data` (e.g., `path: /data/input/my_infobase.fff`).
-        *   Change the `infobases.id` to a suitable identifier for your project (e.g., `id: my_infobase`).
-        *   Adjust other settings like `export_locations`, `structure_class`, etc., as needed. See the comments in the file for details.
-
-    4.  **Run the Export Script:** Execute the appropriate script for your environment:
-        *   **Linux/macOS/WSL/Codespaces:**
-            ```bash
-            # Make script executable (only needed once)
-            chmod +x export.sh
-            # Run the export
-            ./export.sh
-            ```
-        *   **Windows (PowerShell):**
-            ```powershell
-            # Run the export
-            ./export.ps1
-            ```
-        The script will use the `config.yaml` to run the `folioxml` Docker container, mounting the current directory (`my_project`) into the container's `/data` volume. Output will be generated in the `export/` and `index/` subdirectories within `my_project`.
-
-    **Running in GitHub Codespaces:**
-
-    GitHub Codespaces provides a cloud-based development environment where you can easily run this process.
-
-    1.  **Open in Codespace:** Click the "Open in GitHub Codespaces" badge at the top of this README or open the repository in a Codespace manually.
-    2.  **Copy Example:** Use the integrated terminal in Codespaces:
-        ```bash
-        cp -r examples/folio-help my_project
-        cd my_project
+    *   **Windows (PowerShell):**
+        ```powershell
+        ./export.ps1
         ```
-    3.  **Upload Data:** Use the Codespace file explorer to upload your `.FFF` file into the `my_project/input/` directory.
-    4.  **Edit Config:** Edit `my_project/config.yaml` using the Codespace editor, updating `infobases.path`, `infobases.id`, and other settings as needed.
-    5.  **Run Export:** Use the terminal:
-        ```bash
-        chmod +x export.sh # Make executable
-        ./export.sh      # Run the export
-        ```
-    6.  **Access Output:** Your exported files will appear in `my_project/export/` and `my_project/index/` within the Codespace file explorer. You can browse or download them from there.
+    This script uses the `config.yaml` and runs the `imazen/folioxml` Docker container (pulling it if you don't have it locally). It mounts your `my_project` directory as `/data` inside the container. Your converted files will appear in the `export/` and `index/` subdirectories.
 
+**Handling Embedded Objects (Images, OLE):**
 
-# Technical Details
+*   FolioXML **does not** automatically extract, convert, or update links to embedded objects (like images in BMP/WMF/HGX format or OLE objects) stored in the `objects` folder **in the default configuration/pipeline**.
+*   While there is code (`RenameImages.java`) intended to help with identifying and renaming these assets (and converting BMPs), it may not cover all object path formats or be fully integrated into the standard export process invoked by the command-line tool.
+*   **Therefore, the current recommended workflow requires manual handling after running the initial conversion:**
+    1.  **Copy Objects Folder:** Ensure the `objects` folder from your Folio export is present in your project's `input` directory (e.g., `my_project/input/objects`).
+    2.  **Copy to Output:** After running the export script (`./export.sh` or `./export.ps1`), manually copy the contents of `my_project/input/objects` to your desired final web asset location (this might be a subdirectory within `my_project/export/` like `my_project/export/images/`, or a separate assets directory).
+    3.  **Convert Images:** Use external tools (like ImageMagick, Inkscape, graphics software, or custom scripts) to convert proprietary or non-web-friendly image formats (like `.bmp`, `.wmf`, `.hgl`, `.hgx`) into standard web formats (`.png`, `.jpg`, `.svg`). Place the converted images in the chosen output asset location.
+    4.  **Update Links:** Search through your generated output files (HTML/XML in `my_project/export/`) for `<img>` tags or other references to the original object filenames (e.g., `<img src="objects/IMAGE001.bmp" ...>`) and update the `src` (or `href`) attributes to point to the new relative path and filename of your converted web images (e.g., `<img src="images/IMAGE001.png" ...>`). This step often requires scripting or batch find-and-replace operations tailored to your specific output structure and asset naming conventions.
+*   *Future enhancements to FolioXML might provide more automated asset handling.* 
+
+## Alternative: Building the Docker Image Manually
+
+If you need to modify the FolioXML code or use a specific version, you can build the Docker image yourself instead of using the pre-built `imazen/folioxml` image.
+
+1.  Clone the repository: `git clone https://github.com/imazen/folioxml.git && cd folioxml`
+2.  Build the image:
+    ```bash
+    docker build -t my-folioxml-build .
+    ```
+3.  Modify the `export.sh` or `export.ps1` script in your copied example directory (`my_project`) to use your custom image name (`my-folioxml-build` instead of `folioxml-test` or `imazen/folioxml`).
+4.  Follow steps 2-5 from the "Getting Started" section above, using your modified script.
+
+## Exporting .nfo to .FFF
+
+To use this tool, you first need to export your original Folio Views/Builder infobase (`.nfo`) to the Folio Flat File format (`.FFF`).
+
+When exporting from Folio Views/Builder, use these settings for best results:
+
+*   **Check:** "Write comments to flat file"
+*   **Check:** "Write record IDs in record code <RD...>"
+*   **Check:** "Insert a definition include code <DI...>"
+*   **Uncheck:** "Include full path to files referenced" (This makes object paths relative, usually to an `objects` folder)
+*   **Set:** Default units: `Inches`.
+
+*Note: If the infobase is 'restricted', export functionality might be disabled by the publisher.* 
+
+## Technical Details
 
 The first conversion step is lossless, to a format called SLX. This this is like XML, but contains "ghost tags", which come in pairs (with a matching GUID), and can start and end anywhere. This simplifies the ~120 keyword ~20 context language to ~12 keywords and 2 contexts.
 
@@ -116,18 +133,6 @@ Contact Imazen for custom development, conversion, and support services. support
 ## Test infobase
 
 Folio Views includes an excellent test infobase, FolioHlp, which uses all documented infobase features. We cannot legally redistribute this due to copyright, but if you have Folio Views, you should have access to this. 
-
-## Exporting .nfo to .FFF
-
-When exporting to flat file, you should use the following options:
-
-* Check "Write comments to flat file"
-* Check "Write record IDs in record code <RD...>"
-* Check "Insert a definition include code <DI...>
-* Uncheck "Include full path to files referenced"
-* Set Default units: Inches.
-
-Folio Views and Folio Builder usually provide export functionality, although if the infobase is 'restricted', you may need to get permission from the publisher.
 
 ## Yaml configuration reference
 

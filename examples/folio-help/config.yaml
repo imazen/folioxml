@@ -37,7 +37,7 @@ folio_help:
   # Templates support: {id}, {stamp}, {input}.
   # *** Inside Docker, paths MUST be relative to /data ***
   export_locations:
-    # 'default' used for asset types without specific entry (logs, xml, css, js, etc.)
+    # 'default' used for asset types without specific entry (logs, css, js, etc.)
     default:
       # path: Local file system path template. REQUIRED.
       path: "/data/export/{id}-{stamp}/{input}"
@@ -55,47 +55,55 @@ folio_help:
       path: "/data/index/" # Path MUST end with slash. Overrides infobase-specific 'index_dir'.
 
     # 'image' specifies path/URL for images.
+    # NOTE: FolioXML attempts some renaming/conversion (BMP->PNG), but manual copying,
+    # converting (WMF, HGX), and link fixing in the output HTML is usually required.
+    # See README section "Handling Embedded Objects".
     image:
       path: /data/export/{input}
       # url: "http://example.com/images/{input}"
 
-    # 'html' specifies path/URL for generated HTML files.
+    # 'html' specifies path/URL for generated HTML files (if export_html: true).
     html:
       path: "/data/export/{id}-{stamp}/{input}.html"
       # url: "http://example.com/html/{id}/{input}.html"
 
+    # 'xml' specifies the path for the single exported XML file (if export_xml: true).
+    # xml:
+    #    path: "/data/export/{id}.xml"
+
     # --- Other asset types (examples) ---
     # css: { path: "/data/css/{input}", url: "/css/{input}" }
     # javascript: { path: "/data/js/{input}", url: "/js/{input}" }
-    # xml: { path: "/data/{id}.xml" } # Path for single exported XML file
+
 
   # ---------------------------------------------------------------------------
   # Common Export & Link Options
   # ---------------------------------------------------------------------------
 
-  # export_xml: (Boolean) Create a single XML file? (Default: true, inferred)
-  # export_xml: true
+  # Creates a single XML file with all the content.
+  # export_xml: true # Disabled by default to focus on HTML
+  export_xml: false
 
-  # export_html: (Boolean) Create multiple HTML files? (Default: true, inferred)
-  # export_html: true
+  # Exports multiple browsable HTML files based on splitting rules.
+  export_html: true
 
-  # resolve_jump_links: (Boolean) Resolve Folio jump links (JI, JT)? (Default: true, inferred)
-  # resolve_jump_links: true
+  # Resolve Folio jump links (JI, JT)?
+  resolve_jump_links: true
 
-  # resolve_query_links: (Boolean) Requires folioxml-lucene. Build index and resolve query links (QL)?
-  #                        (Default: true, inferred)
-  # resolve_query_links: true
+  # Requires folioxml-lucene. Build index and resolve query links (QL)?
+  resolve_query_links: true
 
-  # use_highslide: (Boolean) Use Highslide JS markup for popups/notes? Requires Highslide JS/CSS.
-  #                  (Default: true, inferred)
-  # use_highslide: true
+  # Use Highslide JS markup for popups/notes? Affects both XML and HTML.
+  # Requires Highslide JS/CSS files for HTML output.
+  use_highslide: true
 
-  # add_nav_links: (Boolean) HTML only. Add 'Previous'/'Next' links? (Default: true, inferred)
-  # add_nav_links: true
+  # HTML only. Add 'Previous'/'Next' links to generated HTML pages?
+  add_nav_links: true
 
   # ---------------------------------------------------------------------------
   # Structure Provider (Controls HTML Splitting and Slugs/Filenames)
   # ---------------------------------------------------------------------------
+  # Relevant only if export_html: true.
   # If not specified, HTML export might produce a single large file or default behavior.
 
   # structure_class: (String) Java class implementing IStructureProvider.
@@ -103,21 +111,12 @@ folio_help:
   #           folioxml.export.structure.IdSlugProvider (numeric/GUID IDs)
   #           folioxml.export.structure.SplitByFieldNameProvider (split on field)
   structure_class: folioxml.export.structure.SlugProvider
-  structure_class_params:
-    - "Book|Section"
-  skip_normal_records: false
-  use_highslide: true
-  add_nav_links: true #html only
-  indent_xml: false
-  pull:
-    program_links: true
-    menu_links: true 
+
   # structure_class_params: (List) Parameters for the structure_class constructor.
   # For SlugProvider: [ levelRegex ]
   #   levelRegex: Regex matching Folio Level names (e.g., "Heading 1|Chapter") for slugs.
-
-
-
+  structure_class_params:
+    - "Book|Section"
 
   # --- Other structure_class_params examples ---
   # For IdSlugProvider: [ levelRegex, splitOnFieldName, idKind, root_index, start_index ]
@@ -131,15 +130,22 @@ folio_help:
   # ---------------------------------------------------------------------------
   # Content Filtering ('Pulling' or 'Dropping')
   # ---------------------------------------------------------------------------
-  # pull:
-  #   program_links: (Boolean) Keep program links (PG)? (Default: true, inferred)
-  #   menu_links: (Boolean) Keep menu links (MN)? (Default: true, inferred)
-  #   drop_notes: (Boolean) Remove note popups? Logged if removed. (Default: false)
-  #   drop_popups: (Boolean) Remove general popups? Logged if removed. (Default: false)
-  #   ole_objects: (Boolean) Keep OLE Objects? (Not rendered). (Default: false, inferred)
-  #   metafile_objects: (Boolean) Keep Metafile objects? (Not rendered). (Default: false, inferred)
-  #   links_to_infobases: (List<String>) Drop links targeting these infobase aliases/paths.
-  #     - 'C:\Path\To\Obsolete.NFO'
+  pull:
+    # program_links: (Boolean) Keep program links (PG)? (Default: true, inferred)
+    program_links: true
+    # menu_links: (Boolean) Keep menu links (MN)? (Default: true, inferred)
+    menu_links: true
+    # drop_notes: (Boolean) Remove note popups? Logged if removed. (Default: false)
+    # drop_notes: false
+    # drop_popups: (Boolean) Remove general popups? Logged if removed. (Default: false)
+    # drop_popups: false
+    # ole_objects: (Boolean) Keep OLE Objects? (Not rendered). (Default: false, inferred)
+    # ole_objects: false
+    # metafile_objects: (Boolean) Keep Metafile objects? (Not rendered). (Default: false, inferred)
+    # metafile_objects: false
+    # links_to_infobases: (List<String>) Drop links targeting these infobase aliases/paths.
+    # links_to_infobases:
+    #     - 'C:\Path\To\Obsolete.NFO'
 
   # ---------------------------------------------------------------------------
   # Link Mapping (Manual Overrides for Broken Links)
@@ -171,20 +177,21 @@ folio_help:
   # faux_tabs_window_min: (Integer) Min width for faux tabs calculation. (Default: 80)
   # faux_tabs_window_max: (Integer) Max width for faux tabs calculation. (Default: 120)
 
-  # --- Asset ID Generation ---
+  # --- Asset ID Generation (Potentially limited effect - see README) ---
   # asset_start_index: (Integer) Starting number for generated asset IDs (images, etc.). (Default: 1)
   # asset_start_index: 1
   # asset_use_index_in_url: (Boolean) Use numeric asset index in image URLs instead of filename?
-  #                          Requires image URL template handling numeric IDs. (Default: false, inferred)
+  #                          Requires image URL template handling numeric IDs and manual link fixing.
+  #                          (Default: false, inferred)
   # asset_use_index_in_url: false
 
-  # --- XML Formatting ---
+  # --- XML Formatting --- (Less relevant if export_xml: false)
   # skip_normal_records: (Boolean) XML Only. Write only hierarchy-affecting levels? (Default: false)
   # skip_normal_records: false
   # nest_file_elements: (Boolean) XML Only. Use nested <file> elements? (Default: true, inferred)
   # nest_file_elements: true
-  # indent_xml: (Boolean) XML Only. Indent output? (May add unwanted whitespace). (Default: false, inferred)
-  # indent_xml: false
+  # indent_xml: (Boolean) XML Only. Indent output? (May add unwanted whitespace). (Default: true - set for readability)
+  # indent_xml: true # Set to false if exporting XML for machine processing
 
   # ---------------------------------------------------------------------------
   # Set-Level Directory Overrides (Less common than using export_locations)

@@ -2,9 +2,9 @@ name: Docker Publish
 
 on:
   push:
-    branches: [ "main" ] # Trigger on push to main branch
+    branches: [ "main", "master" ] # Trigger on push to main branch
   pull_request:
-    branches: [ "main" ] # Also trigger on PRs to main for build testing
+    branches: [ "main", "master" ] # Also trigger on PRs to main for build testing
 
 jobs:
   build-and-publish:
