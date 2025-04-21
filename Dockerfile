@@ -23,48 +23,50 @@ COPY diff_match_patch/pom.xml ./diff_match_patch/
 COPY . .
 
 # Ensure mkres.sh uses Unix line endings (LF) - needed for final stage
-RUN sed -i 's/\r$//' mkres.sh
+# RUN sed -i 's/\r$//' mkres.sh
 
 # Build the project: clean, download deps, compile, package, create fat JAR
 # Skipping tests due to failures in FolioSlxTransformerTest with FolioHlp data.
 RUN mvn clean package assembly:single -U -B -fae -DskipTests
 
 # Download test data AFTER build to prevent cleaning (will be copied to final stage)
-RUN wget https://public-unit-test-resources.s3.us-east-1.amazonaws.com/FolioHlp.zip
+# RUN wget https://public-unit-test-resources.s3.us-east-1.amazonaws.com/FolioHlp.zip
 
 # ---- Final Stage ----
 # Use a slim JRE image
 FROM openjdk:8-jre-slim
 
+# Redeclare ARGs for this stage
+# ARG APP_DIR=/app
+# ARG JAR_NAME=folioxml.jar
+
 # Install unzip for the built-in example data setup
 RUN apt-get update && apt-get install -y unzip && rm -rf /var/lib/apt/lists/*
 
-ARG APP_DIR=/app
-ARG JAR_NAME=folioxml.jar
-WORKDIR ${APP_DIR}
+WORKDIR /app
 
 # Define a mount point for user data (config, input, output)
 # This is separate from the built-in example data location
 VOLUME /data
 
-# Copy the built JAR from the builder stage
-COPY --from=builder ${APP_DIR}/commandline/target/folioxml-commandline-jar-with-dependencies.jar ${APP_DIR}/${JAR_NAME}
+# Copy the built JAR from the builder stage (using hardcoded paths)
+COPY --from=builder /app/commandline/target/folioxml-commandline-jar-with-dependencies.jar /app/folioxml.jar
 
 # Copy assets needed for the built-in example from builder stage
 # Ensure destinations are directories by adding a trailing slash
-COPY --from=builder ${APP_DIR}/mkres.sh ${APP_DIR}/
-COPY --from=builder ${APP_DIR}/core/folioxml/resources/test.yaml ${APP_DIR}/
-COPY --from=builder ${APP_DIR}/FolioHlp.zip ${APP_DIR}/
+# COPY --from=builder ${APP_DIR}/mkres.sh ${APP_DIR}/
+# COPY --from=builder /app/core/folioxml/resources/test.yaml /app/
+# COPY --from=builder /app/FolioHlp.zip /app/
 
 # Prepare the built-in example data (FolioHlp) from the copied zip
-# This makes the final image larger but provides a ready-to-run example.
-RUN chmod +x mkres.sh && \
-    ./mkres.sh && \
-    rm FolioHlp.zip
+# Create directories and unzip directly
+# RUN mkdir -p files/folio-help && \
+#     unzip FolioHlp.zip -d files/folio-help/ && \
+#     rm FolioHlp.zip
 
-# Set the entry point to run the JAR
+# Set the entry point to run the JAR (using hardcoded path)
 # Users will pass arguments like: -config /path/to/config.yaml -export <export_name>
-ENTRYPOINT ["java", "-jar", "${APP_DIR}/${JAR_NAME}"]
+ENTRYPOINT ["java", "-jar", "/app/folioxml.jar"]
 
 # Optional: Example command to run the built-in test configuration
 # CMD ["-config", "/app/test.yaml", "-export", "folio_help"]

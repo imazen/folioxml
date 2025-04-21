@@ -1,22 +1,91 @@
-master: [![status](http://img.shields.io/travis/imazen/folioxml/master.svg)](https://travis-ci.org/imazen/folioxml/branches)
- [![Build status](https://ci.appveyor.com/api/projects/status/dor7s9akmby228cb/branch/master?svg=true)](https://ci.appveyor.com/project/imazen/folioxml/branch/master)
 
-develop: [![status](http://img.shields.io/travis/imazen/folioxml/develop.svg)](https://travis-ci.org/imazen/folioxml/branches)
-[![Build status](https://ci.appveyor.com/api/projects/status/dor7s9akmby228cb/branch/develop?svg=true)](https://ci.appveyor.com/project/imazen/folioxml/branch/develop)
+
+[![GitHub Actions Status](https://github.com/imazen/folioxml/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/imazen/folioxml/actions/workflows/docker-publish.yml)
+[![Docker Hub](https://img.shields.io/docker/pulls/imazen/folioxml.svg)](https://hub.docker.com/r/imazen/folioxml/)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/imazen/folioxml?ref=main)
 
 # What is this?
 
-This is a full streaming lexer, parser, and transpiler for Folio Flat File databases. Outputs include SLX, XML, HTML, and Lucene. Stream-based (not DOM-based) - can process gigabyes quickly with very low RAM use.
+This is a full streaming lexer, parser, and transpiler for Folio Flat File databases. Outputs include SLX, XML, HTML, and Lucene. Stream-based (not DOM-based) - can process gigabytes quickly with very low RAM use.
+
+## Getting Started (Running with Docker)
+
+You can build and run this project using Docker without needing to install Java or Maven locally.
+
+1.  **Build the Docker image:**
+    ```bash
+    # Build the image and tag it (e.g., as 'folioxml')
+    docker build -t folioxml .
+    ```
+    *(Note: The first build downloads dependencies and compiles the code, which takes time.)*
+
+2.  **Run the application with your data:**
+
+    The recommended approach is to mount your configuration file, input data directory, and an output directory into the container's `/data` volume using a helper script.
+
+    **Using the Example Template:**
+
+    The `examples/folio-help` directory provides a template structure, configuration file (`config.yaml`), and scripts (`export.sh`, `export.ps1`) to get started.
+
+    1.  **Copy the Example:** Copy the entire `examples/folio-help` directory to a new location for your project (e.g., `my_project`).
+        ```bash
+        cp -r examples/folio-help my_project
+        cd my_project
+        ```
+
+    2.  **Add Your Data:** Place your Folio Flat File (`.FFF`) inside the `input/` subdirectory (e.g., replace `input/FolioHlp.fff` with `input/my_infobase.fff`).
+
+    3.  **Update Configuration:** Edit the `config.yaml` file:
+        *   Modify the `infobases.path` setting to point to your `.FFF` file relative to `/data` (e.g., `path: /data/input/my_infobase.fff`).
+        *   Change the `infobases.id` to a suitable identifier for your project (e.g., `id: my_infobase`).
+        *   Adjust other settings like `export_locations`, `structure_class`, etc., as needed. See the comments in the file for details.
+
+    4.  **Run the Export Script:** Execute the appropriate script for your environment:
+        *   **Linux/macOS/WSL/Codespaces:**
+            ```bash
+            # Make script executable (only needed once)
+            chmod +x export.sh
+            # Run the export
+            ./export.sh
+            ```
+        *   **Windows (PowerShell):**
+            ```powershell
+            # Run the export
+            ./export.ps1
+            ```
+        The script will use the `config.yaml` to run the `folioxml` Docker container, mounting the current directory (`my_project`) into the container's `/data` volume. Output will be generated in the `export/` and `index/` subdirectories within `my_project`.
+
+    **Running in GitHub Codespaces:**
+
+    GitHub Codespaces provides a cloud-based development environment where you can easily run this process.
+
+    1.  **Open in Codespace:** Click the "Open in GitHub Codespaces" badge at the top of this README or open the repository in a Codespace manually.
+    2.  **Copy Example:** Use the integrated terminal in Codespaces:
+        ```bash
+        cp -r examples/folio-help my_project
+        cd my_project
+        ```
+    3.  **Upload Data:** Use the Codespace file explorer to upload your `.FFF` file into the `my_project/input/` directory.
+    4.  **Edit Config:** Edit `my_project/config.yaml` using the Codespace editor, updating `infobases.path`, `infobases.id`, and other settings as needed.
+    5.  **Run Export:** Use the terminal:
+        ```bash
+        chmod +x export.sh # Make executable
+        ./export.sh      # Run the export
+        ```
+    6.  **Access Output:** Your exported files will appear in `my_project/export/` and `my_project/index/` within the Codespace file explorer. You can browse or download them from there.
+
+
+# Technical Details
 
 The first conversion step is lossless, to a format called SLX. This this is like XML, but contains "ghost tags", which come in pairs (with a matching GUID), and can start and end anywhere. This simplifies the ~120 keyword ~20 context language to ~12 keywords and 2 contexts.
 
 The second conversion is from SLX to XML. This causes the ghost tags to be split, and is therefore nominally lossy, but lossless in reality.
 
-From XML, we can convert to HTML, Lucene, and more. 
+From XML, we can convert to HTML, Lucene, and more.
 
 We even support turning query links into hyperlinks, as we have re-implemented the folio query language in the folioxml-lucene package.
 
-Our XML implementation offers regex-based search and replace that only affects text contents of nodes - and uses diff_match_patch underneath to minimize shift between container elements. VirutalCharSequence provides the abstraction for modifying the text of an XML tree as a single string. 
+Our XML implementation offers regex-based search and replace that only affects text contents of nodes - and uses diff_match_patch underneath to minimize shift between container elements. VirutalCharSequence provides the abstraction for modifying the text of an XML tree as a single string.
 
 Contact Imazen for custom development, conversion, and support services. support@imazen.io
 
@@ -161,88 +230,6 @@ The above configuration, if named conf.yaml, could be invoked like this:
 
 * mvn clean compile assembly:single -U -B -fae
 * java -jar commandline/target/folioxml-commandline-jar-with-dependencies.jar -config core/folioxml/resources/test.yaml -export folio_help
-
-
-## Running with Docker
-
-You can build and run this project using Docker without needing to install Java or Maven locally. The final image includes the `FolioHlp` example dataset and its configuration.
-
-1.  **Build the Docker image:**
-    ```bash
-    docker build -t folioxml .
-    ```
-    *(Note: This build downloads the ~7MB FolioHlp.zip and runs tests, which takes time.)*
-
-2.  **Run the application:**
-
-    **Option A: Run the built-in `FolioHlp` example:**
-
-    The image contains the necessary configuration (`/app/test.yaml`) and data (`/app/files/folio-help/FolioHlp.FFF`). The `test.yaml` configuration is set up to write output *inside the container* to `/app/files/folio-help/export/` and `/app/files/indexes/folio-help/` by default.
-
-    To run the example and copy the output to your current directory (`./foliohlp-output`), use `docker cp` after running:
-
-    ```bash
-    # Run the container (it will process and exit)
-    docker run --name folioxml_example folioxml -config /app/test.yaml -export folio_help
-
-    # Copy the output from the container to the host
-    docker cp folioxml_example:/app/files/folio-help/export ./foliohlp-output
-    docker cp folioxml_example:/app/files/indexes/folio-help ./foliohlp-indexes
-
-    # Clean up the container
-    docker rm folioxml_example
-    ```
-
-    *Alternatively, to run and have output written directly to a host directory, you can mount a volume over the container's default output locations. This is generally less recommended than using the `/data` volume for custom runs (see Option B), but is possible:* 
-
-    ```bash
-    # Mount host ./output directory over container's default export/index locations
-    # WARNING: This overrides the default paths in test.yaml implicitly.
-    docker run --rm \
-      -v "$(pwd)/output:/app/files/folio-help/export" \
-      -v "$(pwd)/output-indexes:/app/files/indexes/folio-help" \
-      folioxml \
-      -config /app/test.yaml -export folio_help
-    ```
-
-    **Option B: Run with your own configuration and data:**
-
-    This is the recommended approach for your own files. Mount your configuration file, input data directory, and an output directory into the container's `/data` volume.
-
-    *Example setup:* 
-    *   Your config: `./my-config.yaml`
-    *   Your inputs: `./my-input-files/`
-    *   Desired output location: `./my-output/`
-
-    *Inside `my-config.yaml`, ensure paths point within `/data`:*
-    ```yaml
-    # Example snippet from my-config.yaml
-    my_export_set:
-      infobases:
-        - id: my_data
-          path: /data/input/my_infobase.FFF
-      export_locations:
-        default: /data/output/default
-        html: /data/output/html
-        # ... other paths within /data ...
-    ```
-
-    *Run the container:* 
-    ```bash
-    docker run --rm \
-      -v "$(pwd)/my-config.yaml:/data/my-config.yaml:ro" \
-      -v "$(pwd)/my-input-files:/data/input:ro" \
-      -v "$(pwd)/my-output:/data/output" \
-      folioxml \
-      -config /data/my-config.yaml -export my_export_set
-    ```
-
-    *   `--rm`: Removes the container after it exits.
-    *   `-v`: Mounts host files/directories into `/data`.
-        *   Config and input are read-only (`:ro`).
-        *   Output directory is read-write.
-    *   `folioxml`: The image name.
-    *   Arguments like `-config /data/my-config.yaml -export my_export_set` are passed to the application.
 
 
 ## Cleanup
