@@ -8,7 +8,7 @@ develop: [![status](http://img.shields.io/travis/imazen/folioxml/develop.svg)](h
 
 This is a full streaming lexer, parser, and transpiler for Folio Flat File databases. Outputs include SLX, XML, HTML, and Lucene. Stream-based (not DOM-based) - can process gigabyes quickly with very low RAM use.
 
-The first conversion step is lossless, to a format called SLX. This this is like XML, but contains “ghost tags”, which come in pairs (with a matching GUID), and can start and end anywhere. This simplifies the ~120 keyword ~20 context language to ~12 keywords and 2 contexts.
+The first conversion step is lossless, to a format called SLX. This this is like XML, but contains "ghost tags", which come in pairs (with a matching GUID), and can start and end anywhere. This simplifies the ~120 keyword ~20 context language to ~12 keywords and 2 contexts.
 
 The second conversion is from SLX to XML. This causes the ghost tags to be split, and is therefore nominally lossy, but lossless in reality.
 
@@ -58,7 +58,7 @@ When exporting to flat file, you should use the following options:
 * Uncheck "Include full path to files referenced"
 * Set Default units: Inches.
 
-Folio Views and Folio Builder usually provide export functionality, although if the infobase is ‘restricted’, you may need to get permission from the publisher.
+Folio Views and Folio Builder usually provide export functionality, although if the infobase is 'restricted', you may need to get permission from the publisher.
 
 ## Yaml configuration reference
 
@@ -163,6 +163,88 @@ The above configuration, if named conf.yaml, could be invoked like this:
 * java -jar commandline/target/folioxml-commandline-jar-with-dependencies.jar -config core/folioxml/resources/test.yaml -export folio_help
 
 
+## Running with Docker
+
+You can build and run this project using Docker without needing to install Java or Maven locally. The final image includes the `FolioHlp` example dataset and its configuration.
+
+1.  **Build the Docker image:**
+    ```bash
+    docker build -t folioxml .
+    ```
+    *(Note: This build downloads the ~7MB FolioHlp.zip and runs tests, which takes time.)*
+
+2.  **Run the application:**
+
+    **Option A: Run the built-in `FolioHlp` example:**
+
+    The image contains the necessary configuration (`/app/test.yaml`) and data (`/app/files/folio-help/FolioHlp.FFF`). The `test.yaml` configuration is set up to write output *inside the container* to `/app/files/folio-help/export/` and `/app/files/indexes/folio-help/` by default.
+
+    To run the example and copy the output to your current directory (`./foliohlp-output`), use `docker cp` after running:
+
+    ```bash
+    # Run the container (it will process and exit)
+    docker run --name folioxml_example folioxml -config /app/test.yaml -export folio_help
+
+    # Copy the output from the container to the host
+    docker cp folioxml_example:/app/files/folio-help/export ./foliohlp-output
+    docker cp folioxml_example:/app/files/indexes/folio-help ./foliohlp-indexes
+
+    # Clean up the container
+    docker rm folioxml_example
+    ```
+
+    *Alternatively, to run and have output written directly to a host directory, you can mount a volume over the container's default output locations. This is generally less recommended than using the `/data` volume for custom runs (see Option B), but is possible:* 
+
+    ```bash
+    # Mount host ./output directory over container's default export/index locations
+    # WARNING: This overrides the default paths in test.yaml implicitly.
+    docker run --rm \
+      -v "$(pwd)/output:/app/files/folio-help/export" \
+      -v "$(pwd)/output-indexes:/app/files/indexes/folio-help" \
+      folioxml \
+      -config /app/test.yaml -export folio_help
+    ```
+
+    **Option B: Run with your own configuration and data:**
+
+    This is the recommended approach for your own files. Mount your configuration file, input data directory, and an output directory into the container's `/data` volume.
+
+    *Example setup:* 
+    *   Your config: `./my-config.yaml`
+    *   Your inputs: `./my-input-files/`
+    *   Desired output location: `./my-output/`
+
+    *Inside `my-config.yaml`, ensure paths point within `/data`:*
+    ```yaml
+    # Example snippet from my-config.yaml
+    my_export_set:
+      infobases:
+        - id: my_data
+          path: /data/input/my_infobase.FFF
+      export_locations:
+        default: /data/output/default
+        html: /data/output/html
+        # ... other paths within /data ...
+    ```
+
+    *Run the container:* 
+    ```bash
+    docker run --rm \
+      -v "$(pwd)/my-config.yaml:/data/my-config.yaml:ro" \
+      -v "$(pwd)/my-input-files:/data/input:ro" \
+      -v "$(pwd)/my-output:/data/output" \
+      folioxml \
+      -config /data/my-config.yaml -export my_export_set
+    ```
+
+    *   `--rm`: Removes the container after it exits.
+    *   `-v`: Mounts host files/directories into `/data`.
+        *   Config and input are read-only (`:ro`).
+        *   Output directory is read-write.
+    *   `folioxml`: The image name.
+    *   Arguments like `-config /data/my-config.yaml -export my_export_set` are passed to the application.
+
+
 ## Cleanup
 
 Search resulting text for "data-linkname" to locate data links.
@@ -209,6 +291,8 @@ limitations under the License.
  * See the License for the specific language governing permissions and
  * limitations under the License.
 
+
+For testing, https://public-unit-test-resources.s3.us-east-1.amazonaws.com/FolioHlp.zip  contains a .FFF, .DEF, and folder of objects as exported from a nfo.
 
 
 ![YourKit](https://www.yourkit.com/images/yklogo.png)

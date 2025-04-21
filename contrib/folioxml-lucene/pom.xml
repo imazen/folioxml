@@ -28,12 +28,12 @@
         <dependency>
             <groupId>folioxml</groupId>
             <artifactId>folioxml-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>folioxml</groupId>
             <artifactId>diff_match_patch</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

@@ -21,8 +21,13 @@
     <dependencies>
         <dependency>
             <groupId>folioxml</groupId>
+            <artifactId>folioxml-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>folioxml</groupId>
             <artifactId>folioxml-lucene</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
