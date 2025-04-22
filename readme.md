@@ -216,13 +216,13 @@ It is important that both the IDs and infobase set keys are valid XML identifier
 
       export_locations:
         default:
-          path: "files/export/{id}-{stamp}/{input}" #Used for text, xml files, css, and logs
+          path: "files/export/{set-id}-{stamp}/{input}" #Used for text, xml files, css, and logs
         image:
           path: files/export/{input}  #Adjust this to represent the absolute path where the static images will be stored. Control {input} with asset_use_index_in_url
         luceneindex:
           path: "files/indexes/myconfig/"    #Just a temp directory.
         html:
-          path: "files/export/{id}-{stamp}/html/{input}.html" #Adjust this to represent the final hosted location of your HTML pages, as an absolute path. Adjust idKind to change {input}
+          path: "files/export/{set-id}-{stamp}/html/{input}.html" #Adjust this to represent the final hosted location of your HTML pages, as an absolute path. Adjust idKind to change {input}
 
 
 The above configuration, if named conf.yaml, could be invoked like this:

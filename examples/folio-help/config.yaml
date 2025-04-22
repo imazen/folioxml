@@ -2,23 +2,30 @@
 # Each key represents a named configuration 'set' that can be invoked using the
 # '-export <set_name>' command-line argument. This allows you to manage
 # different export configurations for various projects or scenarios within a single file.
-folio_help:
+all-infobases:
 
   # ---------------------------------------------------------------------------
   # Infobase Definitions (List) - REQUIRED
   # ---------------------------------------------------------------------------
   # Defines one or more infobases to be processed together within this set.
-  # Processing them together allows for cross-infobase link resolution.
+  # Processing them together allows for cross-infobase link resolution, but also puts them as subfolders of a single export
   infobases:
-    - # --- First Infobase Definition ---
+  
+     # --- First Infobase Definition ---
       # id: (String) A unique identifier for this infobase within the set. REQUIRED.
-      #     Used in output filenames/paths via the {id} placeholder.
+      #     Used in output filenames/paths via the {set-id} placeholder.
       #     Should be a valid XML identifier (no spaces, starts with letter/underscore).
-      id: foliohelp
+    - id: foliohlp
       # path: (String) Path to the .FFF file. REQUIRED.
       #       Relative paths are resolved against the directory containing this YAML file.
       #       *** Inside Docker, MUST start with /data/ (e.g., /data/input/file.fff) ***
-      path: /data/input/FolioHlp.fff
+      path: /data/input/FolioHlp.FFF
+      image:
+        path: /data/export/{set-id}-{stamp}/{input}  #Adjust this to represent where the static images will be stored. Control {input} with asset_use_index_in_url
+      
+      aliases:
+        - "FolioHlp.FFF"
+        - FolioHlp
       # aliases: (List<String>) Optional list of alternative names or original paths
       #          (e.g., original .NFO filename) for this infobase. Used for
       #          resolving incoming links from other infobases in the set.
@@ -26,23 +33,22 @@ folio_help:
       #   - 'C:\Path\To\Original.NFO' # Windows path example
       #   - '/path/to/original.nfo'      # Linux/Mac path example
       #   - 'OriginalName'
-      # index_dir: (String) Override the Lucene index path for this specific infobase.
-      #            If specified, this infobase gets its own index. If omitted or null,
-      #            it uses the shared 'export_locations.luceneindex.path' (if defined)
-      #            or defaults based on 'export_locations.default.path'.
-      #            Path MUST end with a slash. Use /data/ prefix in Docker.
-      # index_dir: /data/index/foliohelp_specific_index/
+ 
+      structure_class: folioxml.export.structure.SlugProvider
+      structure_class_params:
+        - "Book|Section" 
+        # Look at the first <LN> .DEF file to see the levels, and probably choose the first 1-3.
+        # <LN:Book,Section,Chapter,Heading,"Sub-Heading 1","Sub-Heading 2","Sub-Heading 3","Sub-Heading 4">
+      pull:
+        program_links: true
+        menu_links: true
+      export_html: true
+      export_xml: false
 
-    - # --- Second Infobase Definition (Example) ---
-      id: foliohelp_alt # Different ID
-      path: /data/input/FolioHlp.fff # Same input file
-      # aliases:
-      #   - FolioHlp_Copy.NFO
-      # export_locations: # Override export locations for this specific infobase
-      #   html:
-      #     path: "/data/export/{id}-alternate-html/{input}.html"
-      # index_dir: Override index path for this specific infobase
-      index_dir: /data/index/foliohelp_alt_index
+    # - id: foliohelp_alt # Different ID
+    #   path: /data/input/FolioHlp.FFF # Same input file
+    #   export_html: false
+    #   export_xml: true
 
   # ---------------------------------------------------------------------------
   # Export Locations - REQUIRED (Defines output paths/URLs)
@@ -50,21 +56,22 @@ folio_help:
   # Keys are asset types: 'default', 'image', 'luceneindex', 'html', 'xml', 'text', 'css', 'javascript', etc.
   # Define output locations using filesystem paths and optional public URLs.
   # Templates support:
-  #   {id}    - The 'id' of the infobase being processed.
-  #   {stamp} - A timestamp string (e.g., YYYY-MM-DD_HHMMSS).
-  #   {input} - The base filename derived from splitting rules (structure provider) or a default.
-  #             For images/assets, it might be the original filename or a generated ID
-  #             (see asset_use_index_in_url).
+  #   {set-id}    - The top-level key from this YAML file (the configuration set name, e.g., 'all-infobases').
+  #                 All infobases defined within this set are processed together.
+  #   {stamp}     - A timestamp string (e.g., YYYY-MM-DD_HHMMSS).
+  #   {input}     - The base filename derived from splitting rules (structure provider) or a default.
+  #                 For images/assets, it might be the original filename or a generated ID
+  #                 (see asset_use_index_in_url).
   # *** Inside Docker, paths MUST be relative to /data (e.g., start with /data/export/, /data/index/) ***
   export_locations:
     # 'default': Used as a fallback for asset types without a specific entry below
     #            (e.g., logs, css, js, generated reports). REQUIRED.
     default:
       # path: (String) Local file system path template. REQUIRED.
-      path: "/data/export/{id}-{stamp}/{input}"
+      path: "/data/export/{set-id}-{stamp}/{input}"
       # url: (String) Optional. Public URL template corresponding to the path.
       #      If provided, links in the output (e.g., to CSS, JS) will use this URL structure.
-      # url: "http://example.com/exports/{id}/{input}"
+      # url: "http://example.com/exports/{set-id}/{input}"
       # find: (String) Optional. Regex pattern to find in the {input} variable.
       # replace: (String) Optional. Replacement string for the 'find' pattern.
       #          Use these for advanced renaming within the path/url templates.
@@ -77,47 +84,19 @@ folio_help:
     luceneindex:
       path: "/data/index/"
 
-    # 'image': Specifies path/URL for images referenced in the content.
-    # NOTE: FolioXML command-line export provides *limited* automatic handling.
-    # It might rename some linked images and convert BMP->PNG, placing them according
-    # to this 'path'. However, manual steps are typically REQUIRED after export:
-    # 1. Manually copy the original 'objects' folder content to the output image location.
-    # 2. Manually convert non-web formats (WMF, HGX, etc.) using external tools.
-    # 3. Manually search/replace image 'src' attributes in the output HTML/XML to point
-    #    to the correct, converted image files and paths.
-    # See README section "Handling Embedded Objects".
-    image:
-      # path: (String) Filesystem path template for placing processed/referenced images.
-      path: /data/export/{input} # Example: Places images directly in the main export folder
-      # path: /data/export/{id}-{stamp}/images/{input} # Example: Places images in a subfolder
-      # url: (String) Optional. Public URL template for image 'src' attributes.
-      # url: "http://example.com/images/{input}"
-
     # 'html': Specifies path/URL for generated HTML files (if export_html: true).
     html:
       # path: (String) Filesystem path template for generated HTML files. REQUIRED if export_html: true.
-      path: "/data/export/{id}-{stamp}/{input}.html"
+      path: "/data/export/{set-id}-{stamp}/{input}.html"
       # url: (String) Optional. Public URL template used for cross-page links if provided.
-      # url: "http://example.com/html/{id}/{input}.html"
+      # url: "http://example.com/html/{set-id}/{input}.html"
 
     # 'xml': Specifies the path/URL for the single exported XML file (if export_xml: true).
     xml:
       # path: (String) Filesystem path for the single XML output file. REQUIRED if export_xml: true.
-      path: "/data/export/{id}-{stamp}.xml"
+      path: "/data/export/{set-id}-{stamp}.xml"
       # url: (String) Optional. Public URL for the XML file.
-      # url: "http://example.com/xml/{id}.xml"
-
-    # --- Other asset types (examples) ---
-    # Define specific locations if needed, otherwise 'default' is used.
-    # css:
-    #   path: "/data/export/assets/css/{input}"
-    #   url: "/assets/css/{input}"
-    # javascript:
-    #   path: "/data/export/assets/js/{input}"
-    #   url: "/assets/js/{input}"
-    # text: # For plain text output if enabled elsewhere
-    #   path: "/data/export/text/{id}/{input}.txt"
-
+      # url: "http://example.com/xml/{set-id}.xml"
 
   # ---------------------------------------------------------------------------
   # Core Export Options
@@ -125,12 +104,12 @@ folio_help:
 
   # export_xml: (Boolean) Export the entire infobase content as a single, large XML file?
   #             (Default: true)
-  export_xml: false # Set to false if you only need HTML or other formats.
+  #export_xml: false # Set to false if you only need HTML or other formats.
 
   # export_html: (Boolean) Export content as multiple linked HTML files?
   #              Requires a 'structure_provider' to define how splitting occurs.
   #              (Default: true)
-  export_html: true
+  #export_html: true
 
   # ---------------------------------------------------------------------------
   # XML Export Specific Options (Ignored if export_xml: false)
@@ -261,13 +240,15 @@ folio_help:
     # drop_notes: false
     # drop_popups: (Boolean) Remove ('drop') Folio Popups (<PU>)? If true, popup content is discarded.
     #              If false (default), popups are typically handled by 'use_highslide'. (Default: false)
-    # drop_popups: false
-    # ole_objects: (Boolean) Keep references to OLE Objects? These are usually not renderable
-    #              in HTML and require manual handling. Setting to 'false' might simplify output. (Default: true)
-    # ole_objects: true # Keep the <object> tags, requires manual handling later
+    drop_popups: false
+    # ole_objects: (Boolean) Keep references to OLE Objects? FolioXML attempts to convert some types
+    #              (like BMP to PNG), but many OLE objects are not renderable in HTML and may still
+    #              require manual handling or conversion. Setting to 'false' removes the references. (Default: true)
+    # ole_objects: true
     # metafile_objects: (Boolean) Keep references to Metafile objects (WMF, EMF)? Similar to OLE,
-    #                   these often require manual conversion and link fixing. (Default: true)
-    # metafile_objects: true # Keep the tags, requires manual handling later
+    #                   these often require manual conversion and link fixing, although basic bitmap
+    #                   conversion (e.g., BMP) is attempted. Setting to 'false' removes references. (Default: true)
+    # metafile_objects: true
     # links_to_infobases: (List<String>) A list of target infobase aliases (or original .NFO paths)
     #                     for which all *incoming* links should be dropped/removed. Useful for
     #                     excluding links to obsolete or irrelevant infobases.
@@ -280,16 +261,16 @@ folio_help:
   # ---------------------------------------------------------------------------
   # Provides a way to manually fix broken external links or remap links to specific
   # infobases, especially useful if the target paths have changed.
-  link_mapper:
+  #link_mapper:
     # urls: (Map<String, String>) Map specific file paths found in data links (DA) or
     #       object links (OB) to new URLs. The key is the exact path string found in the FFF file.
-    urls:
+    #urls:
       # 'C:\Path\On\Old\Server\document.pdf': 'http://new.example.com/docs/document.pdf'
       # '/usr/local/share/data.doc': 'http://new.example.com/legacy/data.doc'
     # infobases: (Map<String, String>) Map target infobase identifiers (original NFO paths or
     #            aliases used in JI, JT, QL links) to a new base URL or path. If a link targets
     #            an infobase listed here, its generated URL will be prefixed with the mapped value.
-    infobases:
+    #infobases:
       # 'C:\Path\To\OldInfobase.NFO': 'http://new.example.com/infobases/new_infobase/'
       # 'PROD_System': '/archived/prod_system_export/'
 
@@ -356,3 +337,6 @@ folio_help:
   # index_dir: /legacy/path/to/default_combined_index
 
 # --- End of Configuration Set 'folio_help' --- 
+
+
+

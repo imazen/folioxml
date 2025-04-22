@@ -7,13 +7,13 @@ folio_help:
 
   export_locations:
     default:
-      path: "files/folio-help/export/{id}-{stamp}/{input}"
+      path: "files/folio-help/export/{set-id}-{stamp}/{input}"
     luceneindex:
       path: "files/indexes/folio-help/"
     image:
       path: files/folio-help/export/{input}
     html:
-      path: "files/folio-help/export/{id}-{stamp}/{input}.html"
+      path: "files/folio-help/export/{set-id}-{stamp}/{input}.html"
 
   structure_class: folioxml.export.structure.SlugProvider
   structure_class_params:

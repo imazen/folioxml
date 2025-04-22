@@ -42,7 +42,7 @@ public class YamlExportLocations implements ExportLocations {
     }
 
     private String expandPath(String path, String input) {
-        return path.replaceAll("\\{id\\}", Matcher.quoteReplacement(config_id)).replaceAll("\\{stamp\\}", Matcher.quoteReplacement(getStamp())).replaceAll("\\{input\\}", Matcher.quoteReplacement(input)).replaceFirst("^~", Matcher.quoteReplacement(System.getProperty("user.home")));
+        return path.replaceAll("\\{set-id\\}", Matcher.quoteReplacement(config_id)).replaceAll("\\{stamp\\}", Matcher.quoteReplacement(getStamp())).replaceAll("\\{input\\}", Matcher.quoteReplacement(input)).replaceFirst("^~", Matcher.quoteReplacement(System.getProperty("user.home")));
     }
 
 

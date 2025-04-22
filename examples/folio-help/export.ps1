@@ -25,7 +25,7 @@ Write-Host "Running Docker container..."
 # Assumes config.yaml exists in ExampleDir
 # Note: Adjust 'folioxml-test' or 'imazen/folioxml' if you use a different image tag or name
 # Use `cmd /c` to ensure Docker command runs correctly, especially with volume paths on Windows
-cmd /c "docker run --rm -v ""$ExampleDir`:/data"" imazen/folioxml:latest -config $ConfigPathContainer -export folio_help"
+cmd /c "docker run --rm -v ""$ExampleDir`:/data"" imazen/folioxml:latest -config $ConfigPathContainer -export all-infobases"
 
 $ExitCode = $LASTEXITCODE
 Write-Host "Docker command finished with exit code $ExitCode."
@@ -37,6 +37,10 @@ if ($LatestExportDir -ne $null) {
     $LogFile = Join-Path -Path $LatestExportDir.FullName -ChildPath "log.txt"
     if (Test-Path -Path $LogFile -PathType Leaf) {
         Write-Host "Export process finished. Check the log file for details or errors:"
+        Write-Host "--------------------------------"
+        # display the log file
+        Get-Content -Path $LogFile
+        Write-Host "--------------------------------"
         Write-Host "  Get-Content -Path ""$LogFile"""
         # Optionally display the last few lines:
         # Get-Content -Path $LogFile -Tail 5
