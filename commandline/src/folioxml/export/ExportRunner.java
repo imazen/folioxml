@@ -123,6 +123,7 @@ public class ExportRunner {
         }
         if (!Boolean.FALSE.equals(set.getBool("export_html"))) {
             plugins.add(new ExportHtmlFiles());
+            plugins.add(new CreateIndexHtmlFile());
         }
 
         InfobaseSetVisitor visitor = new InfobaseSetVisitor(set, plugins);

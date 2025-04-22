@@ -1,5 +1,17 @@
-FROM imazen/folioxml:main AS development
+FROM imazen/folioxml:latest AS development
 WORKDIR /app
+COPY pom.xml .
+COPY core ./core
+COPY commandline ./commandline
+COPY diff_match_patch ./diff_match_patch
+COPY contrib ./contrib
+# Add other module directories if they are part of the build
+
+
+RUN echo "Building application..."
+RUN mvn package assembly:single -pl commandline -am -U -B -fae
+
+
 VOLUME /data
 VOLUME /root/.m2
 CMD ["bash"] 

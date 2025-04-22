@@ -12,11 +12,11 @@ This document captures the current state and reasoning behind the Docker setup f
     *   Copies the fat JAR to `/app/folioxml.jar` using `RUN cp ...` within the same stage.
     *   Defines `VOLUME /data` for runtime data mounting.
     *   Sets `ENTRYPOINT` to run the application JAR.
-    *   **Result:** The final image (e.g., tagged `imazen/folioxml:main` or `imazen/folioxml:latest`) contains the full JDK, Maven, the copied source code, build artifacts (including the `/target` directories), the final fat JAR, and the copied example input data.
+    *   **Result:** The final image (e.g., tagged `imazen/folioxml:latest` or `imazen/folioxml:latest`) contains the full JDK, Maven, the copied source code, build artifacts (including the `/target` directories), the final fat JAR, and the copied example input data.
     *   **Caching:** Docker layer caching is limited. Changes to any copied source file or the `pom.xml` will invalidate the layer containing the `mvn package` command and subsequent layers.
 
 2.  **`Dockerfile.dev`:**
-    *   Starts `FROM imazen/folioxml:main` (or whatever the main `Dockerfile` image is tagged as).
+    *   Starts `FROM imazen/folioxml:latest` (or whatever the main `Dockerfile` image is tagged as).
     *   Sets `WORKDIR /app`.
     *   Defines `VOLUME /data` and `VOLUME /root/.m2`.
     *   Sets `CMD ["bash"]` for interactive use.
@@ -31,7 +31,7 @@ This document captures the current state and reasoning behind the Docker setup f
 
 4.  **Development Workflow (`export.sh`/`export.ps1`):**
     *   These scripts are intended to be run from an example project directory (e.g., `examples/folio-help`).
-    *   They use `docker run` with the image specified by `$DEV_IMAGE` (e.g., `imazen/folioxml:main` or the tag derived from `Dockerfile.dev`).
+    *   They use `docker run` with the image specified by `$DEV_IMAGE` (e.g., `imazen/folioxml:latest` or the tag derived from `Dockerfile.dev`).
     *   They **mount the host's FolioXML repository root** over `/app` in the container. This *overlays* the source code that was baked into the image with the live code from the host workspace.
     *   They mount the current example project directory to `/data`.
     *   They optionally mount the host's `.m2` cache to `/root/.m2`.
