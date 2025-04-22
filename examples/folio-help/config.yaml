@@ -1,4 +1,7 @@
-# This is the name of the configuration set, used with the '-export <name>' command line argument.
+# A YAML configuration file can contain multiple top-level keys (like 'folio_help' below).
+# Each key represents a named configuration 'set' that can be invoked using the
+# '-export <set_name>' command-line argument. This allows you to manage
+# different export configurations for various projects or scenarios within a single file.
 folio_help:
 
   # ---------------------------------------------------------------------------
@@ -8,16 +11,27 @@ folio_help:
   # Processing them together allows for cross-infobase link resolution.
   infobases:
     - # --- First Infobase Definition ---
+      # id: (String) A unique identifier for this infobase within the set. REQUIRED.
+      #     Used in output filenames/paths via the {id} placeholder.
+      #     Should be a valid XML identifier (no spaces, starts with letter/underscore).
       id: foliohelp
-      # path: Path to the .FFF file. REQUIRED.
-      #       Relative paths resolved against 'infobase_dir' or config file dir.
-      #       *** Inside Docker, MUST be relative to /data (e.g., /data/input/file.fff) ***
+      # path: (String) Path to the .FFF file. REQUIRED.
+      #       Relative paths are resolved against the directory containing this YAML file.
+      #       *** Inside Docker, MUST start with /data/ (e.g., /data/input/file.fff) ***
       path: /data/input/FolioHlp.fff
-      # aliases: List of alternative names/original paths (.NFO) for resolving incoming links.
+      # aliases: (List<String>) Optional list of alternative names or original paths
+      #          (e.g., original .NFO filename) for this infobase. Used for
+      #          resolving incoming links from other infobases in the set.
       # aliases:
-      #  - FolioHlp.NFO
-      # index_dir: Override index path for this specific infobase.
-      # index_dir: /data/index/foliohelp_index
+      #   - 'C:\Path\To\Original.NFO' # Windows path example
+      #   - '/path/to/original.nfo'      # Linux/Mac path example
+      #   - 'OriginalName'
+      # index_dir: (String) Override the Lucene index path for this specific infobase.
+      #            If specified, this infobase gets its own index. If omitted or null,
+      #            it uses the shared 'export_locations.luceneindex.path' (if defined)
+      #            or defaults based on 'export_locations.default.path'.
+      #            Path MUST end with a slash. Use /data/ prefix in Docker.
+      # index_dir: /data/index/foliohelp_specific_index/
 
     - # --- Second Infobase Definition (Example) ---
       id: foliohelp_alt # Different ID
@@ -33,180 +47,312 @@ folio_help:
   # ---------------------------------------------------------------------------
   # Export Locations - REQUIRED (Defines output paths/URLs)
   # ---------------------------------------------------------------------------
-  # Keys are asset types: default, image, luceneindex, html, xml, text, css, javascript, etc.
-  # Templates support: {id}, {stamp}, {input}.
-  # *** Inside Docker, paths MUST be relative to /data ***
+  # Keys are asset types: 'default', 'image', 'luceneindex', 'html', 'xml', 'text', 'css', 'javascript', etc.
+  # Define output locations using filesystem paths and optional public URLs.
+  # Templates support:
+  #   {id}    - The 'id' of the infobase being processed.
+  #   {stamp} - A timestamp string (e.g., YYYY-MM-DD_HHMMSS).
+  #   {input} - The base filename derived from splitting rules (structure provider) or a default.
+  #             For images/assets, it might be the original filename or a generated ID
+  #             (see asset_use_index_in_url).
+  # *** Inside Docker, paths MUST be relative to /data (e.g., start with /data/export/, /data/index/) ***
   export_locations:
-    # 'default' used for asset types without specific entry (logs, css, js, etc.)
+    # 'default': Used as a fallback for asset types without a specific entry below
+    #            (e.g., logs, css, js, generated reports). REQUIRED.
     default:
-      # path: Local file system path template. REQUIRED.
+      # path: (String) Local file system path template. REQUIRED.
       path: "/data/export/{id}-{stamp}/{input}"
-      # url: Public URL template (optional). Used for links if present.
+      # url: (String) Optional. Public URL template corresponding to the path.
+      #      If provided, links in the output (e.g., to CSS, JS) will use this URL structure.
       # url: "http://example.com/exports/{id}/{input}"
-      # find/replace: Regex for modifying {input} before path/url expansion.
+      # find: (String) Optional. Regex pattern to find in the {input} variable.
+      # replace: (String) Optional. Replacement string for the 'find' pattern.
+      #          Use these for advanced renaming within the path/url templates.
 
-    # 'luceneindex' specifies the Lucene index directory.
-    # A single index path here means all infobases in this set will be indexed together.
-    # This is necessary for resolving query links (QL) that target records in other infobases
-    # within this set and allows for potential cross-infobase searching on the combined index.
-    # If you want separate indexes per infobase, comment this out and use the infobase-specific
-    # 'index_dir' setting instead (or rely on its default).
+    # 'luceneindex': Specifies the directory for the Lucene index. REQUIRED if resolve_query_links=true.
+    # If defined here, all infobases in this set *without* their own 'index_dir' override
+    # will be indexed *together* into this single location. This is crucial for resolving
+    # query links (QL) that target records across different infobases within this set.
+    # Path MUST end with a slash. Use /data/ prefix in Docker.
     luceneindex:
-      path: "/data/index/" # Path MUST end with slash. Overrides infobase-specific 'index_dir'.
+      path: "/data/index/"
 
-    # 'image' specifies path/URL for images.
-    # NOTE: FolioXML attempts some renaming/conversion (BMP->PNG), but manual copying,
-    # converting (WMF, HGX), and link fixing in the output HTML is usually required.
+    # 'image': Specifies path/URL for images referenced in the content.
+    # NOTE: FolioXML command-line export provides *limited* automatic handling.
+    # It might rename some linked images and convert BMP->PNG, placing them according
+    # to this 'path'. However, manual steps are typically REQUIRED after export:
+    # 1. Manually copy the original 'objects' folder content to the output image location.
+    # 2. Manually convert non-web formats (WMF, HGX, etc.) using external tools.
+    # 3. Manually search/replace image 'src' attributes in the output HTML/XML to point
+    #    to the correct, converted image files and paths.
     # See README section "Handling Embedded Objects".
     image:
-      path: /data/export/{input}
+      # path: (String) Filesystem path template for placing processed/referenced images.
+      path: /data/export/{input} # Example: Places images directly in the main export folder
+      # path: /data/export/{id}-{stamp}/images/{input} # Example: Places images in a subfolder
+      # url: (String) Optional. Public URL template for image 'src' attributes.
       # url: "http://example.com/images/{input}"
 
-    # 'html' specifies path/URL for generated HTML files (if export_html: true).
+    # 'html': Specifies path/URL for generated HTML files (if export_html: true).
     html:
+      # path: (String) Filesystem path template for generated HTML files. REQUIRED if export_html: true.
       path: "/data/export/{id}-{stamp}/{input}.html"
+      # url: (String) Optional. Public URL template used for cross-page links if provided.
       # url: "http://example.com/html/{id}/{input}.html"
 
-    # 'xml' specifies the path for the single exported XML file (if export_xml: true).
-    # xml:
-    #    path: "/data/export/{id}.xml"
+    # 'xml': Specifies the path/URL for the single exported XML file (if export_xml: true).
+    xml:
+      # path: (String) Filesystem path for the single XML output file. REQUIRED if export_xml: true.
+      path: "/data/export/{id}-{stamp}.xml"
+      # url: (String) Optional. Public URL for the XML file.
+      # url: "http://example.com/xml/{id}.xml"
 
     # --- Other asset types (examples) ---
-    # css: { path: "/data/css/{input}", url: "/css/{input}" }
-    # javascript: { path: "/data/js/{input}", url: "/js/{input}" }
+    # Define specific locations if needed, otherwise 'default' is used.
+    # css:
+    #   path: "/data/export/assets/css/{input}"
+    #   url: "/assets/css/{input}"
+    # javascript:
+    #   path: "/data/export/assets/js/{input}"
+    #   url: "/assets/js/{input}"
+    # text: # For plain text output if enabled elsewhere
+    #   path: "/data/export/text/{id}/{input}.txt"
 
 
   # ---------------------------------------------------------------------------
-  # Common Export & Link Options
+  # Core Export Options
   # ---------------------------------------------------------------------------
 
-  # Creates a single XML file with all the content.
-  # export_xml: true # Disabled by default to focus on HTML
-  export_xml: false
+  # export_xml: (Boolean) Export the entire infobase content as a single, large XML file?
+  #             (Default: true)
+  export_xml: false # Set to false if you only need HTML or other formats.
 
-  # Exports multiple browsable HTML files based on splitting rules.
+  # export_html: (Boolean) Export content as multiple linked HTML files?
+  #              Requires a 'structure_provider' to define how splitting occurs.
+  #              (Default: true)
   export_html: true
 
-  # Resolve Folio jump links (JI, JT)?
-  resolve_jump_links: true
+  # ---------------------------------------------------------------------------
+  # XML Export Specific Options (Ignored if export_xml: false)
+  # ---------------------------------------------------------------------------
 
-  # Requires folioxml-lucene. Build index and resolve query links (QL)?
-  resolve_query_links: true
+  # indent_xml: (Boolean) Add indentation (whitespace) to the output XML for human readability?
+  #             Set to 'false' for machine processing, as indentation can sometimes
+  #             introduce unwanted spacing when the XML is rendered. (Default: true)
+  indent_xml: false # Set to false for cleaner machine processing
 
-  # Use Highslide JS markup for popups/notes? Affects both XML and HTML.
-  # Requires Highslide JS/CSS files for HTML output.
-  use_highslide: true
+  # nest_file_elements: (Boolean) Use nested <file> elements in the XML output, mirroring
+  #                       the Folio hierarchy? If false, uses a flat structure. (Default: true)
+  # nest_file_elements: true
 
-  # HTML only. Add 'Previous'/'Next' links to generated HTML pages?
+  # skip_normal_records: (Boolean) XML Only. Include only records that affect the hierarchy
+  #                        (e.g., those matching structure provider rules)? Creates a smaller
+  #                        XML file, omitting content from intermediate records. (Default: false)
+  # skip_normal_records: false
+
+  # ---------------------------------------------------------------------------
+  # HTML Export Specific Options (Ignored if export_html: false)
+  # ---------------------------------------------------------------------------
+
+  # add_nav_links: (Boolean) HTML Only. Add 'Previous'/'Next' navigation links at the
+  #                top and bottom of each generated HTML page? (Default: true)
   add_nav_links: true
 
   # ---------------------------------------------------------------------------
-  # Structure Provider (Controls HTML Splitting and Slugs/Filenames)
+  # Link Resolution Options
   # ---------------------------------------------------------------------------
-  # Relevant only if export_html: true.
-  # If not specified, HTML export might produce a single large file or default behavior.
 
-  # structure_class: (String) Java class implementing IStructureProvider.
-  #   Common: folioxml.export.structure.SlugProvider (slugs from headings)
-  #           folioxml.export.structure.IdSlugProvider (numeric/GUID IDs)
-  #           folioxml.export.structure.SplitByFieldNameProvider (split on field)
+  # resolve_jump_links: (Boolean) Attempt to resolve Folio jump links (JI, JT, etc.)
+  #                     to target the correct record/location within the exported
+  #                     content (HTML or XML)? (Default: true)
+  resolve_jump_links: true
+
+  # resolve_query_links: (Boolean) Attempt to resolve Folio query links (QL)?
+  #                      Requires 'folioxml-lucene' dependency. Builds a Lucene index
+  #                      (at 'export_locations.luceneindex.path') and attempts to find the
+  #                      first matching record for each query link, creating a hyperlink
+  #                      to it. Can link across infobases if they are indexed together.
+  #                      If false, query links might remain unresolved or be logged. (Default: true)
+  resolve_query_links: true
+
+  # use_highslide: (Boolean) Use Highslide JS markup (<a class="highslide"...>) for Folio
+  #                  popups and notes? Affects both XML and HTML output.
+  #                  If true, you MUST include the Highslide JS and CSS files in your
+  #                  final HTML deployment for the popups to function.
+  #                  If false, popups/notes might be rendered inline or dropped (see 'pull' section).
+  #                  (Default: true)
+  use_highslide: true
+
+  # ---------------------------------------------------------------------------
+  # Structure Provider (Controls HTML Splitting and Output Filenames/Slugs)
+  # ---------------------------------------------------------------------------
+  # Relevant only if export_html: true. Determines how the infobase is split
+  # into multiple HTML files and how those files are named (the {input} template variable).
+  # If not specified, HTML export might produce a single large file or use default behavior.
+
+  # structure_class: (String) Fully qualified Java class name implementing IStructureProvider.
+  # Common options:
+  #   "folioxml.export.structure.SlugProvider": Generates URL-friendly slugs (filenames)
+  #       from the text content of records matching specific Folio Level names. Default choice.
+  #   "folioxml.export.structure.IdSlugProvider": Generates numeric, GUID, or other ID-based
+  #       filenames, potentially splitting based on Levels or Fields. More complex configuration.
+  #   "folioxml.export.structure.SplitByFieldNameProvider": Splits the infobase into a new
+  #       HTML file whenever a specific Folio Field is encountered.
+  #   "folioxml.export.structure.FolioUuidProvider": Uses internal Folio UUIDs for filenames.
   structure_class: folioxml.export.structure.SlugProvider
 
-  # structure_class_params: (List) Parameters for the structure_class constructor.
-  # For SlugProvider: [ levelRegex ]
-  #   levelRegex: Regex matching Folio Level names (e.g., "Heading 1|Chapter") for slugs.
-  structure_class_params:
-    - "Book|Section"
+  # structure_class_params: (List) Constructor parameters for the specified structure_class.
+  # The required parameters depend on the class:
 
-  # --- Other structure_class_params examples ---
-  # For IdSlugProvider: [ levelRegex, splitOnFieldName, idKind, root_index, start_index ]
-  #   splitOnFieldName: e.g., "PageBreak"
-  #   idKind: 0=slugs, 1=integers, 2=nested ints(2.3.1), 3=guids, 4=folio IDs. 5-9 use field then fallback.
-  #   root_index, start_index: Used for nested/integer IDs.
-  # structure_class_params: [ null, "PageBreak", 1, 0, 1 ] # Example: Split on PageBreak, use integer IDs starting at 1.
-  # For SplitByFieldNameProvider: [ fieldName ]
+  # --- Parameters for SlugProvider ---
+  # structure_class_params: [ levelRegex ]
+  #   levelRegex: (String) A Java regex pattern matching the Folio Level names that should
+  #               trigger a new HTML file split. The slug is generated from the record's title.
+  #               Example: "Heading 1|Chapter|Title"
+  structure_class_params:
+    - "Book|Section" # Splits on records with Level "Book" or "Section"
+
+  # --- Parameters for IdSlugProvider ---
+  # structure_class_params: [ levelRegex, splitOnFieldName, idKind, root_index, start_index ]
+  #   levelRegex: (String or null) Regex for Folio Levels to split on (similar to SlugProvider).
+  #               Use null if splitting only by field name.
+  #   splitOnFieldName: (String or null) Name of a Folio Field (e.g., "PageBreak", "ArticleID").
+  #                     A new file is created when this field is encountered in a record. Use null
+  #                     if splitting only by levelRegex. Specify *one* of levelRegex or splitOnFieldName.
+  #   idKind: (Integer) Determines the type of filename ({input}) generated:
+  #           0: heading-based slugs (like SlugProvider)
+  #           1: simple integers (1, 2, 3, ...)
+  #           2: nested integers (1.1, 1.2, 2.1, ...) - requires root_index, start_index
+  #           3: GUIDs (UUIDs)
+  #           4: Folio Record IDs (e.g., "fr1234")
+  #           5-9: Use the *content* of 'splitOnFieldName' as the filename.
+  #                Fall back to schemes 0-4 respectively if the field is missing, empty, or not unique.
+  #                Example: idKind=9 with splitOnFieldName="FILEID" uses the FILEID field content,
+  #                         falling back to Folio Record IDs (4) if needed.
+  #   root_index: (Integer) Starting root number for nested integers (idKind=2 or 7). Default: 0 or 1.
+  #   start_index: (Integer) Starting index for simple or nested integers (idKind=1, 2, 6, 7). Default: 1.
+  # Example using IdSlugProvider to split on a field and use numeric IDs:
+  # structure_class: folioxml.export.structure.IdSlugProvider
+  # structure_class_params: [ null, "ArticleID", 1, 0, 1 ] # Split on ArticleID field, use integer IDs 1, 2, 3...
+  # Example using IdSlugProvider to split on levels and use content of FILEID field (fallback to Folio IDs):
+  # structure_class: folioxml.export.structure.IdSlugProvider
+  # structure_class_params: [ "Chapter|Section", "FILEID", 9, 1, 1 ]
+
+  # --- Parameters for SplitByFieldNameProvider ---
+  # structure_class_params: [ fieldName ]
+  #   fieldName: (String) The name of the Folio Field to split on. Filenames typically default to numeric.
+  # Example:
+  # structure_class: folioxml.export.structure.SplitByFieldNameProvider
   # structure_class_params: [ "PageBreak" ]
+
 
   # ---------------------------------------------------------------------------
   # Content Filtering ('Pulling' or 'Dropping')
   # ---------------------------------------------------------------------------
+  # Specify which types of Folio features or links should be kept or discarded.
+  # Dropped/pulled elements are usually logged (e.g., log_pulled_elements.txt).
   pull:
-    # program_links: (Boolean) Keep program links (PG)? (Default: true, inferred)
+    # program_links: (Boolean) Keep Program Links (PG)? (Default: true)
     program_links: true
-    # menu_links: (Boolean) Keep menu links (MN)? (Default: true, inferred)
+    # menu_links: (Boolean) Keep Menu Links (MN)? (Default: true)
     menu_links: true
-    # drop_notes: (Boolean) Remove note popups? Logged if removed. (Default: false)
+    # drop_notes: (Boolean) Remove ('drop') Folio Notes (<NT>)? If true, notes content is discarded.
+    #             If false (default), notes are typically handled by 'use_highslide'. (Default: false)
     # drop_notes: false
-    # drop_popups: (Boolean) Remove general popups? Logged if removed. (Default: false)
+    # drop_popups: (Boolean) Remove ('drop') Folio Popups (<PU>)? If true, popup content is discarded.
+    #              If false (default), popups are typically handled by 'use_highslide'. (Default: false)
     # drop_popups: false
-    # ole_objects: (Boolean) Keep OLE Objects? (Not rendered). (Default: false, inferred)
-    # ole_objects: false
-    # metafile_objects: (Boolean) Keep Metafile objects? (Not rendered). (Default: false, inferred)
-    # metafile_objects: false
-    # links_to_infobases: (List<String>) Drop links targeting these infobase aliases/paths.
+    # ole_objects: (Boolean) Keep references to OLE Objects? These are usually not renderable
+    #              in HTML and require manual handling. Setting to 'false' might simplify output. (Default: true)
+    # ole_objects: true # Keep the <object> tags, requires manual handling later
+    # metafile_objects: (Boolean) Keep references to Metafile objects (WMF, EMF)? Similar to OLE,
+    #                   these often require manual conversion and link fixing. (Default: true)
+    # metafile_objects: true # Keep the tags, requires manual handling later
+    # links_to_infobases: (List<String>) A list of target infobase aliases (or original .NFO paths)
+    #                     for which all *incoming* links should be dropped/removed. Useful for
+    #                     excluding links to obsolete or irrelevant infobases.
     # links_to_infobases:
-    #     - 'C:\Path\To\Obsolete.NFO'
+    #   - 'C:\Path\To\Obsolete.NFO'
+    #   - 'OldSystemData'
 
   # ---------------------------------------------------------------------------
   # Link Mapping (Manual Overrides for Broken Links)
   # ---------------------------------------------------------------------------
-  # link_mapper:
-  #   urls: # Map external file paths found in links to new URLs
-  #     'C:\Path\To\File.pdf': 'http://example.com/docs/file.pdf'
-  #   infobases: # Map infobase paths found in links to new base URLs
-  #     'C:\Path\To\Other.NFO': 'http://example.com/other_infobase/'
+  # Provides a way to manually fix broken external links or remap links to specific
+  # infobases, especially useful if the target paths have changed.
+  link_mapper:
+    # urls: (Map<String, String>) Map specific file paths found in data links (DA) or
+    #       object links (OB) to new URLs. The key is the exact path string found in the FFF file.
+    urls:
+      # 'C:\Path\On\Old\Server\document.pdf': 'http://new.example.com/docs/document.pdf'
+      # '/usr/local/share/data.doc': 'http://new.example.com/legacy/data.doc'
+    # infobases: (Map<String, String>) Map target infobase identifiers (original NFO paths or
+    #            aliases used in JI, JT, QL links) to a new base URL or path. If a link targets
+    #            an infobase listed here, its generated URL will be prefixed with the mapped value.
+    infobases:
+      # 'C:\Path\To\OldInfobase.NFO': 'http://new.example.com/infobases/new_infobase/'
+      # 'PROD_System': '/archived/prod_system_export/'
 
   # ---------------------------------------------------------------------------
   # Logging & Reporting Options
   # ---------------------------------------------------------------------------
-  # export_inventory: (Boolean) Generate 'log_report.txt' tracking unique elements, etc.? (Performance impact)
-  #                    (Default: true, inferred)
-  # export_inventory: true
+  # export_inventory: (Boolean) Generate 'log_report.txt' (or similar name based on export_locations)?
+  #                   This file tracks unique elements, styles, fields, link types, etc.,
+  #                   encountered during processing. Useful for understanding infobase structure.
+  #                   Can have a minor performance impact. (Default: true)
+  export_inventory: true
 
-  # export_hidden_text: (Boolean) Generate 'log_hidden_text.txt' listing hidden text? (Significant performance impact)
-  #                      (Default: true, inferred)
-  # export_hidden_text: true
+  # export_hidden_text: (Boolean) Generate 'log_hidden_text.txt' (or similar name)?
+  #                     Lists text content that might be hidden in Folio Views (e.g., via
+  #                     zero-contrast colors or hidden character styles) and might be hidden
+  #                     by the default CSS generated. Can have a significant performance impact. (Default: true)
+  export_hidden_text: true
 
   # ---------------------------------------------------------------------------
   # Advanced / Less Common Options
   # ---------------------------------------------------------------------------
 
   # --- Faux Tabs (Experimental) ---
-  # faux_tabs: (Boolean) Attempt to simulate Folio tabs using spaces? (Default: false)
+  # Attempts to simulate Folio's tab stops using spaces. May not be accurate.
+  # faux_tabs: (Boolean) Enable simulation of tabs? (Default: false)
   # faux_tabs: false
-  # faux_tabs_window_min: (Integer) Min width for faux tabs calculation. (Default: 80)
-  # faux_tabs_window_max: (Integer) Max width for faux tabs calculation. (Default: 120)
+  # faux_tabs_window_min: (Integer) Assumed minimum character width of the display area
+  #                       for tab calculation. (Default: 80)
+  # faux_tabs_window_min: 80
+  # faux_tabs_window_max: (Integer) Assumed maximum character width for tab calculation. (Default: 120)
+  # faux_tabs_window_max: 120
 
-  # --- Asset ID Generation (Potentially limited effect - see README) ---
-  # asset_start_index: (Integer) Starting number for generated asset IDs (images, etc.). (Default: 1)
+  # --- Asset ID Generation ---
+  # asset_start_index: (Integer) Starting number for generated numeric IDs for assets
+  #                    (images, objects) if 'asset_use_index_in_url' is true. (Default: 1)
   # asset_start_index: 1
-  # asset_use_index_in_url: (Boolean) Use numeric asset index in image URLs instead of filename?
-  #                          Requires image URL template handling numeric IDs and manual link fixing.
-  #                          (Default: false, inferred)
+  # asset_use_index_in_url: (Boolean) Use a generated numeric index (starting from 'asset_start_index')
+  #                          as the {input} value for the 'image' export location, instead of the
+  #                          original filename? Example: image path becomes ".../images/1.png", ".../images/2.wmf".
+  #                          Requires the 'image.url' or final web server configuration to handle
+  #                          requests based on these numeric IDs. Primarily useful if original filenames
+  #                          are problematic or if you want obfuscated URLs. Requires significant
+  #                          manual work or post-processing to update links in HTML/XML. (Default: false)
   # asset_use_index_in_url: false
 
-  # --- XML Formatting --- (Less relevant if export_xml: false)
-  # skip_normal_records: (Boolean) XML Only. Write only hierarchy-affecting levels? (Default: false)
-  # skip_normal_records: false
-  # nest_file_elements: (Boolean) XML Only. Use nested <file> elements? (Default: true, inferred)
-  # nest_file_elements: true
-  # indent_xml: (Boolean) XML Only. Indent output? (May add unwanted whitespace). (Default: true - set for readability)
-  # indent_xml: true # Set to false if exporting XML for machine processing
-
   # ---------------------------------------------------------------------------
-  # Set-Level Directory Overrides (Less common than using export_locations)
+  # Deprecated / Legacy Options (Prefer using 'export_locations')
   # ---------------------------------------------------------------------------
-  # infobase_dir: (String) Base directory for resolving relative infobase paths.
-  #                 Defaults to the directory containing this YAML file.
-  # infobase_dir: /path/to/infobases
+  # These top-level keys might still work but are superseded by the more flexible
+  # 'export_locations' section. Avoid using them if possible.
 
-  # export_dir: (String) @Deprecated - Base export directory if export_locations not fully defined.
-  #             Prefer using export_locations.default.path.
-  # export_dir: /path/to/default_exports
+  # infobase_dir: (String) @Deprecated. Base directory for resolving relative infobase 'path' values.
+  #                 Defaults to the directory containing this YAML file. Prefer relative paths
+  #                 or absolute paths (starting with /data in Docker) directly in 'infobases.path'.
+  # infobase_dir: /legacy/path/to/infobases
 
-  # index_dir: (String) @Deprecated - Default path for combined Lucene index if multiple infobases
-  #               are indexed together and not specified elsewhere.
-  #               Prefer using export_locations.luceneindex.path.
-  # index_dir: /path/to/default_combined_index
+  # export_dir: (String) @Deprecated. Base export directory if 'export_locations.default.path'
+  #             is not fully defined or missing. Prefer defining 'export_locations.default.path'.
+  # export_dir: /legacy/path/to/default_exports
 
-# --- End of Configuration --- 
+  # index_dir: (String) @Deprecated. Default path for the *combined* Lucene index if multiple infobases
+  #              are indexed together AND 'export_locations.luceneindex.path' is not specified.
+  #              Prefer defining 'export_locations.luceneindex.path'.
+  # index_dir: /legacy/path/to/default_combined_index
+
+# --- End of Configuration Set 'folio_help' --- 

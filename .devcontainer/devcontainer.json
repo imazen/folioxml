@@ -1,13 +1,11 @@
 {
 	"name": "FolioXML (Docker)",
 	// Use the pre-built Docker image for faster Codespace startup
-	"image": "imazen/folioxml:latest",
 
-	// Use the Dockerfile for local builds or if you need customizations
-	// "build": {
-	// 	// Path is relative to the devcontainer.json file.
-	// 	"dockerfile": "../Dockerfile"
-	// },
+	"build": {
+		// Path is relative to the devcontainer.json file.
+		"dockerfile": "../Dockerfile.dev"
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {

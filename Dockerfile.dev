@@ -1,0 +1,5 @@
+FROM imazen/folioxml:main AS development
+WORKDIR /app
+VOLUME /data
+VOLUME /root/.m2
+CMD ["bash"] 

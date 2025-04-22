@@ -12,9 +12,9 @@ The easiest way to use FolioXML is with Docker, either locally or in a cloud env
 
 **Prerequisites:**
 
-*   **Docker:** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine.
+*   **Docker:** Use Codespaces, or Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine. 
 *   **Your `.FFF` file:** You need to have exported your Folio infobase (`.NFO`) to the Folio Flat File (`.FFF`) format. See [Exporting .nfo to .FFF](#exporting-nfo-to-fff) below.
-*   **(Optional) Your `objects` folder:** If your infobase contains embedded images (BMP, WMF, etc.) or other objects (OLE), ensure you also have the associated `objects` folder that was likely created during the `.FFF` export. FolioXML *does not* automatically extract or convert these objects.
+*   **(Optional) Your `objects` folder:** If your infobase contains embedded images (BMP, WMF, etc.) or other objects (OLE), ensure you also have the associated `objects` folder that was likely created during the `.FFF` export. Only certain objects can be converted automatically.
 
 **Steps:**
 
@@ -31,13 +31,13 @@ The easiest way to use FolioXML is with Docker, either locally or in a cloud env
     ```
 
 3.  **Add Your Data:**
-    *   Place your `.FFF` file inside the `my_project/input/` directory (e.g., `my_project/input/my_data.fff`).
-    *   **Important:** If you have an `objects` folder containing images/OLE objects referenced by your `.FFF` file, copy it into `my_project/input/` as well (e.g., `my_project/input/objects/`). You will need to handle these objects manually after conversion (see **Handling Embedded Objects** below).
+    *   Place your `.FFF` and `.DEF` files (and the folder of objects) inside the `my_project/input/` directory (e.g., `my_project/input/MyInfobase.FFF`, `my_project/input/MyInfobase.DEF`, `my_project/input/MyInfobase/`).
+
 
 4.  **Configure the Export (`config.yaml`):**
     Edit the `my_project/config.yaml` file:
-    *   Update `infobases.path`: Change `/data/input/FolioHlp.fff` to `/data/input/your_filename.fff`.
-    *   Update `infobases.id`: Change `foliohelp` to a unique ID for your project (e.g., `my_data`). This ID is used in output filenames.
+    *   Update `infobases.path`: Change `/data/input/FolioHlp.FFF` to `/data/input/MyInfobase.FFF`.
+    *   Update `infobases.id`: Change `foliohelp` to a unique ID for your project (e.g., `my_infobase`). This ID is used in output filenames.
     *   *(Optional)* Add `aliases` if you plan to process multiple interlinked infobases later.
     *   Review and adjust `export_locations` if you want output in different subdirectories (relative to `/data`, which maps to your `my_project` folder).
     *   Review other options like `structure_class`, `export_html`, `resolve_query_links` etc. See the comments within `config.yaml` for detailed explanations of all options.
@@ -53,7 +53,7 @@ The easiest way to use FolioXML is with Docker, either locally or in a cloud env
         ```powershell
         ./export.ps1
         ```
-    This script uses the `config.yaml` and runs the `imazen/folioxml` Docker container (pulling it if you don't have it locally). It mounts your `my_project` directory as `/data` inside the container. Your converted files will appear in the `export/` and `index/` subdirectories.
+    This script uses the `config.yaml` and runs the `imazen/folioxml` Docker container (pulling it if you don't have it locally). It mounts your `my_project` directory as `/data` inside the container. Your converted files will appear in the `export/` directory under a unique subfolder, so you can run the script multiple times with different settings.
 
 **Handling Embedded Objects (Images, OLE):**
 

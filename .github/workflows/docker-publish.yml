@@ -28,6 +28,9 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         images: imazen/folioxml # Replace with your Docker Hub repo
+        # Configure tags: only generate 'latest' tag on push to main branch
+        tags: |
+          type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5

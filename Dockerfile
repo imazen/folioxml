@@ -1,101 +1,31 @@
-# Dockerfile for folioxml
+# Stage 1: Cache External Dependencies
+FROM maven:3.8.4-jdk-8 AS deps
 
-# ---- Builder Stage ----
-# Use Maven with JDK 8 to build the project
-FROM maven:3.8.4-jdk-8 AS builder
+WORKDIR /app
 
-# Install wget and unzip (wget needed for data download)
-RUN apt-get update && apt-get install -y wget unzip && rm -rf /var/lib/apt/lists/*
+COPY examples/folio-help/input ./files/folio-help
 
-ARG APP_DIR=/app
-WORKDIR ${APP_DIR}
+# Copy only the root POM and module directories required by Maven
+# to resolve the full dependency graph for dependency:go-offline.
+COPY pom.xml .
+COPY core ./core
+COPY commandline ./commandline
+COPY diff_match_patch ./diff_match_patch
+COPY contrib ./contrib
+# Add other module directories if they are part of the build
 
-# Copy pom.xml files first
-COPY pom.xml ./
-COPY core/pom.xml ./core/
-COPY core/folioxml/pom.xml ./core/folioxml/
-COPY commandline/pom.xml ./commandline/
-COPY contrib/pom.xml ./contrib/
-COPY contrib/folioxml-lucene/pom.xml ./contrib/folioxml-lucene/
-COPY diff_match_patch/pom.xml ./diff_match_patch/
 
-# Copy the rest of the source code
-COPY . .
+RUN echo "Building application..."
+RUN mvn package assembly:single -pl commandline -am -U -B -fae
 
-# Ensure mkres.sh uses Unix line endings (LF) - needed for final stage
-# RUN sed -i 's/\r$//' mkres.sh
-
-# Build the project: clean, download deps, compile, package, create fat JAR
-# Skipping tests due to failures in FolioSlxTransformerTest with FolioHlp data.
-RUN mvn clean package assembly:single -U -B -fae -DskipTests
-
-# Download test data AFTER build to prevent cleaning (will be copied to final stage)
-# RUN wget https://public-unit-test-resources.s3.us-east-1.amazonaws.com/FolioHlp.zip
-
-# ---- Final Stage ----
-# Use a slim JRE image
-FROM openjdk:8-jre-slim
-
-# Redeclare ARGs for this stage
-# ARG APP_DIR=/app
-# ARG JAR_NAME=folioxml.jar
-
-# Install unzip for the built-in example data setup
-RUN apt-get update && apt-get install -y unzip && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Define a mount point for user data (config, input, output)
-# This is separate from the built-in example data location
 VOLUME /data
 
-# Copy the built JAR from the builder stage (using hardcoded paths)
-COPY --from=builder /app/commandline/target/folioxml-commandline-jar-with-dependencies.jar /app/folioxml.jar
+# Copy only the built fat JAR from the builder stage.
+RUN cp /app/commandline/target/folioxml-commandline-jar-with-dependencies.jar /app/folioxml.jar
 
-# Copy assets needed for the built-in example from builder stage
-# Ensure destinations are directories by adding a trailing slash
-# COPY --from=builder ${APP_DIR}/mkres.sh ${APP_DIR}/
-# COPY --from=builder /app/core/folioxml/resources/test.yaml /app/
-# COPY --from=builder /app/FolioHlp.zip /app/
-
-# Prepare the built-in example data (FolioHlp) from the copied zip
-# Create directories and unzip directly
-# RUN mkdir -p files/folio-help && \
-#     unzip FolioHlp.zip -d files/folio-help/ && \
-#     rm FolioHlp.zip
-
-# Set the entry point to run the JAR (using hardcoded path)
-# Users will pass arguments like: -config /path/to/config.yaml -export <export_name>
+# Set the entrypoint to run the application
 ENTRYPOINT ["java", "-jar", "/app/folioxml.jar"]
-
-# Optional: Example command to run the built-in test configuration
-# CMD ["-config", "/app/test.yaml", "-export", "folio_help"]
-
-# ---- Usage ----
-#
-# == Running the Built-in Example (FolioHlp) ==
-# The image includes the FolioHlp.fff file and a test configuration.
-# To run the example export named "folio_help":
-#   docker run --rm imazen/folioxml -config /app/test.yaml -export folio_help
-# Output will be generated inside the container. To access it, you'd typically
-# mount a volume (see below) or use `docker cp`.
-#
-# == Processing Your Own Data ==
-# To process your own Folio files, mount a local directory to the container's /data volume.
-# Place your configuration file (e.g., my_config.yaml) and input files in your local directory.
-#
-# 1. Create a local directory (e.g., ~/my_folio_data) and place your config and FFF/FLS files inside.
-# 2. Your config file (e.g., my_config.yaml) should reference paths relative to /data inside the container.
-#    Example `my_config.yaml` snippet:
-#      input:
-#        type: folio
-#        path: /data/my_input.fff # Or .fls
-#      exports:
-#        my_export_name:
-#          type: flat_html
-#          path: /data/output/my_export # Output will go here inside the container
-#
-# 3. Run the container with the volume mount:
-#    docker run --rm -v ~/my_folio_data:/data imazen/folioxml -config /data/my_config.yaml -export my_export_name
-#
-# Output files will appear in your local ~/my_folio_data/output directory. 
