@@ -22,5 +22,7 @@ public interface InfobaseConfig extends InfobaseConfigBase {
     public String generateExportBaseFile();
 
     public List<String> getAliases();
+    
+    public String getCharsetName();
 
 }

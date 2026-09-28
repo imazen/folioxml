@@ -79,6 +79,16 @@ public class YamlInfobaseConfig implements InfobaseConfig {
         }
         return aliases;
     }
+    
+    @Override  public String getCharsetName() {
+        String charsetName = getString("encoding");
+        if(charsetName == null)
+        {
+            charsetName = "Windows-1252";
+        }
+        
+        return charsetName;
+    }
 
     @Override
     public ExportLocations generateExportLocations() {
