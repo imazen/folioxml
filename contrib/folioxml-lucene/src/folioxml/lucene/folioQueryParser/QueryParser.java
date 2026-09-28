@@ -25,32 +25,32 @@ public class QueryParser {
         this.defaultField = defaultField;
     }
 
-    public Query parse(String s) throws IOException, InvalidMarkupException {
-        return parse(new QueryTokenReader(s));
+    public Query parse(String s, String groupPrefix) throws IOException, InvalidMarkupException {
+        return parse(new QueryTokenReader(s), groupPrefix);
     }
 
-    public Query parse(QueryTokenReader r) throws IOException, InvalidMarkupException {
-        return parse(r.readAll());
+    public Query parse(QueryTokenReader r, String groupPrefix) throws IOException, InvalidMarkupException {
+        return parse(r.readAll(), groupPrefix);
     }
 
-    public Query parse(List<QueryToken> tokens) throws InvalidMarkupException, IOException {
+    public Query parse(List<QueryToken> tokens, String groupPrefix) throws InvalidMarkupException, IOException {
         QueryToken t = new QueryToken(TokenType.None, "");
         t.children = tokens;
         t.ParseChildrenIntoTree();
-        return Convert(t);
+        return Convert(t, groupPrefix);
     }
 
     Analyzer analyzer;
     String defaultField = "contents";
 
-    protected Query Convert(QueryToken t) throws InvalidMarkupException, IOException {
+    protected Query Convert(QueryToken t, String groupPrefix) throws InvalidMarkupException, IOException {
         if (t.type == TokenType.None || t.type == TokenType.OpenGroup) {
             if (t.children == null || t.children.size() == 0) return null;
-            if (t.children.size() == 1) return Convert(t.children.get(0));
+            if (t.children.size() == 1) return Convert(t.children.get(0), groupPrefix);
             //Otherwise, make a boolean query.
             BooleanQuery.Builder q = new BooleanQuery.Builder();
             for (int i = 0; i < t.children.size(); i++) {
-                Query c = Convert(t.children.get(i));
+                Query c = Convert(t.children.get(i), groupPrefix);
                 if (c != null) q.add(c, Occur.MUST);
             }
             if (q.build().clauses().size() > 0) return q.build();
@@ -85,7 +85,7 @@ public class QueryParser {
                 //Piggyback off the () query creation
                 QueryToken n = new QueryToken(TokenType.OpenGroup, "(");
                 n.children = t.children;
-                Query q = Convert(n);
+                Query q = Convert(n, groupPrefix);
                 if (!TokenUtils.fastMatches("level|contents", type)) {
                     //Now, we have to do something special if there are no children.
                     if (q == null) return new PrefixQuery(new Term(t.fieldName, "*"));
@@ -119,7 +119,8 @@ public class QueryParser {
                     if (h.children != null && h.children.size() > 0)
                         throw new InvalidMarkupException("Invalid character in field header - #, @ or /");
                 }
-                return parseSimpleQuery("groups", header.trim());
+                
+                return parseSimpleQuery("groups", header.trim(), groupPrefix);
             }
 
 
@@ -127,17 +128,17 @@ public class QueryParser {
         if (t.type == TokenType.Term) {
             //+ - && || ! ( ) { } [ ] ^ " ~ * ? : \
 
-            return parseSimpleQuery(t.fieldName != null ? t.fieldName : defaultField, t.text);
+            return parseSimpleQuery(t.fieldName != null ? t.fieldName : defaultField, t.text, null);
 
         }
 
         if (t.type == TokenType.TermSuffix) { //For proximity searches
             //TODO: Implement proximity searches
-            return Convert(t.children.get(0));
+            return Convert(t.children.get(0), groupPrefix);
         }
 
         if (t.type == TokenType.Not) {
-            Query c = Convert(t.children.get(0));
+            Query c = Convert(t.children.get(0), groupPrefix);
             if (c == null) return null;
             BooleanQuery.Builder q = new BooleanQuery.Builder();
             q.add(c, Occur.MUST_NOT);
@@ -146,15 +147,15 @@ public class QueryParser {
         if (t.type == TokenType.Or) {
             BooleanQuery.Builder q = new BooleanQuery.Builder();
             for (int i = 0; i < t.children.size(); i++) {
-                Query c = Convert(t.children.get(i));
+                Query c = Convert(t.children.get(i), groupPrefix);
                 if (c != null) q.add(c, Occur.SHOULD);
             }
             if (q.build().clauses().size() > 0) return q.build();
             else return null;
         }
         if (t.type == TokenType.Xor) {
-            Query c1 = Convert(t.children.get(0));
-            Query c2 = Convert(t.children.get(1));
+            Query c1 = Convert(t.children.get(0), groupPrefix);
+            Query c2 = Convert(t.children.get(1), groupPrefix);
             if (c1 == null && c2 != null) return c2;
             if (c1 != null && c2 == null) return c1;
             if (c1 == null && c2 == null) return null;
@@ -176,7 +177,7 @@ public class QueryParser {
     }
 
 
-    public Query parseSimpleQuery(String fieldName, String text) throws IOException {
+    public Query parseSimpleQuery(String fieldName, String text, String textPrefix) throws IOException {
         //Fix doubled single quotes, strip outer single quotes.
         if (text.startsWith("'") && (text.endsWith("'"))) {
             text = text.replace("''", "'"); //Fix doubled apostrohes
@@ -185,6 +186,10 @@ public class QueryParser {
         boolean phraseQuery = text.startsWith("\"");
         if (phraseQuery) text = text.substring(1, text.length() - 1); //Remove the quotes, we don't need them anymore.
 
+        if(textPrefix != null)
+        {
+            text = textPrefix + text;
+        }
 
         TokenStream s = analyzer.tokenStream(fieldName, new StringReader(text));
         s.reset();

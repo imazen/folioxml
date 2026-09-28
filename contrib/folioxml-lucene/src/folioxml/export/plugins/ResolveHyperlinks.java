@@ -220,7 +220,7 @@ public class ResolveHyperlinks implements InfobaseSetPlugin {
 
             //Lookup analyzer based on infobase
             QueryParser qp = new QueryParser(a, InfobaseFieldOptsSet.getStaticDefaultField());
-            Query q = qp.parse(query);
+            Query q = qp.parse(query, targetConfig.getId());
             if (q == null) {
                 System.out.println("Failed to convert query: " + query);
                 //info.invalidQueryLinks ++;

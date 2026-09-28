@@ -58,6 +58,16 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker {
     }
 
     Document doc = null;
+    
+    private String injectGroupPrefix(String groups)
+    {
+        if(groups != null)
+        {
+            groups = currentInfobase.getId() + groups.replace(",", "," + currentInfobase.getId());
+        }
+        
+        return groups;
+    }
 
     @Override
     public void onSlxRecordParsed(SlxRecord r) throws InvalidMarkupException {
@@ -71,7 +81,7 @@ public class InfobaseSetIndexer implements InfobaseSetPlugin, AnalyzerPicker {
         } else {
             doc.add(addNonTokenizedField("level", r.getLevelType()));
         }
-        doc.add(addAnalyzedField("groups", r.get("groups")));
+        doc.add(addAnalyzedField("groups", injectGroupPrefix(r.get("groups"))));
         doc.add(addNonTokenizedField("infobase", currentInfobase.getId()));
 
         if (!isRoot) {
