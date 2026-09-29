@@ -81,7 +81,7 @@ public class InfobaseSetVisitor implements LogStreamProvider {
                     p.beginInfobase(conf);
 
                 //Open reader
-                FolioTokenReader ftr = new FolioTokenReader(new File(conf.getFlatFilePath()));
+                FolioTokenReader ftr = new FolioTokenReader(new File(conf.getFlatFilePath()), conf.getCharsetName());
 
 
                 //Folio-to-xml translating reader may need to be wrapped

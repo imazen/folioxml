@@ -18,6 +18,8 @@ folio_help:
       #  - FolioHlp.NFO
       # index_dir: Override index path for this specific infobase.
       # index_dir: /data/index/foliohelp_index
+      # Override encoding of .FFF file (default is Windows-1252).
+      # encoding: CP437
 
     - # --- Second Infobase Definition (Example) ---
       id: foliohelp_alt # Different ID
