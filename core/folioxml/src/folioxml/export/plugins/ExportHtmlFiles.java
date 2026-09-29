@@ -82,13 +82,17 @@ public class ExportHtmlFiles implements InfobaseSetPlugin {
             if (lastFile != null && out != null) {
                 //New URI
                 String newUri = export.getUri(file.getRelativePath(), AssetType.Html, export.getLocalPath(lastFile.getRelativePath(), AssetType.Html, FolderCreation.None));
-                writeNextLink(newUri, file);
+                if(addNavLinks) {
+                    writeNextLink(newUri, file);
+                }
                 closeFile();
             }
             openFile(file, xr);
             if (lastFile != null) {
                 String previousUrl = export.getUri(lastFile.getRelativePath(), AssetType.Html, export.getLocalPath(file.getRelativePath(), AssetType.Html, FolderCreation.None));
-                writePrevLink(previousUrl, lastFile);
+                if(addNavLinks) {
+                    writePrevLink(previousUrl, lastFile);
+                }
             }
             lastFile = file;
         }
