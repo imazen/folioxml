@@ -2,7 +2,7 @@
 
 # ---- Builder Stage ----
 # Use Maven with JDK 8 to build the project
-FROM maven:3.8.4-jdk-8 AS builder
+FROM maven:3.9-eclipse-temurin-8 AS builder
 
 # Install wget and unzip (wget needed for data download)
 RUN apt-get update && apt-get install -y wget unzip && rm -rf /var/lib/apt/lists/*
@@ -34,7 +34,7 @@ RUN mvn clean package assembly:single -U -B -fae -DskipTests
 
 # ---- Final Stage ----
 # Use a slim JRE image
-FROM openjdk:8-jre-slim
+FROM eclipse-temurin:8-jre
 
 # Redeclare ARGs for this stage
 # ARG APP_DIR=/app
