@@ -1,4 +1,4 @@
-[![GitHub Actions Status](https://github.com/imazen/folioxml/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/imazen/folioxml/actions/workflows/docker-publish.yml)
+[![GitHub Actions Status](https://github.com/imazen/folioxml/actions/workflows/docker-build.yml/badge.svg)](https://github.com/imazen/folioxml/actions/workflows/docker-build.yml)
 [![Docker Hub](https://img.shields.io/docker/pulls/imazen/folioxml.svg)](https://hub.docker.com/r/imazen/folioxml/)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/imazen/folioxml?ref=main)
 
@@ -69,6 +69,8 @@ The easiest way to use FolioXML is with Docker, either locally or in a cloud env
 ## Alternative: Building the Docker Image Manually
 
 If you need to modify the FolioXML code or use a specific version, you can build the Docker image yourself instead of using the pre-built `imazen/folioxml` image.
+
+The pre-built `imazen/folioxml` image on Docker Hub was last published on 2025-04-22. CI builds the image on every push but does not publish it, so build it yourself to get later changes.
 
 1.  Clone the repository: `git clone https://github.com/imazen/folioxml.git && cd folioxml`
 2.  Build the image:
