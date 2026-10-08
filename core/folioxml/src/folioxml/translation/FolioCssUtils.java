@@ -365,8 +365,7 @@ tr	Common, align ("left" | "center" | "right" | "justify" | "char"), char (Chara
             int index = startIndex + 1;
             assert (index < opts.size()); //one argument required
             //Parse font name
-            String fontName = opts.get(index);
-            if (!fontName.matches("^[a-zA-z]+$")) fontName = "\"" + fontName + "\"";
+            String fontName = '"' + opts.get(index).replace("\"", "\\\"") + '"';
             index++;
             //Optional: Parse font type fallback
             String fallback = "";
